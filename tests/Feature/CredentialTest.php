@@ -9,6 +9,11 @@ use GuzzleHttp\Exception\GuzzleException;
 use AlibabaCloud\Credentials\Credentials;
 use AlibabaCloud\Credentials\Tests\Unit\Ini\VirtualRsaKeyPairCredential;
 
+/**
+ * Class CredentialTest
+ *
+ * @package AlibabaCloud\Credentials\Tests\Feature
+ */
 class CredentialTest extends TestCase
 {
 

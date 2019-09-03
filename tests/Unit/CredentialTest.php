@@ -266,6 +266,7 @@ class CredentialTest extends TestCase
     /**
      * @throws ReflectionException
      * @throws Exception
+     * @throws \GuzzleHttp\Exception\GuzzleException
      */
     public function testAccessKey()
     {
@@ -280,23 +281,5 @@ class CredentialTest extends TestCase
         self::assertEquals('bar', $credential->getAccessKeySecret());
         self::assertEquals($config, $credential->getConfig());
         self::assertInstanceOf(ShaHmac1Signature::class, $credential->getSignature());
-    }
-
-    /**
-     * @throws ReflectionException
-     * @throws Exception
-     * @expectedException \Error
-     * @expectedExceptionMessage Call to undefined method AlibabaCloud\Credentials\AccessKeyCredential::getSecurityToken()
-     */
-    public function testNotExistsMethod()
-    {
-        $config     = [
-            'type'              => 'access_key',
-            'access_key_id'     => 'foo',
-            'access_key_secret' => 'bar',
-        ];
-        $credential = new Credential($config);
-
-        $credential->getSecurityToken();
     }
 }

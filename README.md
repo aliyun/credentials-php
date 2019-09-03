@@ -8,7 +8,7 @@ English | [简体中文](/README-zh-CN.md)
 [![License](https://poser.pugx.org/alibabacloud/credentials/license)](https://packagist.org/packages/alibabacloud/credentials)
 [![codecov](https://codecov.io/gh/aliyun/credentials-php/branch/master/graph/badge.svg)](https://codecov.io/gh/aliyun/credentials-php)
 [![Travis Build Status](https://travis-ci.org/aliyun/credentials-php.svg?branch=master)](https://travis-ci.org/aliyun/credentials-php)
-[![Appveyor Build Status](https://ci.appveyor.com/api/projects/status/699v083woth7mj85/branch/master?svg=true)](https://ci.appveyor.com/project/aliyun/credentials-php/branch/master)
+[![Appveyor Build Status](https://ci.appveyor.com/api/projects/status/6jxpwmhyfipagtge/branch/master?svg=true)](https://ci.appveyor.com/project/aliyun/credentials-php/branch/master)
 
 
 ![](https://aliyunsdk-pages.alicdn.com/icons/AlibabaCloud.svg)

@@ -108,7 +108,7 @@ class Credential
      */
     protected function getValue(ReflectionParameter $parameter)
     {
-        if ($parameter->getType() && $parameter->getType()->getName() === 'array') {
+        if ($parameter->name === 'config' || $parameter->name === 'credential') {
             return $this->config;
         }
 
