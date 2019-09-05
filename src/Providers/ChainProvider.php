@@ -113,7 +113,10 @@ class ChainProvider
     public static function ini()
     {
         return static function () {
-            $filename = Helper::envNotEmpty('ALIBABA_CLOUD_CREDENTIALS_FILE') ?: self::getDefaultFile();
+            $filename = Helper::envNotEmpty('ALIBABA_CLOUD_CREDENTIALS_FILE');
+            if (!$filename) {
+                $filename = self::getDefaultFile();
+            }
 
             if (!Helper::inOpenBasedir($filename)) {
                 return;

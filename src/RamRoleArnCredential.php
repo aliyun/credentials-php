@@ -52,6 +52,22 @@ class RamRoleArnCredential implements CredentialsInterface
      */
     public function __construct(array $credential = [], array $config = [])
     {
+        $this->filterParameters($credential);
+
+        Filter::accessKey($credential['access_key_id'], $credential['access_key_secret']);
+
+        $this->config          = $config;
+        $this->accessKeyId     = $credential['access_key_id'];
+        $this->accessKeySecret = $credential['access_key_secret'];
+        $this->roleArn         = $credential['role_arn'];
+        $this->roleSessionName = $credential['role_session_name'];
+    }
+
+    /**
+     * @param array $credential
+     */
+    private function filterParameters(array $credential)
+    {
         if (!isset($credential['access_key_id'])) {
             throw new InvalidArgumentException('Missing required access_key_id option in config for ram_role_arn');
         }
@@ -77,14 +93,6 @@ class RamRoleArnCredential implements CredentialsInterface
                 $this->policy = json_encode($credential['policy']);
             }
         }
-
-        Filter::accessKey($credential['access_key_id'], $credential['access_key_secret']);
-
-        $this->config          = $config;
-        $this->accessKeyId     = $credential['access_key_id'];
-        $this->accessKeySecret = $credential['access_key_secret'];
-        $this->roleArn         = $credential['role_arn'];
-        $this->roleSessionName = $credential['role_session_name'];
     }
 
     /**
