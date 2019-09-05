@@ -130,7 +130,7 @@ class ChainProvider
 
             $file_array = \parse_ini_file($filename, true);
 
-            if (\is_array($file_array) && $file_array) {
+            if (\is_array($file_array) && !empty($file_array)) {
                 foreach (\array_change_key_case($file_array) as $name => $configures) {
                     Credentials::set($name, $configures);
                 }
