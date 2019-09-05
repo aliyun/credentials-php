@@ -17,9 +17,6 @@ build:
           - command: sudo o_o &
           # Make test
           - command: composer test
-            coverage:
-              file: cache/coverage.clover
-              format: clover
 
 filter:
   excluded_paths:
