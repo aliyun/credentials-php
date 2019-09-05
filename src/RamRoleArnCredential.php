@@ -53,6 +53,7 @@ class RamRoleArnCredential implements CredentialsInterface
     public function __construct(array $credential = [], array $config = [])
     {
         $this->filterParameters($credential);
+        $this->filterPolicy($credential);
 
         Filter::accessKey($credential['access_key_id'], $credential['access_key_secret']);
 
@@ -83,7 +84,13 @@ class RamRoleArnCredential implements CredentialsInterface
         if (!isset($credential['role_session_name'])) {
             throw new InvalidArgumentException('Missing required role_session_name option in config for ram_role_arn');
         }
+    }
 
+    /**
+     * @param array $credential
+     */
+    private function filterPolicy(array $credential)
+    {
         if (isset($credential['policy'])) {
             if (is_string($credential['policy'])) {
                 $this->policy = $credential['policy'];
