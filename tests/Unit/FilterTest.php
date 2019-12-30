@@ -2,10 +2,15 @@
 
 namespace AlibabaCloud\Credentials\Tests\Unit\Filter;
 
+use AlibabaCloud\Credentials\Filter;
 use Exception;
 use PHPUnit\Framework\TestCase;
-use AlibabaCloud\Credentials\Filter;
 
+/**
+ * Class FilterTest
+ *
+ * @package AlibabaCloud\Credentials\Tests\Unit\Filter
+ */
 class FilterTest extends TestCase
 {
     /**

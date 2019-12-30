@@ -2,20 +2,20 @@
 
 namespace AlibabaCloud\Credentials\Request;
 
-use Exception;
-use GuzzleHttp\Client;
-use HttpX\Tea\Response;
-use GuzzleHttp\Psr7\Uri;
-use GuzzleHttp\Middleware;
-use GuzzleHttp\HandlerStack;
-use AlibabaCloud\Credentials\Helper;
-use Psr\Http\Message\ResponseInterface;
 use AlibabaCloud\Credentials\Credentials;
-use GuzzleHttp\Exception\GuzzleException;
-use AlibabaCloud\Credentials\RamRoleArnCredential;
 use AlibabaCloud\Credentials\EcsRamRoleCredential;
+use AlibabaCloud\Credentials\Helper;
+use AlibabaCloud\Credentials\RamRoleArnCredential;
 use AlibabaCloud\Credentials\Signature\ShaHmac1Signature;
 use AlibabaCloud\Credentials\Signature\ShaHmac256WithRsaSignature;
+use Exception;
+use GuzzleHttp\Client;
+use GuzzleHttp\Exception\GuzzleException;
+use GuzzleHttp\HandlerStack;
+use GuzzleHttp\Middleware;
+use GuzzleHttp\Psr7\Uri;
+use HttpX\Tea\Response;
+use Psr\Http\Message\ResponseInterface;
 
 /**
  * RESTful RPC Request.
@@ -147,7 +147,7 @@ class Request
             $stack = HandlerStack::create();
         }
 
-        $stack->push(Middleware::mapResponse(static function (ResponseInterface $response) {
+        $stack->push(Middleware::mapResponse(static function(ResponseInterface $response) {
             return new Response($response);
         }));
 

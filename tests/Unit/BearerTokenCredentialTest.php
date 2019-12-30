@@ -2,10 +2,16 @@
 
 namespace AlibabaCloud\Credentials\Tests\Unit;
 
-use PHPUnit\Framework\TestCase;
 use AlibabaCloud\Credentials\BearerTokenCredential;
 use AlibabaCloud\Credentials\Signature\BearerTokenSignature;
+use InvalidArgumentException;
+use PHPUnit\Framework\TestCase;
 
+/**
+ * Class BearerTokenCredentialTest
+ *
+ * @package AlibabaCloud\Credentials\Tests\Unit
+ */
 class BearerTokenCredentialTest extends TestCase
 {
 

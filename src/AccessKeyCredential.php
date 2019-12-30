@@ -35,14 +35,6 @@ class AccessKeyCredential implements CredentialsInterface
     }
 
     /**
-     * @return ShaHmac1Signature
-     */
-    public function getSignature()
-    {
-        return new ShaHmac1Signature();
-    }
-
-    /**
      * @return string
      */
     public function getAccessKeyId()
@@ -64,5 +56,13 @@ class AccessKeyCredential implements CredentialsInterface
     public function __toString()
     {
         return "$this->accessKeyId#$this->accessKeySecret";
+    }
+
+    /**
+     * @return ShaHmac1Signature
+     */
+    public function getSignature()
+    {
+        return new ShaHmac1Signature();
     }
 }

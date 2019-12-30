@@ -2,11 +2,11 @@
 
 namespace AlibabaCloud\Credentials;
 
-use Exception;
-use InvalidArgumentException;
-use GuzzleHttp\Exception\GuzzleException;
-use AlibabaCloud\Credentials\Signature\ShaHmac1Signature;
 use AlibabaCloud\Credentials\Providers\RsaKeyPairProvider;
+use AlibabaCloud\Credentials\Signature\ShaHmac1Signature;
+use Exception;
+use GuzzleHttp\Exception\GuzzleException;
+use InvalidArgumentException;
 
 /**
  * Use the RSA key pair to complete the authentication (supported only on Japanese site)
@@ -51,35 +51,11 @@ class RsaKeyPairCredential implements CredentialsInterface
     }
 
     /**
-     * @return ShaHmac1Signature
-     */
-    public function getSignature()
-    {
-        return new ShaHmac1Signature();
-    }
-
-    /**
      * @return array
      */
     public function getConfig()
     {
         return $this->config;
-    }
-
-    /**
-     * @return mixed
-     */
-    public function getPrivateKey()
-    {
-        return $this->privateKey;
-    }
-
-    /**
-     * @return string
-     */
-    public function getPublicKeyId()
-    {
-        return $this->publicKeyId;
     }
 
     /**
@@ -93,9 +69,25 @@ class RsaKeyPairCredential implements CredentialsInterface
     /**
      * @return string
      */
+    public function getPublicKeyId()
+    {
+        return $this->publicKeyId;
+    }
+
+    /**
+     * @return string
+     */
     public function getOriginalAccessKeySecret()
     {
         return $this->getPrivateKey();
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getPrivateKey()
+    {
+        return $this->privateKey;
     }
 
     /**
@@ -104,6 +96,14 @@ class RsaKeyPairCredential implements CredentialsInterface
     public function __toString()
     {
         return "publicKeyId#$this->publicKeyId";
+    }
+
+    /**
+     * @return ShaHmac1Signature
+     */
+    public function getSignature()
+    {
+        return new ShaHmac1Signature();
     }
 
     /**

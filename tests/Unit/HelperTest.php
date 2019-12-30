@@ -2,12 +2,16 @@
 
 namespace AlibabaCloud\Credentials\Tests\Unit;
 
+use AlibabaCloud\Credentials\Helper;
+use PHPUnit\Framework\TestCase;
 use ReflectionClass;
 use ReflectionException;
-use PHPUnit\Framework\TestCase;
-use AlibabaCloud\Credentials\Helper;
-use AlibabaCloud\Client\Credentials\Ini\IniCredential;
 
+/**
+ * Class HelperTest
+ *
+ * @package AlibabaCloud\Credentials\Tests\Unit
+ */
 class HelperTest extends TestCase
 {
     public static function testDefault()

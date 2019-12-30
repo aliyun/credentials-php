@@ -2,12 +2,12 @@
 
 namespace AlibabaCloud\Credentials\Tests\Unit\Filter;
 
-use Exception;
-use ReflectionException;
-use PHPUnit\Framework\TestCase;
 use AlibabaCloud\Credentials\Credential;
 use AlibabaCloud\Credentials\RamRoleArnCredential;
 use AlibabaCloud\Credentials\Signature\ShaHmac1Signature;
+use Exception;
+use PHPUnit\Framework\TestCase;
+use ReflectionException;
 
 /**
  * Class CredentialTest

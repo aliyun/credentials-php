@@ -126,22 +126,6 @@ class Helper
     }
 
     /**
-     * Gets the environment's HOME directory.
-     *
-     * @return null|string
-     */
-    public static function getHomeDirectory()
-    {
-        if (getenv('HOME')) {
-            return getenv('HOME');
-        }
-
-        return (getenv('HOMEDRIVE') && getenv('HOMEPATH'))
-            ? getenv('HOMEDRIVE') . getenv('HOMEPATH')
-            : null;
-    }
-
-    /**
      * Return the default value of the given value.
      *
      * @param mixed $value
@@ -188,6 +172,22 @@ class Helper
         ];
 
         return isset($list[$key]) ? $list[$key] : $value;
+    }
+
+    /**
+     * Gets the environment's HOME directory.
+     *
+     * @return null|string
+     */
+    public static function getHomeDirectory()
+    {
+        if (getenv('HOME')) {
+            return getenv('HOME');
+        }
+
+        return (getenv('HOMEDRIVE') && getenv('HOMEPATH'))
+            ? getenv('HOMEDRIVE') . getenv('HOMEPATH')
+            : null;
     }
 
     /**

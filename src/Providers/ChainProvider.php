@@ -2,11 +2,11 @@
 
 namespace AlibabaCloud\Credentials\Providers;
 
-use Closure;
-use RuntimeException;
-use InvalidArgumentException;
-use AlibabaCloud\Credentials\Helper;
 use AlibabaCloud\Credentials\Credentials;
+use AlibabaCloud\Credentials\Helper;
+use Closure;
+use InvalidArgumentException;
+use RuntimeException;
 
 /**
  * Class ChainProvider
@@ -90,7 +90,7 @@ class ChainProvider
      */
     public static function env()
     {
-        return static function () {
+        return static function() {
             $accessKeyId     = Helper::envNotEmpty('ALIBABA_CLOUD_ACCESS_KEY_ID');
             $accessKeySecret = Helper::envNotEmpty('ALIBABA_CLOUD_ACCESS_KEY_SECRET');
 
@@ -108,11 +108,25 @@ class ChainProvider
     }
 
     /**
+     * @return string
+     */
+    public static function getDefaultName()
+    {
+        $name = Helper::envNotEmpty('ALIBABA_CLOUD_PROFILE');
+
+        if ($name) {
+            return $name;
+        }
+
+        return 'default';
+    }
+
+    /**
      * @return Closure
      */
     public static function ini()
     {
-        return static function () {
+        return static function() {
             $filename = Helper::envNotEmpty('ALIBABA_CLOUD_CREDENTIALS_FILE');
             if (!$filename) {
                 $filename = self::getDefaultFile();
@@ -157,7 +171,7 @@ class ChainProvider
      */
     public static function instance()
     {
-        return static function () {
+        return static function() {
             $instance = Helper::envNotEmpty('ALIBABA_CLOUD_ECS_METADATA');
             if ($instance) {
                 Credentials::set(
@@ -169,19 +183,5 @@ class ChainProvider
                 );
             }
         };
-    }
-
-    /**
-     * @return string
-     */
-    public static function getDefaultName()
-    {
-        $name = Helper::envNotEmpty('ALIBABA_CLOUD_PROFILE');
-
-        if ($name) {
-            return $name;
-        }
-
-        return 'default';
     }
 }

@@ -2,8 +2,8 @@
 
 namespace AlibabaCloud\Credentials\Tests\Unit\Signature;
 
-use PHPUnit\Framework\TestCase;
 use AlibabaCloud\Credentials\Signature\ShaHmac256Signature;
+use PHPUnit\Framework\TestCase;
 
 /**
  * Class ShaHmac256SignatureTest

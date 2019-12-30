@@ -2,9 +2,9 @@
 
 namespace AlibabaCloud\Credentials;
 
-use RuntimeException;
-use ReflectionException;
 use AlibabaCloud\Credentials\Providers\ChainProvider;
+use ReflectionException;
+use RuntimeException;
 
 /**
  * Class Credentials
@@ -58,6 +58,20 @@ class Credentials
         }
     }
 
+    /**
+     * Determine whether there is a credential.
+     *
+     * @param string $name
+     *
+     * @return bool
+     */
+    public static function has($name)
+    {
+        Filter::credentialName($name);
+
+        return isset(self::$credentials[\strtolower($name)]);
+    }
+
     public static function flush()
     {
         self::$credentials = [];
@@ -73,20 +87,6 @@ class Credentials
         self::load();
 
         return self::$credentials;
-    }
-
-    /**
-     * Determine whether there is a credential.
-     *
-     * @param string $name
-     *
-     * @return bool
-     */
-    public static function has($name)
-    {
-        Filter::credentialName($name);
-
-        return isset(self::$credentials[\strtolower($name)]);
     }
 
     /**

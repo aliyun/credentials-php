@@ -3,9 +3,9 @@
 namespace AlibabaCloud\Credentials\Providers;
 
 use AlibabaCloud\Credentials\CredentialsInterface;
+use AlibabaCloud\Credentials\EcsRamRoleCredential;
 use AlibabaCloud\Credentials\RamRoleArnCredential;
 use AlibabaCloud\Credentials\RsaKeyPairCredential;
-use AlibabaCloud\Credentials\EcsRamRoleCredential;
 
 abstract class Provider
 {

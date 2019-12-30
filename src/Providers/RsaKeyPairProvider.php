@@ -2,11 +2,11 @@
 
 namespace AlibabaCloud\Credentials\Providers;
 
-use Exception;
-use RuntimeException;
-use GuzzleHttp\Exception\GuzzleException;
-use AlibabaCloud\Credentials\StsCredential;
 use AlibabaCloud\Credentials\Request\GenerateSessionAccessKey;
+use AlibabaCloud\Credentials\StsCredential;
+use Exception;
+use GuzzleHttp\Exception\GuzzleException;
+use RuntimeException;
 
 /**
  * Class RsaKeyPairProvider

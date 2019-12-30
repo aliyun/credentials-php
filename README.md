@@ -26,6 +26,7 @@ If you have [Globally Install Composer](https://getcomposer.org/doc/00-intro.md#
 ```
 composer require alibabacloud/credentials
 ```
+> Some users may not be able to install due to network problems, you can switch to the [Alibaba Cloud Composer Mirror](https://developer.aliyun.com/composer).
 
 See [Installation](/docs/zh-CN/1-Installation.md) for details on installing through Composer and other means.
 
@@ -64,6 +65,9 @@ $ecsRamRole->getAccessKeyId();
 $ecsRamRole->getAccessKeySecret();
 $ecsRamRole->getSecurityToken();
 $ecsRamRole->getExpiration();
+$ecsRamRole->getRoleName();
+$ecsRamRole->getRoleNameFromMeta();
+// Note: `role_name` is optional. It will be retrieved automatically if not set. It is highly recommended to set it up to reduce requests.
 
 
 // RAM Role ARN
@@ -111,7 +115,7 @@ access_key_secret = bar            # Secret
 
 [project1]
 type = ecs_ram_role                # Authentication method is ecs_ram_role
-role_name = EcsRamRoleTest         # Role Name
+role_name = EcsRamRoleTest         # Role name, optional. It will be retrieved automatically if not set. It is highly recommended to set it up to reduce requests.
 
 [project2]
 type = ram_role_arn                # Authentication method is ram_role_arn
@@ -123,7 +127,7 @@ role_session_name = session_name
 [project3]
 type = rsa_key_pair                # Authentication method is rsa_key_pair
 public_key_id = publicKeyId        # Public Key ID
-private_key_file = /your/pk.pem    # Private Key 文件
+private_key_file = /your/pk.pem    # Private Key File
 ```
 
 ### 3. Instance RAM role

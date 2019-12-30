@@ -2,13 +2,14 @@
 
 namespace AlibabaCloud\Credentials\Providers;
 
+use AlibabaCloud\Credentials\Request\Request;
+use AlibabaCloud\Credentials\StsCredential;
 use Exception;
-use RuntimeException;
+use GuzzleHttp\Exception\GuzzleException;
 use HttpX\Tea\Response;
 use InvalidArgumentException;
-use GuzzleHttp\Exception\GuzzleException;
-use AlibabaCloud\Credentials\StsCredential;
-use AlibabaCloud\Credentials\Request\Request;
+use Psr\Http\Message\ResponseInterface;
+use RuntimeException;
 
 /**
  * Class EcsRamRoleProvider
@@ -62,7 +63,7 @@ class EcsRamRoleProvider extends Provider
     /**
      * Get credentials by request.
      *
-     * @return Response
+     * @return ResponseInterface
      * @throws Exception
      * @throws GuzzleException
      */

@@ -10,7 +10,6 @@ use AlibabaCloud\Credentials\Signature\BearerTokenSignature;
 class BearerTokenCredential implements CredentialsInterface
 {
 
-
     /**
      * @var string
      */
@@ -29,14 +28,6 @@ class BearerTokenCredential implements CredentialsInterface
     }
 
     /**
-     * @return BearerTokenSignature
-     */
-    public function getSignature()
-    {
-        return new BearerTokenSignature();
-    }
-
-    /**
      * @return string
      */
     public function getBearerToken()
@@ -50,5 +41,13 @@ class BearerTokenCredential implements CredentialsInterface
     public function __toString()
     {
         return "bearerToken#$this->bearerToken";
+    }
+
+    /**
+     * @return BearerTokenSignature
+     */
+    public function getSignature()
+    {
+        return new BearerTokenSignature();
     }
 }

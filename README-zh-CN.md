@@ -65,6 +65,9 @@ $ecsRamRole->getAccessKeyId();
 $ecsRamRole->getAccessKeySecret();
 $ecsRamRole->getSecurityToken();
 $ecsRamRole->getExpiration();
+$ecsRamRole->getRoleName();
+$ecsRamRole->getRoleNameFromMeta();
+// 注：`role_name` 非必填，不填则自动获取，建议设置，可以减少网络请求。
 
 
 // RAM Role ARN
@@ -112,7 +115,7 @@ access_key_secret = bar            # Secret
 
 [project1]
 type = ecs_ram_role                # 认证方式为 ecs_ram_role
-role_name = EcsRamRoleTest         # Role Name
+role_name = EcsRamRoleTest         # Role Name，非必填，不填则自动获取，建议设置，可以减少网络请求。
 
 [project2]
 type = ram_role_arn                # 认证方式为 ram_role_arn
