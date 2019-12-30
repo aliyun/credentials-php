@@ -2,9 +2,9 @@
 
 namespace AlibabaCloud\Credentials\Tests\Unit;
 
-use PHPUnit\Framework\TestCase;
-use AlibabaCloud\Credentials\StsCredential;
 use AlibabaCloud\Credentials\Signature\ShaHmac1Signature;
+use AlibabaCloud\Credentials\StsCredential;
+use PHPUnit\Framework\TestCase;
 
 class StsCredentialTest extends TestCase
 {

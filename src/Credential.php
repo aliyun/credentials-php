@@ -2,10 +2,10 @@
 
 namespace AlibabaCloud\Credentials;
 
-use ReflectionClass;
-use ReflectionParameter;
-use ReflectionException;
 use InvalidArgumentException;
+use ReflectionClass;
+use ReflectionException;
+use ReflectionParameter;
 
 /**
  * Class Credential
@@ -64,14 +64,6 @@ class Credential
     }
 
     /**
-     * @return AccessKeyCredential|BearerTokenCredential|EcsRamRoleCredential|RamRoleArnCredential|RsaKeyPairCredential
-     */
-    public function getCredential()
-    {
-        return $this->credential;
-    }
-
-    /**
      * @throws ReflectionException
      */
     private function parseConfig()
@@ -123,6 +115,14 @@ class Credential
         }
 
         throw new InvalidArgumentException("Missing required {$parameter->name} option in config for {$this->type}");
+    }
+
+    /**
+     * @return AccessKeyCredential|BearerTokenCredential|EcsRamRoleCredential|RamRoleArnCredential|RsaKeyPairCredential
+     */
+    public function getCredential()
+    {
+        return $this->credential;
     }
 
     /**

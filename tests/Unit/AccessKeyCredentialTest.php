@@ -2,10 +2,15 @@
 
 namespace AlibabaCloud\Credentials\Tests\Unit;
 
-use PHPUnit\Framework\TestCase;
 use AlibabaCloud\Credentials\AccessKeyCredential;
 use AlibabaCloud\Credentials\Signature\ShaHmac1Signature;
+use PHPUnit\Framework\TestCase;
 
+/**
+ * Class AccessKeyCredentialTest
+ *
+ * @package AlibabaCloud\Credentials\Tests\Unit
+ */
 class AccessKeyCredentialTest extends TestCase
 {
     public function testConstruct()

@@ -82,12 +82,14 @@ class Filter
     }
 
     /**
-     * @param $role_name
-     *
-     * @return string
+     * @param string|null $role_name
      */
     public static function roleName($role_name)
     {
+        if ($role_name === null) {
+            return;
+        }
+
         if (!is_string($role_name)) {
             throw new InvalidArgumentException('role_name must be a string');
         }
@@ -95,8 +97,6 @@ class Filter
         if ($role_name === '') {
             throw new InvalidArgumentException('role_name cannot be empty');
         }
-
-        return $role_name;
     }
 
     /**

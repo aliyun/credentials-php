@@ -49,14 +49,6 @@ class StsCredential implements CredentialsInterface
     }
 
     /**
-     * @return ShaHmac1Signature
-     */
-    public function getSignature()
-    {
-        return new ShaHmac1Signature();
-    }
-
-    /**
      * @return int
      */
     public function getExpiration()
@@ -94,5 +86,13 @@ class StsCredential implements CredentialsInterface
     public function __toString()
     {
         return "$this->accessKeyId#$this->accessKeySecret#$this->securityToken";
+    }
+
+    /**
+     * @return ShaHmac1Signature
+     */
+    public function getSignature()
+    {
+        return new ShaHmac1Signature();
     }
 }

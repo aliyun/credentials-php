@@ -2,11 +2,11 @@
 
 namespace AlibabaCloud\Credentials\Tests\Unit;
 
-use Exception;
-use PHPUnit\Framework\TestCase;
 use AlibabaCloud\Credentials\Credentials;
 use AlibabaCloud\Credentials\RamRoleArnCredential;
 use AlibabaCloud\Credentials\Signature\ShaHmac1Signature;
+use Exception;
+use PHPUnit\Framework\TestCase;
 
 class RamRoleArnCredentialTest extends TestCase
 {
@@ -15,19 +15,6 @@ class RamRoleArnCredentialTest extends TestCase
      * @var RamRoleArnCredential
      */
     protected $credential;
-
-    protected function setUp()
-    {
-        // Setup
-        Credentials::cancelMock();
-        $this->credential = new  RamRoleArnCredential([
-                                                          'access_key_id'     => 'access_key_id',
-                                                          'access_key_secret' => 'access_key_secret',
-                                                          'role_arn'          => 'role_arn',
-                                                          'role_session_name' => 'role_session_name',
-                                                          'policy'            => '',
-                                                      ]);
-    }
 
     public function testConstruct()
     {
@@ -166,5 +153,18 @@ class RamRoleArnCredentialTest extends TestCase
                                      'role_session_name' => 'role_session_name',
                                      'policy'            => '',
                                  ]);
+    }
+
+    protected function setUp()
+    {
+        // Setup
+        Credentials::cancelMock();
+        $this->credential = new  RamRoleArnCredential([
+                                                          'access_key_id'     => 'access_key_id',
+                                                          'access_key_secret' => 'access_key_secret',
+                                                          'role_arn'          => 'role_arn',
+                                                          'role_session_name' => 'role_session_name',
+                                                          'policy'            => '',
+                                                      ]);
     }
 }

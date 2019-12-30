@@ -2,10 +2,13 @@
 
 namespace AlibabaCloud\Credentials;
 
+use AlibabaCloud\Credentials\Providers\EcsRamRoleProvider;
+use AlibabaCloud\Credentials\Request\Request;
+use AlibabaCloud\Credentials\Signature\ShaHmac1Signature;
 use Exception;
 use GuzzleHttp\Exception\GuzzleException;
-use AlibabaCloud\Credentials\Signature\ShaHmac1Signature;
-use AlibabaCloud\Credentials\Providers\EcsRamRoleProvider;
+use InvalidArgumentException;
+use RuntimeException;
 
 /**
  * Use the RAM role of an ECS instance to complete the authentication.
@@ -23,7 +26,7 @@ class EcsRamRoleCredential implements CredentialsInterface
      *
      * @param $role_name
      */
-    public function __construct($role_name)
+    public function __construct($role_name = null)
     {
         Filter::roleName($role_name);
 
@@ -31,19 +34,53 @@ class EcsRamRoleCredential implements CredentialsInterface
     }
 
     /**
-     * @return ShaHmac1Signature
+     * @return string
+     * @throws GuzzleException
+     * @throws Exception
      */
-    public function getSignature()
+    public function getRoleName()
     {
-        return new ShaHmac1Signature();
+        if ($this->roleName !== null) {
+            return $this->roleName;
+        }
+
+        $this->roleName = $this->getRoleNameFromMeta();
+
+        return $this->roleName;
     }
 
     /**
      * @return string
+     * @throws Exception
      */
-    public function getRoleName()
+    public function getRoleNameFromMeta()
     {
-        return $this->roleName;
+        $options = [
+            'http_errors'     => false,
+            'timeout'         => 1,
+            'connect_timeout' => 1,
+        ];
+
+        $result = Request::createClient()->request(
+            'GET',
+            'http://100.100.100.200/latest/meta-data/ram/security-credentials/',
+            $options
+        );
+
+        if ($result->getStatusCode() === 404) {
+            throw new InvalidArgumentException('The role name was not found in the instance');
+        }
+
+        if ($result->getStatusCode() !== 200) {
+            throw new RuntimeException('Error retrieving credentials from result: ' . $result->getBody());
+        }
+
+        $role_name = (string)$result;
+        if (!$role_name) {
+            throw new RuntimeException('Error retrieving credentials from result is empty');
+        }
+
+        return $role_name;
     }
 
     /**
@@ -52,6 +89,14 @@ class EcsRamRoleCredential implements CredentialsInterface
     public function __toString()
     {
         return "roleName#$this->roleName";
+    }
+
+    /**
+     * @return ShaHmac1Signature
+     */
+    public function getSignature()
+    {
+        return new ShaHmac1Signature();
     }
 
     /**

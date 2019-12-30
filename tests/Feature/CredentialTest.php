@@ -2,12 +2,12 @@
 
 namespace AlibabaCloud\Credentials\Tests\Feature;
 
-use ReflectionException;
-use PHPUnit\Framework\TestCase;
 use AlibabaCloud\Credentials\Credential;
-use GuzzleHttp\Exception\GuzzleException;
 use AlibabaCloud\Credentials\Credentials;
 use AlibabaCloud\Credentials\Tests\Unit\Ini\VirtualRsaKeyPairCredential;
+use GuzzleHttp\Exception\GuzzleException;
+use PHPUnit\Framework\TestCase;
+use ReflectionException;
 
 /**
  * Class CredentialTest

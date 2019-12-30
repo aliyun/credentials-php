@@ -2,20 +2,18 @@
 
 namespace AlibabaCloud\Credentials\Tests\Unit\Filter;
 
-use PHPUnit\Framework\TestCase;
 use AlibabaCloud\Credentials\Helper;
 use AlibabaCloud\Credentials\Providers\ChainProvider;
 use AlibabaCloud\Credentials\Tests\Unit\Ini\VirtualAccessKeyCredential;
+use PHPUnit\Framework\TestCase;
 
+/**
+ * Class ChainProviderTest
+ *
+ * @package AlibabaCloud\Credentials\Tests\Unit\Filter
+ */
 class ChainProviderTest extends TestCase
 {
-    protected function setUp()
-    {
-        parent::setUp();
-        putenv('ALIBABA_CLOUD_ACCESS_KEY_ID=foo');
-        putenv('ALIBABA_CLOUD_ACCESS_KEY_SECRET=bar');
-    }
-
     /**
      * @expectedException \InvalidArgumentException
      * @expectedExceptionMessage No providers in chain
@@ -34,6 +32,20 @@ class ChainProviderTest extends TestCase
         );
         self::assertTrue(ChainProvider::hasCustomChain());
         ChainProvider::customProvider(ChainProvider::getDefaultName());
+    }
+
+    public function testSetIniEmpty()
+    {
+        try {
+            putenv('ALIBABA_CLOUD_CREDENTIALS_FILE=');
+            ChainProvider::set(
+                ChainProvider::ini()
+            );
+            self::assertTrue(ChainProvider::hasCustomChain());
+            ChainProvider::customProvider(ChainProvider::getDefaultName());
+        } catch (\Exception $exception) {
+            self::assertRegExp('/No such file or directory/', $exception->getMessage());
+        }
     }
 
     /**
@@ -113,5 +125,12 @@ class ChainProviderTest extends TestCase
             'default',
             ChainProvider::getDefaultName()
         );
+    }
+
+    protected function setUp()
+    {
+        parent::setUp();
+        putenv('ALIBABA_CLOUD_ACCESS_KEY_ID=foo');
+        putenv('ALIBABA_CLOUD_ACCESS_KEY_SECRET=bar');
     }
 }

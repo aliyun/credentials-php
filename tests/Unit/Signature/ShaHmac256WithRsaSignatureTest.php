@@ -2,9 +2,9 @@
 
 namespace AlibabaCloud\Credentials\Tests\Unit\Signature;
 
-use PHPUnit\Framework\TestCase;
 use AlibabaCloud\Credentials\Signature\ShaHmac256WithRsaSignature;
 use AlibabaCloud\Credentials\Tests\Unit\Ini\VirtualRsaKeyPairCredential;
+use PHPUnit\Framework\TestCase;
 
 /**
  * Class ShaHmac256WithRsaSignatureTest

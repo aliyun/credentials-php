@@ -2,11 +2,16 @@
 
 namespace AlibabaCloud\Credentials\Tests\Unit\Filter;
 
-use ReflectionException;
-use PHPUnit\Framework\TestCase;
 use AlibabaCloud\Credentials\Credentials;
 use AlibabaCloud\Credentials\Providers\ChainProvider;
+use PHPUnit\Framework\TestCase;
+use ReflectionException;
 
+/**
+ * Class CredentialsTest
+ *
+ * @package AlibabaCloud\Credentials\Tests\Unit\Filter
+ */
 class CredentialsTest extends TestCase
 {
     public function testALL()

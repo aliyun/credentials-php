@@ -3,11 +3,11 @@
 namespace AlibabaCloud\Credentials;
 
 use Exception;
-use GuzzleHttp\Psr7\Response;
+use GuzzleHttp\Exception\RequestException;
 use GuzzleHttp\Handler\MockHandler;
+use GuzzleHttp\Psr7\Response;
 use Psr\Http\Message\RequestInterface;
 use Psr\Http\Message\ResponseInterface;
-use GuzzleHttp\Exception\RequestException;
 
 /**
  * Trait MockTrait
@@ -59,7 +59,8 @@ trait MockTrait
         ResponseInterface $response = null,
         Exception $previous = null,
         array $handlerContext = []
-    ) {
+    )
+    {
         self::$mockQueue[] = new RequestException(
             $message,
             $request,

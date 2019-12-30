@@ -2,11 +2,11 @@
 
 namespace AlibabaCloud\Credentials;
 
-use Exception;
-use InvalidArgumentException;
-use GuzzleHttp\Exception\GuzzleException;
-use AlibabaCloud\Credentials\Signature\ShaHmac1Signature;
 use AlibabaCloud\Credentials\Providers\RamRoleArnProvider;
+use AlibabaCloud\Credentials\Signature\ShaHmac1Signature;
+use Exception;
+use GuzzleHttp\Exception\GuzzleException;
+use InvalidArgumentException;
 
 /**
  * Use the AssumeRole of the RAM account to complete  the authentication.
@@ -103,14 +103,6 @@ class RamRoleArnCredential implements CredentialsInterface
     }
 
     /**
-     * @return ShaHmac1Signature
-     */
-    public function getSignature()
-    {
-        return new ShaHmac1Signature();
-    }
-
-    /**
      * @return array
      */
     public function getConfig()
@@ -151,13 +143,11 @@ class RamRoleArnCredential implements CredentialsInterface
     }
 
     /**
-     * @return StsCredential
-     * @throws Exception
-     * @throws GuzzleException
+     * @return ShaHmac1Signature
      */
-    protected function getSessionCredential()
+    public function getSignature()
     {
-        return (new RamRoleArnProvider($this))->get();
+        return new ShaHmac1Signature();
     }
 
     /**
@@ -184,6 +174,16 @@ class RamRoleArnCredential implements CredentialsInterface
     public function getAccessKeyId()
     {
         return $this->getSessionCredential()->getAccessKeyId();
+    }
+
+    /**
+     * @return StsCredential
+     * @throws Exception
+     * @throws GuzzleException
+     */
+    protected function getSessionCredential()
+    {
+        return (new RamRoleArnProvider($this))->get();
     }
 
     /**

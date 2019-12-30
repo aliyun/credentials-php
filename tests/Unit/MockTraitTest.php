@@ -2,11 +2,16 @@
 
 namespace AlibabaCloud\Credentials\Tests\Unit;
 
-use GuzzleHttp\Psr7\Request;
-use PHPUnit\Framework\TestCase;
 use AlibabaCloud\Credentials\Credentials;
 use AlibabaCloud\Credentials\RamRoleArnCredential;
+use GuzzleHttp\Psr7\Request;
+use PHPUnit\Framework\TestCase;
 
+/**
+ * Class MockTraitTest
+ *
+ * @package AlibabaCloud\Credentials\Tests\Unit
+ */
 class MockTraitTest extends TestCase
 {
 

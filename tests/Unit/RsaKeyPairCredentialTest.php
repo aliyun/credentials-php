@@ -2,14 +2,14 @@
 
 namespace AlibabaCloud\Credentials\Tests\Unit;
 
-use Exception;
-use PHPUnit\Framework\TestCase;
-use AlibabaCloud\Credentials\Helper;
 use AlibabaCloud\Credentials\Credentials;
-use GuzzleHttp\Exception\GuzzleException;
+use AlibabaCloud\Credentials\Helper;
 use AlibabaCloud\Credentials\RsaKeyPairCredential;
 use AlibabaCloud\Credentials\Signature\ShaHmac1Signature;
 use AlibabaCloud\Credentials\Tests\Unit\Ini\VirtualRsaKeyPairCredential;
+use Exception;
+use GuzzleHttp\Exception\GuzzleException;
+use PHPUnit\Framework\TestCase;
 
 class RsaKeyPairCredentialTest extends TestCase
 {
@@ -18,17 +18,50 @@ class RsaKeyPairCredentialTest extends TestCase
      */
     protected $credential;
 
-    protected function setUp()
+    public static function testNotFoundFile()
     {
         // Setup
-        Credentials::cancelMock();
+        $publicKeyId = 'PUBLIC_KEY_ID';
 
-        // Setup
-        $publicKeyId    = 'public_key_id';
-        $privateKeyFile = VirtualRsaKeyPairCredential::privateKeyFileUrl();
+        if (Helper::isWindows()) {
+            $privateKeyFile = 'C:\\projects\\no.no';
+        } else {
+            $privateKeyFile = '/a/b/no.no';
+        }
 
         // Test
-        $this->credential = new RsaKeyPairCredential($publicKeyId, $privateKeyFile);
+        try {
+            new RsaKeyPairCredential($publicKeyId, $privateKeyFile);
+        } catch (Exception $e) {
+            self::assertEquals(
+                "file_get_contents($privateKeyFile): failed to open stream: No such file or directory",
+                $e->getMessage()
+            );
+        }
+    }
+
+    public static function testOpenBasedirException()
+    {
+        // Setup
+        $publicKeyId = 'PUBLIC_KEY_ID';
+        if (Helper::isWindows()) {
+            $dirs           = 'C:\\projects;C:\\Users';
+            $privateKeyFile = 'C:\\AlibabaCloud\\no.no';
+        } else {
+            $dirs           = 'vfs://AlibabaCloud:/home:/Users:/private:/a/b';
+            $privateKeyFile = '/dev/no.no';
+        }
+
+        // Test
+        ini_set('open_basedir', $dirs);
+        try {
+            new RsaKeyPairCredential($publicKeyId, $privateKeyFile);
+        } catch (Exception $e) {
+            self::assertEquals(
+                "file_get_contents(): open_basedir restriction in effect. File($privateKeyFile) is not within the allowed path(s): ($dirs)",
+                $e->getMessage()
+            );
+        }
     }
 
     public function testConstruct()
@@ -100,52 +133,6 @@ class RsaKeyPairCredentialTest extends TestCase
         self::assertEquals('TMPSK.**************', $credential->getAccessKeyId());
     }
 
-    public static function testNotFoundFile()
-    {
-        // Setup
-        $publicKeyId = 'PUBLIC_KEY_ID';
-
-        if (Helper::isWindows()) {
-            $privateKeyFile = 'C:\\projects\\no.no';
-        } else {
-            $privateKeyFile = '/a/b/no.no';
-        }
-
-        // Test
-        try {
-            new RsaKeyPairCredential($publicKeyId, $privateKeyFile);
-        } catch (Exception $e) {
-            self::assertEquals(
-                "file_get_contents($privateKeyFile): failed to open stream: No such file or directory",
-                $e->getMessage()
-            );
-        }
-    }
-
-    public static function testOpenBasedirException()
-    {
-        // Setup
-        $publicKeyId = 'PUBLIC_KEY_ID';
-        if (Helper::isWindows()) {
-            $dirs           = 'C:\\projects;C:\\Users';
-            $privateKeyFile = 'C:\\AlibabaCloud\\no.no';
-        } else {
-            $dirs           = 'vfs://AlibabaCloud:/home:/Users:/private:/a/b';
-            $privateKeyFile = '/dev/no.no';
-        }
-
-        // Test
-        ini_set('open_basedir', $dirs);
-        try {
-            new RsaKeyPairCredential($publicKeyId, $privateKeyFile);
-        } catch (Exception $e) {
-            self::assertEquals(
-                "file_get_contents(): open_basedir restriction in effect. File($privateKeyFile) is not within the allowed path(s): ($dirs)",
-                $e->getMessage()
-            );
-        }
-    }
-
     /**
      * @expectedException \InvalidArgumentException
      * @expectedExceptionMessage public_key_id cannot be empty
@@ -200,5 +187,18 @@ class RsaKeyPairCredentialTest extends TestCase
 
         // Test
         new RsaKeyPairCredential($publicKeyId, $privateKeyFile);
+    }
+
+    protected function setUp()
+    {
+        // Setup
+        Credentials::cancelMock();
+
+        // Setup
+        $publicKeyId    = 'public_key_id';
+        $privateKeyFile = VirtualRsaKeyPairCredential::privateKeyFileUrl();
+
+        // Test
+        $this->credential = new RsaKeyPairCredential($publicKeyId, $privateKeyFile);
     }
 }
