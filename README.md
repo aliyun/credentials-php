@@ -176,7 +176,7 @@ Please read the [Contribution Guide](/CONTRIBUTING.md) before submitting a Pull 
 ## License
 [Apache-2.0](/LICENSE.md)
 
-Copyright 1999-2019 Alibaba Group
+Copyright (c) 2009-present, Alibaba Cloud All rights reserved.
 
 
 [open-api]: https://api.aliyun.com
