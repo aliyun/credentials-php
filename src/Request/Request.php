@@ -14,7 +14,7 @@ use GuzzleHttp\Exception\GuzzleException;
 use GuzzleHttp\HandlerStack;
 use GuzzleHttp\Middleware;
 use GuzzleHttp\Psr7\Uri;
-use HttpX\Tea\Response;
+use AlibabaCloud\Tea\Response;
 use Psr\Http\Message\ResponseInterface;
 
 /**
