@@ -54,7 +54,7 @@ class EcsRamRoleCredentialTest extends TestCase
     {
         $this->credential = new EcsRamRoleCredential();
         $result           = [
-            'Expiration'      => '2020-02-02 11:11:11',
+            'Expiration'      => '2049-10-01 00:00:00',
             'AccessKeyId'     => 'foo',
             'AccessKeySecret' => 'bar',
             'SecurityToken'   => 'token',
@@ -65,7 +65,7 @@ class EcsRamRoleCredentialTest extends TestCase
         self::assertEquals('foo', $this->credential->getAccessKeyId());
         self::assertEquals('bar', $this->credential->getAccessKeySecret());
         self::assertEquals('token', $this->credential->getSecurityToken());
-        self::assertEquals(strtotime('2020-02-02 11:11:11'), $this->credential->getExpiration());
+        self::assertEquals(strtotime('2049-10-01 00:00:00'), $this->credential->getExpiration());
     }
 
     /**
@@ -119,7 +119,7 @@ class EcsRamRoleCredentialTest extends TestCase
     public function testSts()
     {
         $result = [
-            'Expiration'      => '2020-02-02 11:11:11',
+            'Expiration'      => '2049-10-01 00:00:00',
             'AccessKeyId'     => 'foo',
             'AccessKeySecret' => 'bar',
             'SecurityToken'   => 'token',
@@ -129,7 +129,7 @@ class EcsRamRoleCredentialTest extends TestCase
         self::assertEquals('foo', $this->credential->getAccessKeyId());
         self::assertEquals('bar', $this->credential->getAccessKeySecret());
         self::assertEquals('token', $this->credential->getSecurityToken());
-        self::assertEquals(strtotime('2020-02-02 11:11:11'), $this->credential->getExpiration());
+        self::assertEquals(strtotime('2049-10-01 00:00:00'), $this->credential->getExpiration());
     }
 
     /**
@@ -141,7 +141,7 @@ class EcsRamRoleCredentialTest extends TestCase
     public function testStsIncomplete()
     {
         $result     = [
-            'Expiration'  => '2020-02-02 11:11:11',
+            'Expiration'  => '2049-10-01 00:00:00',
             'AccessKeyId' => 'foo',
         ];
         $credential = new EcsRamRoleCredential('EcsRamRoleTest2');
@@ -160,7 +160,7 @@ class EcsRamRoleCredentialTest extends TestCase
     public function testSts404()
     {
         $result     = [
-            'Expiration'  => '2020-02-02 11:11:11',
+            'Expiration'  => '2049-10-01 00:00:00',
             'AccessKeyId' => 'foo',
         ];
         $credential = new EcsRamRoleCredential('EcsRamRoleTest3');
@@ -179,7 +179,7 @@ class EcsRamRoleCredentialTest extends TestCase
     public function testSts500()
     {
         $result = [
-            'Expiration'  => '2020-02-02 11:11:11',
+            'Expiration'  => '2049-10-01 00:00:00',
             'AccessKeyId' => 'foo',
         ];
 

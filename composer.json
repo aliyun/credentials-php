@@ -40,7 +40,7 @@
         "mtdowling/jmespath.php": "^2.4",
         "adbario/php-dot-notation": "^2.2",
         "clagiordano/weblibs-configmanager": "^1.0",
-        "httpx/tea": "^2.0"
+        "alibabacloud/tea": "^3.0"
     },
     "require-dev": {
         "ext-spl": "*",

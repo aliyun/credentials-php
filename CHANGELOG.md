@@ -1,5 +1,8 @@
 # CHANGELOG
 
+## 1.0.2 - 2020-02-14
+- Update Tea.
+
 ## 1.0.1 - 2019-12-30
 - Supported get `Role Name` automatically.
 

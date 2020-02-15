@@ -6,7 +6,7 @@ use AlibabaCloud\Credentials\Request\Request;
 use AlibabaCloud\Credentials\StsCredential;
 use Exception;
 use GuzzleHttp\Exception\GuzzleException;
-use HttpX\Tea\Response;
+use AlibabaCloud\Tea\Response;
 use InvalidArgumentException;
 use Psr\Http\Message\ResponseInterface;
 use RuntimeException;
