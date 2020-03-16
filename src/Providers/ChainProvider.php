@@ -90,7 +90,7 @@ class ChainProvider
      */
     public static function env()
     {
-        return static function() {
+        return static function () {
             $accessKeyId     = Helper::envNotEmpty('ALIBABA_CLOUD_ACCESS_KEY_ID');
             $accessKeySecret = Helper::envNotEmpty('ALIBABA_CLOUD_ACCESS_KEY_SECRET');
 
@@ -126,7 +126,7 @@ class ChainProvider
      */
     public static function ini()
     {
-        return static function() {
+        return static function () {
             $filename = Helper::envNotEmpty('ALIBABA_CLOUD_CREDENTIALS_FILE');
             if (!$filename) {
                 $filename = self::getDefaultFile();
@@ -171,7 +171,7 @@ class ChainProvider
      */
     public static function instance()
     {
-        return static function() {
+        return static function () {
             $instance = Helper::envNotEmpty('ALIBABA_CLOUD_ECS_METADATA');
             if ($instance) {
                 Credentials::set(

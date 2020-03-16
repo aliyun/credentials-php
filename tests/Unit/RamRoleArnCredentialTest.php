@@ -29,12 +29,12 @@ class RamRoleArnCredentialTest extends TestCase
 
         // Test
         $credential = new RamRoleArnCredential([
-                                                   'access_key_id'     => 'access_key_id',
-                                                   'access_key_secret' => 'access_key_secret',
-                                                   'role_arn'          => 'role_arn',
-                                                   'role_session_name' => 'role_session_name',
-                                                   'policy'            => '',
-                                               ]);
+            'access_key_id'     => 'access_key_id',
+            'access_key_secret' => 'access_key_secret',
+            'role_arn'          => 'role_arn',
+            'role_session_name' => 'role_session_name',
+            'policy'            => '',
+        ]);
 
         // Assert
         $this->assertEquals($arn, $credential->getRoleArn());
@@ -72,14 +72,16 @@ class RamRoleArnCredentialTest extends TestCase
     }
 }';
         Credentials::mockResponse(200, [], $result);
-
+        Credentials::mockResponse(200, [], $result);
+        Credentials::mockResponse(200, [], $result);
+        Credentials::mockResponse(200, [], $result);
         $credential = new RamRoleArnCredential([
-                                                   'access_key_id'     => 'access_key_id',
-                                                   'access_key_secret' => 'access_key_secret',
-                                                   'role_arn'          => 'role_arn',
-                                                   'role_session_name' => 'role_session_name',
-                                                   'policy'            => [],
-                                               ]);
+            'access_key_id'     => 'access_key_id',
+            'access_key_secret' => 'access_key_secret',
+            'role_arn'          => 'role_arn',
+            'role_session_name' => 'role_session_name',
+            'policy'            => [],
+        ]);
 
         self::assertEquals('STS.**************', $credential->getAccessKeyId());
         self::assertEquals('********************', $credential->getAccessKeySecret());
@@ -111,12 +113,12 @@ class RamRoleArnCredentialTest extends TestCase
 }';
         Credentials::mockResponse(200, [], $result);
         $credential = new RamRoleArnCredential([
-                                                   'access_key_id'     => 'access_key_id2',
-                                                   'access_key_secret' => 'access_key_secret2',
-                                                   'role_arn'          => 'role_arn2',
-                                                   'role_session_name' => 'role_session_name2',
-                                                   'policy'            => '',
-                                               ]);
+            'access_key_id'     => 'access_key_id2',
+            'access_key_secret' => 'access_key_secret2',
+            'role_arn'          => 'role_arn2',
+            'role_session_name' => 'role_session_name2',
+            'policy'            => '',
+        ]);
 
         // Test
         self::assertEquals('TMPSK.**************', $credential->getAccessKeyId());
@@ -131,12 +133,12 @@ class RamRoleArnCredentialTest extends TestCase
 
         // Test
         new RamRoleArnCredential([
-                                     'access_key_id'     => '',
-                                     'access_key_secret' => 'access_key_secret',
-                                     'role_arn'          => 'role_arn',
-                                     'role_session_name' => 'role_session_name',
-                                     'policy'            => '',
-                                 ]);
+            'access_key_id'     => '',
+            'access_key_secret' => 'access_key_secret',
+            'role_arn'          => 'role_arn',
+            'role_session_name' => 'role_session_name',
+            'policy'            => '',
+        ]);
     }
 
     /**
@@ -147,12 +149,12 @@ class RamRoleArnCredentialTest extends TestCase
     {
         // Test
         new RamRoleArnCredential([
-                                     'access_key_id'     => 'access_key_id',
-                                     'access_key_secret' => null,
-                                     'role_arn'          => 'role_arn',
-                                     'role_session_name' => 'role_session_name',
-                                     'policy'            => '',
-                                 ]);
+            'access_key_id'     => 'access_key_id',
+            'access_key_secret' => null,
+            'role_arn'          => 'role_arn',
+            'role_session_name' => 'role_session_name',
+            'policy'            => '',
+        ]);
     }
 
     protected function setUp()
@@ -160,11 +162,11 @@ class RamRoleArnCredentialTest extends TestCase
         // Setup
         Credentials::cancelMock();
         $this->credential = new  RamRoleArnCredential([
-                                                          'access_key_id'     => 'access_key_id',
-                                                          'access_key_secret' => 'access_key_secret',
-                                                          'role_arn'          => 'role_arn',
-                                                          'role_session_name' => 'role_session_name',
-                                                          'policy'            => '',
-                                                      ]);
+            'access_key_id'     => 'access_key_id',
+            'access_key_secret' => 'access_key_secret',
+            'role_arn'          => 'role_arn',
+            'role_session_name' => 'role_session_name',
+            'policy'            => '',
+        ]);
     }
 }

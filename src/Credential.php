@@ -2,6 +2,7 @@
 
 namespace AlibabaCloud\Credentials;
 
+use AlibabaCloud\Credentials\Credential\Config;
 use InvalidArgumentException;
 use ReflectionClass;
 use ReflectionException;
@@ -49,18 +50,44 @@ class Credential
     /**
      * Credential constructor.
      *
-     * @param array $config
+     * @param array|Config $config
      *
      * @throws ReflectionException
      */
-    public function __construct(array $config = [])
+    public function __construct($config = [])
     {
+        if ($config instanceof Config) {
+            $config = $this->parse($config);
+        }
         if ($config !== []) {
             $this->config = array_change_key_case($config);
             $this->parseConfig();
         } else {
             $this->credential = Credentials::get()->getCredential();
         }
+    }
+
+    /**
+     * @param Config $config
+     *
+     * @return array
+     */
+    private function parse($config)
+    {
+        $config = get_object_vars($config);
+        $res    = [];
+        foreach ($config as $key => $value) {
+            $res[$this->toUnderScore($key)] = $value;
+        }
+        return $res;
+    }
+
+    private function toUnderScore($str)
+    {
+        $dstr = preg_replace_callback('/([A-Z]+)/', function ($matchs) {
+            return '_' . strtolower($matchs[0]);
+        }, $str);
+        return trim(preg_replace('/_{2,}/', '_', $dstr), '_');
     }
 
     /**
@@ -95,7 +122,7 @@ class Credential
     /**
      * @param ReflectionParameter $parameter
      *
-     * @return string
+     * @return string|array
      * @throws ReflectionException
      */
     protected function getValue(ReflectionParameter $parameter)
