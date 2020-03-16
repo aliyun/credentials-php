@@ -30,12 +30,8 @@ install:
   - echo extension=php_curl.dll >> C:\tools\phpci\php\php.ini
   - cd %APPVEYOR_BUILD_FOLDER%
   - composer install --prefer-dist --no-progress
-  # Install Proxy
-  - npm install o_o -g
 
 test_script:
-  # Start Proxy
-  - ps: Start-Process -FilePath o_o -NoNewWindow
   # Test
   - cd %APPVEYOR_BUILD_FOLDER%
-  - vendor\bin\phpunit --colors=always
+  - IF NOT DEFINED ACCESS_KEY_ID (vendor\bin\phpunit --colors=always --testsuite=Unit) ELSE (vendor\bin\phpunit --colors=always)

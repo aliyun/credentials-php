@@ -4,6 +4,7 @@ namespace AlibabaCloud\Credentials\Tests\Feature;
 
 use AlibabaCloud\Credentials\Credential;
 use AlibabaCloud\Credentials\Credentials;
+use AlibabaCloud\Credentials\Tests\Helper;
 use AlibabaCloud\Credentials\Tests\Unit\Ini\VirtualRsaKeyPairCredential;
 use GuzzleHttp\Exception\GuzzleException;
 use PHPUnit\Framework\TestCase;
@@ -23,11 +24,12 @@ class CredentialTest extends TestCase
      */
     public function testAccessKey()
     {
-        $credential = new Credential([
-                                         'type'              => 'access_key',
-                                         'access_key_id'     => 'foo',
-                                         'access_key_secret' => 'bar',
-                                     ]);
+        $config     = new Credential\Config([
+            'type'            => 'access_key',
+            'accessKeyId'     => 'foo',
+            'accessKeySecret' => 'bar',
+        ]);
+        $credential = new Credential($config);
 
         // Assert
         $this->assertEquals('foo', $credential->getAccessKeyId());
@@ -42,10 +44,11 @@ class CredentialTest extends TestCase
      */
     public function testEcsRamRoleCredential()
     {
-        $credential = new Credential([
-                                         'type'      => 'ecs_ram_role',
-                                         'role_name' => 'foo',
-                                     ]);
+        $config     = new Credential\Config([
+            'type'     => 'ecs_ram_role',
+            'roleName' => 'foo',
+        ]);
+        $credential = new Credential($config);
 
         // Assert
         $this->assertEquals('foo', $credential->getRoleName());
@@ -61,14 +64,16 @@ class CredentialTest extends TestCase
     public function testRamRoleArnCredential()
     {
         Credentials::cancelMock();
-        $credential = new Credential([
-                                         'type'              => 'ram_role_arn',
-                                         'access_key_id'     => getenv('ACCESS_KEY_ID'),
-                                         'access_key_secret' => getenv('ACCESS_KEY_SECRET'),
-                                         'role_arn'          => getenv('ROLE_ARN'),
-                                         'role_session_name' => 'role_session_name',
-                                         'policy'            => '',
-                                     ]);
+        $config = new Credential\Config([
+            'type'            => 'ram_role_arn',
+            'accessKeyId'     => Helper::getEnvironment('ACCESS_KEY_ID'),
+            'accessKeySecret' => Helper::getEnvironment('ACCESS_KEY_SECRET'),
+            'roleArn'         => Helper::getEnvironment('ROLE_ARN'),
+            'roleSessionName' => 'role_session_name',
+            'policy'          => '',
+        ]);
+
+        $credential = new Credential($config);
 
         // Assert
         $this->assertEquals('access_key_id2', $credential->getAccessKeyId());
@@ -84,13 +89,14 @@ class CredentialTest extends TestCase
     public function testRsaKeyPairCredential()
     {
         Credentials::cancelMock();
-        $publicKeyId    = getenv('PUBLIC_KEY_ID');
+        $publicKeyId    = Helper::getEnvironment('PUBLIC_KEY_ID');
         $privateKeyFile = VirtualRsaKeyPairCredential::privateKeyFileUrl();
-        $credential     = new Credential([
-                                             'type'             => 'rsa_key_pair',
-                                             'public_key_id'    => $publicKeyId,
-                                             'private_key_file' => $privateKeyFile,
-                                         ]);
+        $config         = new Credential\Config([
+            'type'           => 'rsa_key_pair',
+            'publicKeyId'    => $publicKeyId,
+            'privateKeyFile' => $privateKeyFile,
+        ]);
+        $credential     = new Credential($config);
 
         // Assert
         $this->assertEquals('access_key_id2', $credential->getAccessKeyId());

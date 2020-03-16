@@ -10,7 +10,6 @@ use AlibabaCloud\Credentials\Signature\ShaHmac1Signature;
 use AlibabaCloud\Credentials\Signature\ShaHmac256WithRsaSignature;
 use Exception;
 use GuzzleHttp\Client;
-use GuzzleHttp\Exception\GuzzleException;
 use GuzzleHttp\HandlerStack;
 use GuzzleHttp\Middleware;
 use GuzzleHttp\Psr7\Uri;
@@ -75,8 +74,7 @@ class Request
     }
 
     /**
-     * @return Response
-     * @throws GuzzleException
+     * @return ResponseInterface
      * @throws Exception
      */
     public function request()
@@ -90,7 +88,6 @@ class Request
             self::signString('GET', $this->options['query']),
             $this->credential->getOriginalAccessKeySecret() . '&'
         );
-
         return self::createClient()->request('GET', (string)$this->uri, $this->options);
     }
 
@@ -128,7 +125,7 @@ class Request
      */
     private static function percentEncode($string)
     {
-        $result = urlencode($string);
+        $result = rawurlencode($string);
         $result = str_replace(['+', '*'], ['%20', '%2A'], $result);
         $result = preg_replace('/%7E/', '~', $result);
 
@@ -147,7 +144,7 @@ class Request
             $stack = HandlerStack::create();
         }
 
-        $stack->push(Middleware::mapResponse(static function(ResponseInterface $response) {
+        $stack->push(Middleware::mapResponse(static function (ResponseInterface $response) {
             return new Response($response);
         }));
 

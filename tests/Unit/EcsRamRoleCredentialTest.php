@@ -218,5 +218,4 @@ class EcsRamRoleCredentialTest extends TestCase
         // Test
         self::assertEquals('foo', $credential->getAccessKeyId());
     }
-
 }
