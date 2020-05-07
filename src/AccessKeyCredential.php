@@ -9,7 +9,6 @@ use AlibabaCloud\Credentials\Signature\ShaHmac1Signature;
  */
 class AccessKeyCredential implements CredentialsInterface
 {
-
     /**
      * @var string
      */
@@ -64,5 +63,10 @@ class AccessKeyCredential implements CredentialsInterface
     public function getSignature()
     {
         return new ShaHmac1Signature();
+    }
+
+    public function getSecurityToken()
+    {
+        return '';
     }
 }
