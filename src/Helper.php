@@ -3,7 +3,6 @@
 namespace AlibabaCloud\Credentials;
 
 use Closure;
-use Stringy\Stringy;
 
 /**
  * Class Helper
@@ -67,7 +66,7 @@ class Helper
     public static function inDir($filename, array $dirs)
     {
         foreach ($dirs as $dir) {
-            if (!Stringy::create($dir)->endsWith(DIRECTORY_SEPARATOR)) {
+            if ($dir[strlen($dir) - 1] !== DIRECTORY_SEPARATOR) {
                 $dir .= DIRECTORY_SEPARATOR;
             }
 
@@ -145,8 +144,8 @@ class Helper
     public static function envSubstr($value)
     {
         return ($valueLength = strlen($value)) > 1
-               && strpos($value, '"') === 0
-               && $value[$valueLength - 1] === '"';
+            && strpos($value, '"') === 0
+            && $value[$valueLength - 1] === '"';
     }
 
     /**
