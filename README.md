@@ -34,69 +34,128 @@ See [Installation](/docs/zh-CN/1-Installation.md) for details on installing thro
 ## Quick Examples
 Before you begin, you need to sign up for an Alibaba Cloud account and retrieve your [Credentials](https://usercenter.console.aliyun.com/#/manage/ak).
 
+### Credential Type
+
+#### AccessKey
+
+Setup access_key credential through [User Information Management][ak], it have full authority over the account, please keep it safe. Sometimes for security reasons, you cannot hand over a primary account AccessKey with full access to the developer of a project. You may create a sub-account [RAM Sub-account][ram] , grant its [authorization][permissions]，and use the AccessKey of RAM Sub-account.
+
 ```php
 <?php
 
 use AlibabaCloud\Credentials\Credential;
-
 
 // Chain Provider if no Parameter
 $credential = new Credential();
 $credential->getAccessKeyId();
 $credential->getAccessKeySecret();
 
-
 // Access Key
 $ak = new Credential([
-                         'type'              => 'access_key',
-                         'access_key_id'     => 'foo',
-                         'access_key_secret' => 'bar',
-                     ]);
+    'type'              => 'access_key',
+    'access_key_id'     => '<access_key_id>',
+    'access_key_secret' => '<access_key_secret>',
+]);
 $ak->getAccessKeyId();
 $ak->getAccessKeySecret();
-
-
-// ECS RAM Role
-$ecsRamRole = new Credential([
-                                 'type'      => 'ecs_ram_role',
-                                 'role_name' => 'foo',
-                             ]);
-$ecsRamRole->getAccessKeyId();
-$ecsRamRole->getAccessKeySecret();
-$ecsRamRole->getSecurityToken();
-$ecsRamRole->getExpiration();
-$ecsRamRole->getRoleName();
-$ecsRamRole->getRoleNameFromMeta();
-// Note: `role_name` is optional. It will be retrieved automatically if not set. It is highly recommended to set it up to reduce requests.
-
-
-// RAM Role ARN
-$ramRoleArn = new Credential([
-                                 'type'              => 'ram_role_arn',
-                                 'access_key_id'     => 'access_key_id',
-                                 'access_key_secret' => 'access_key_secret',
-                                 'role_arn'          => 'role_arn',
-                                 'role_session_name' => 'role_session_name',
-                                 'policy'            => '',
-                             ]);
-$ramRoleArn->getAccessKeyId();
-$ramRoleArn->getAccessKeySecret();
-$ramRoleArn->getSecurityToken();
-$ramRoleArn->getExpiration();
-
-
-// RSA Key Pair
-$rsaKeyPair = new Credential([
-                                 'type'             => 'rsa_key_pair',
-                                 'public_key_id'    => 'public_key_id',
-                                 'private_key_file' => 'private_key_file',
-                             ]);
-$rsaKeyPair->getAccessKeyId();
-$rsaKeyPair->getAccessKeySecret();
-$rsaKeyPair->getSecurityToken();
-$ramRoleArn->getExpiration();
 ```
 
+#### STS
+
+Create a temporary security credential by applying Temporary Security Credentials (TSC) through the Security Token Service (STS).
+
+```php
+<?php
+
+use AlibabaCloud\Credentials\Credential;
+
+$sts = new Credential([
+    'type'             => 'sts',
+    'access_key_id'    => '<access_key_id>',
+    'accessKey_secret' => '<accessKey_secret>',
+    'security_token'   => '<security_token>',
+]);
+$sts->getAccessKeyId();
+$sts->getAccessKeySecret();
+$sts->getSecurityToken();
+```
+
+#### RamRoleArn
+
+By specifying [RAM Role][RAM Role], the credential will be able to automatically request maintenance of STS Token. If you want to limit the permissions([How to make a policy][policy]) of STS Token, you can assign value for `Policy`.
+
+```php
+<?php
+
+use AlibabaCloud\Credentials\Credential;
+
+$ramRoleArn = new Credential([
+    'type'              => 'ram_role_arn',
+    'access_key_id'     => '<access_key_id>',
+    'access_key_secret' => '<access_key_secret>',
+    'role_arn'          => '<role_arn>',
+    'role_session_name' => '<role_session_name>',
+    'policy'            => '',
+]);
+$ramRoleArn->getAccessKeyId();
+$ramRoleArn->getAccessKeySecret();
+$ramRoleArn->getRoleArn();
+$ramRoleArn->getRoleSessionName();
+$ramRoleArn->getPolicy();
+```
+
+#### EcsRamRole
+
+By specifying the role name, the credential will be able to automatically request maintenance of STS Token.
+
+```php
+<?php
+
+use AlibabaCloud\Credentials\Credential;
+
+$ecsRamRole = new Credential([
+    'type'      => 'ecs_ram_role',
+    'role_name' => '<role_name>',
+]);
+$ecsRamRole->getRoleName();
+// Note: `role_name` is optional. It will be retrieved automatically if not set. It is highly recommended to set it up to reduce requests.
+```
+
+#### RsaKeyPair
+
+By specifying the public key Id and the private key file, the credential will be able to automatically request maintenance of the AccessKey before sending the request. Only Japan station is supported. 
+
+
+```php
+<?php
+
+use AlibabaCloud\Credentials\Credential;
+
+$rsaKeyPair = new Credential([
+    'type'             => 'rsa_key_pair',
+    'public_key_id'    => '<public_key_id>',
+    'private_key_file' => '<private_key_file>',
+]);
+$rsaKeyPair->getPublicKeyId();
+$rsaKeyPair->getPrivateKey();
+```
+
+#### Bearer Token
+
+If credential is required by the Cloud Call Centre (CCC), please apply for Bearer Token maintenance by yourself.
+
+```php
+<?php
+
+use AlibabaCloud\Credentials\Credential;
+
+$bearerToken = new Credential([
+    'type'         => 'bearer_token',
+    'bearer_token' => '<bearer_token>',
+]);
+$bearerToken->getBearerToken();
+$bearerToken->getSignature();
+```
 
 ## Default credential provider chain
 The default credential provider chain looks for available credentials, looking in the following order:

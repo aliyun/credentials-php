@@ -34,69 +34,127 @@ composer require alibabacloud/credentials
 ## 快速使用
 在您开始之前，您需要注册阿里云帐户并获取您的[凭证](https://usercenter.console.aliyun.com/#/manage/ak)。
 
+### 凭证类型
+
+#### AccessKey
+
+通过[用户信息管理][ak]设置 access_key，它们具有该账户完全的权限，请妥善保管。有时出于安全考虑，您不能把具有完全访问权限的主账户 AccessKey 交于一个项目的开发者使用，您可以[创建RAM子账户][ram]并为子账户[授权][permissions]，使用RAM子用户的 AccessKey 来进行API调用。
+
 ```php
 <?php
 
 use AlibabaCloud\Credentials\Credential;
-
 
 // Chain Provider if no Parameter
 $credential = new Credential();
 $credential->getAccessKeyId();
 $credential->getAccessKeySecret();
 
-
 // Access Key
 $ak = new Credential([
-                         'type'              => 'access_key',
-                         'access_key_id'     => 'foo',
-                         'access_key_secret' => 'bar',
-                     ]);
+    'type'              => 'access_key',
+    'access_key_id'     => '<access_key_id>',
+    'access_key_secret' => '<access_key_secret>',
+]);
 $ak->getAccessKeyId();
 $ak->getAccessKeySecret();
-
-
-// ECS RAM Role
-$ecsRamRole = new Credential([
-                                 'type'      => 'ecs_ram_role',
-                                 'role_name' => 'foo',
-                             ]);
-$ecsRamRole->getAccessKeyId();
-$ecsRamRole->getAccessKeySecret();
-$ecsRamRole->getSecurityToken();
-$ecsRamRole->getExpiration();
-$ecsRamRole->getRoleName();
-$ecsRamRole->getRoleNameFromMeta();
-// 注：`role_name` 非必填，不填则自动获取，建议设置，可以减少网络请求。
-
-
-// RAM Role ARN
-$ramRoleArn = new Credential([
-                                 'type'              => 'ram_role_arn',
-                                 'access_key_id'     => 'access_key_id',
-                                 'access_key_secret' => 'access_key_secret',
-                                 'role_arn'          => 'role_arn',
-                                 'role_session_name' => 'role_session_name',
-                                 'policy'            => '',
-                             ]);
-$ramRoleArn->getAccessKeyId();
-$ramRoleArn->getAccessKeySecret();
-$ramRoleArn->getSecurityToken();
-$ramRoleArn->getExpiration();
-
-
-// RSA Key Pair
-$rsaKeyPair = new Credential([
-                                 'type'             => 'rsa_key_pair',
-                                 'public_key_id'    => 'public_key_id',
-                                 'private_key_file' => 'private_key_file',
-                             ]);
-$rsaKeyPair->getAccessKeyId();
-$rsaKeyPair->getAccessKeySecret();
-$rsaKeyPair->getSecurityToken();
-$ramRoleArn->getExpiration();
 ```
 
+#### STS
+
+通过安全令牌服务（Security Token Service，简称 STS），申请临时安全凭证（Temporary Security Credentials，简称 TSC），创建临时安全凭证。
+
+```php
+<?php
+
+use AlibabaCloud\Credentials\Credential;
+
+$sts = new Credential([
+    'type'             => 'sts',
+    'access_key_id'    => '<access_key_id>',
+    'accessKey_secret' => '<accessKey_secret>',
+    'security_token'   => '<security_token>',
+]);
+$sts->getAccessKeyId();
+$sts->getAccessKeySecret();
+$sts->getSecurityToken();
+```
+
+#### RamRoleArn
+
+通过指定[RAM角色][RAM Role]，让凭证自动申请维护 STS Token。你可以通过为 `Policy` 赋值来限制获取到的 STS Token 的权限。
+
+```php
+<?php
+
+use AlibabaCloud\Credentials\Credential;
+
+$ramRoleArn = new Credential([
+    'type'              => 'ram_role_arn',
+    'access_key_id'     => '<access_key_id>',
+    'access_key_secret' => '<access_key_secret>',
+    'role_arn'          => '<role_arn>',
+    'role_session_name' => '<role_session_name>',
+    'policy'            => '',
+]);
+$ramRoleArn->getAccessKeyId();
+$ramRoleArn->getAccessKeySecret();
+$ramRoleArn->getRoleArn();
+$ramRoleArn->getRoleSessionName();
+$ramRoleArn->getPolicy();
+```
+
+#### EcsRamRole
+
+通过指定角色名称，让凭证自动申请维护 STS Token
+
+```php
+<?php
+
+use AlibabaCloud\Credentials\Credential;
+
+$ecsRamRole = new Credential([
+    'type'      => 'ecs_ram_role',
+    'role_name' => '<role_name>',
+]);
+$ecsRamRole->getRoleName();
+// Note: `role_name` is optional. It will be retrieved automatically if not set. It is highly recommended to set it up to reduce requests.
+```
+
+#### RsaKeyPair
+
+通过指定公钥Id和私钥文件，让凭证自动申请维护 AccessKey。仅支持日本站。
+
+```php
+<?php
+
+use AlibabaCloud\Credentials\Credential;
+
+$rsaKeyPair = new Credential([
+    'type'             => 'rsa_key_pair',
+    'public_key_id'    => '<public_key_id>',
+    'private_key_file' => '<private_key_file>',
+]);
+$rsaKeyPair->getPublicKeyId();
+$rsaKeyPair->getPrivateKey();
+```
+
+#### Bearer Token
+
+如呼叫中心(CCC)需用此凭证，请自行申请维护 Bearer Token。
+
+```php
+<?php
+
+use AlibabaCloud\Credentials\Credential;
+
+$bearerToken = new Credential([
+    'type'         => 'bearer_token',
+    'bearer_token' => '<bearer_token>',
+]);
+$bearerToken->getBearerToken();
+$bearerToken->getSignature();
+```
 
 ## 默认凭证提供程序链
 默认凭证提供程序链查找可用的凭证，寻找顺序如下：
