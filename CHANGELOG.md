@@ -1,5 +1,9 @@
 # CHANGELOG
 
+## 1.1.3 - 2020-12-24
+
+- Require guzzle ^6.3|^7.0
+
 ## 1.0.2 - 2020-02-14
 - Update Tea.
 
