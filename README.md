@@ -225,7 +225,7 @@ Please read the [Contribution Guide](/CONTRIBUTING.md) before submitting a Pull 
 
 
 ## Related
-* [OpenAPI Explorer][open-api]
+* [OpenAPI Developer Portal][open-api]
 * [Packagist][packagist]
 * [Composer][composer]
 * [Guzzle Doc][guzzle-docs]
@@ -238,7 +238,7 @@ Please read the [Contribution Guide](/CONTRIBUTING.md) before submitting a Pull 
 Copyright (c) 2009-present, Alibaba Cloud All rights reserved.
 
 
-[open-api]: https://api.aliyun.com
+[open-api]: https://next.api.aliyun.com
 [latest-release]: https://github.com/aliyun/credentials-php
 [guzzle-docs]: http://docs.guzzlephp.org/en/stable/request-options.html
 [composer]: https://getcomposer.org
