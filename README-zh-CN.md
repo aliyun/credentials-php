@@ -224,7 +224,7 @@ ChainProvider::set(
 
 
 ## 相关
-* [OpenAPI Explorer][open-api]
+* [OpenAPI 开发者门户][open-api]
 * [Packagist][packagist]
 * [Composer][composer]
 * [Guzzle中文文档][guzzle-docs]
@@ -237,7 +237,7 @@ ChainProvider::set(
 Copyright (c) 2009-present, Alibaba Cloud All rights reserved.
 
 
-[open-api]: https://api.aliyun.com
+[open-api]: https://next.api.aliyun.com
 [latest-release]: https://github.com/aliyun/credentials-php
 [guzzle-docs]: https://guzzle-cn.readthedocs.io/zh_CN/latest/request-options.html
 [composer]: https://getcomposer.org
