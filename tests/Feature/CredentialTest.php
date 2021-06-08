@@ -34,6 +34,7 @@ class CredentialTest extends TestCase
         // Assert
         $this->assertEquals('foo', $credential->getAccessKeyId());
         $this->assertEquals('bar', $credential->getAccessKeySecret());
+        $this->assertEquals('access_key', $credential->getType());
     }
 
     /**
@@ -52,6 +53,7 @@ class CredentialTest extends TestCase
 
         // Assert
         $this->assertEquals('foo', $credential->getRoleName());
+        $this->assertEquals('ecs_ram_role', $credential->getType());
         $credential->getAccessKeySecret();
     }
 
@@ -77,6 +79,7 @@ class CredentialTest extends TestCase
 
         // Assert
         $this->assertEquals('access_key_id2', $credential->getAccessKeyId());
+        $this->assertEquals('ram_role_arn', $credential->getType());
         $credential->getAccessKeySecret();
     }
 
@@ -100,6 +103,7 @@ class CredentialTest extends TestCase
 
         // Assert
         $this->assertEquals('access_key_id2', $credential->getAccessKeyId());
+        $this->assertEquals('rsa_key_pair', $credential->getType());
         $credential->getAccessKeySecret();
     }
 }

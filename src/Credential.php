@@ -161,6 +161,15 @@ class Credential
     }
 
     /**
+     * @return string
+     */
+    public function getType()
+    {
+        return $this->type;
+    }
+
+
+    /**
      * @param string $name
      * @param array  $arguments
      *
