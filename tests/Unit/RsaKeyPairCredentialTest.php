@@ -91,6 +91,8 @@ class RsaKeyPairCredentialTest extends TestCase
      */
     public function testSts()
     {
+        $publicKeyId    = 'public_key_id';
+        $privateKeyFile = VirtualRsaKeyPairCredential::privateKeyFileUrl();
         $result = '{
     "RequestId": "F702286E-F231-4F40-BB86-XXXXXX",
     "SessionAccessKey": {
@@ -100,11 +102,17 @@ class RsaKeyPairCredentialTest extends TestCase
     }
 }';
         Credentials::mockResponse(200, [], $result);
+        Credentials::mockResponse(200, [], $result);
+        Credentials::mockResponse(200, [], $result);
+        Credentials::mockResponse(200, [], $result);
 
-        self::assertEquals('TMPSK.**************', $this->credential->getAccessKeyId());
-        self::assertEquals('**************', $this->credential->getAccessKeySecret());
-        self::assertEquals('', $this->credential->getSecurityToken());
-        self::assertEquals(strtotime('2023-02-19T07:02:36.225Z'), $this->credential->getExpiration());
+        // Test
+        $credential = new RsaKeyPairCredential($publicKeyId, $privateKeyFile);
+
+        self::assertEquals('TMPSK.**************', $credential->getAccessKeyId());
+        self::assertEquals('**************', $credential->getAccessKeySecret());
+        self::assertEquals('', $credential->getSecurityToken());
+        self::assertEquals(strtotime('2023-02-19T07:02:36.225Z'), $credential->getExpiration());
     }
 
     /**

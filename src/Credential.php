@@ -35,6 +35,7 @@ class Credential
         'ecs_ram_role' => EcsRamRoleCredential::class,
         'ram_role_arn' => RamRoleArnCredential::class,
         'rsa_key_pair' => RsaKeyPairCredential::class,
+        'bearer' => BearerTokenCredential::class,
     ];
 
     /**

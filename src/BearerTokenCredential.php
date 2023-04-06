@@ -18,13 +18,13 @@ class BearerTokenCredential implements CredentialsInterface
     /**
      * BearerTokenCredential constructor.
      *
-     * @param $bearerToken
+     * @param $bearer_token
      */
-    public function __construct($bearerToken)
+    public function __construct($bearer_token)
     {
-        Filter::bearerToken($bearerToken);
+        Filter::bearerToken($bearer_token);
 
-        $this->bearerToken = $bearerToken;
+        $this->bearerToken = $bearer_token;
     }
 
     /**

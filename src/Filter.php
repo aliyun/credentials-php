@@ -35,11 +35,11 @@ class Filter
     public static function bearerToken($bearerToken)
     {
         if (!is_string($bearerToken)) {
-            throw new InvalidArgumentException('Bearer Token must be a string');
+            throw new InvalidArgumentException('bearer_token must be a string');
         }
 
         if ($bearerToken === '') {
-            throw new InvalidArgumentException('Bearer Token cannot be empty');
+            throw new InvalidArgumentException('bearer_token cannot be empty');
         }
 
         return $bearerToken;
