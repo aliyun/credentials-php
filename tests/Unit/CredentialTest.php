@@ -58,7 +58,7 @@ class CredentialTest extends TestCase
                 [
                     'type' => 'none',
                 ],
-                'Invalid type option, support: access_key, sts, ecs_ram_role, ram_role_arn, rsa_key_pair',
+                'Invalid type option, support: access_key, sts, ecs_ram_role, ram_role_arn, rsa_key_pair, bearer',
             ],
 
             [

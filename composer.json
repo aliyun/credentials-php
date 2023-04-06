@@ -47,7 +47,7 @@
         "ext-sockets": "*",
         "drupal/coder": "^8.3",
         "symfony/dotenv": "^3.4",
-        "phpunit/phpunit": "^4.8.35|^5.4.3",
+        "phpunit/phpunit": "^5.7|^6.6|^7.5",
         "monolog/monolog": "^1.24",
         "composer/composer": "^1.8",
         "mikey179/vfsstream": "^1.6",
@@ -68,7 +68,10 @@
     },
     "config": {
         "preferred-install": "dist",
-        "optimize-autoloader": true
+        "optimize-autoloader": true,
+        "allow-plugins": {
+            "dealerdirect/phpcodesniffer-composer-installer": true
+        }
     },
     "minimum-stability": "dev",
     "prefer-stable": true,

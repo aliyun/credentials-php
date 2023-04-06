@@ -150,7 +150,7 @@ If credential is required by the Cloud Call Centre (CCC), please apply for Beare
 use AlibabaCloud\Credentials\Credential;
 
 $bearerToken = new Credential([
-    'type'         => 'bearer_token',
+    'type'         => 'bearer',
     'bearer_token' => '<bearer_token>',
 ]);
 $bearerToken->getBearerToken();

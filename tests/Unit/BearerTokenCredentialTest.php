@@ -17,7 +17,7 @@ class BearerTokenCredentialTest extends TestCase
 
     /**
      * @expectedException \InvalidArgumentException
-     * @expectedExceptionMessage Bearer Token cannot be empty
+     * @expectedExceptionMessage bearer_token cannot be empty
      */
     public static function testBearerTokenEmpty()
     {
@@ -30,7 +30,7 @@ class BearerTokenCredentialTest extends TestCase
 
     /**
      * @expectedException \InvalidArgumentException
-     * @expectedExceptionMessage Bearer Token must be a string
+     * @expectedExceptionMessage bearer_token must be a string
      */
     public static function testBearerTokenFormat()
     {

@@ -149,7 +149,7 @@ $rsaKeyPair->getPrivateKey();
 use AlibabaCloud\Credentials\Credential;
 
 $bearerToken = new Credential([
-    'type'         => 'bearer_token',
+    'type'         => 'bearer',
     'bearer_token' => '<bearer_token>',
 ]);
 $bearerToken->getBearerToken();
