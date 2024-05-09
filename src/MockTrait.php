@@ -6,6 +6,7 @@ use Exception;
 use GuzzleHttp\Exception\RequestException;
 use GuzzleHttp\Handler\MockHandler;
 use GuzzleHttp\Psr7\Response;
+use GuzzleHttp\Middleware;
 use Psr\Http\Message\RequestInterface;
 use Psr\Http\Message\ResponseInterface;
 
@@ -20,6 +21,11 @@ trait MockTrait
      * @var array
      */
     private static $mockQueue = [];
+
+    /**
+     * @var array
+     */
+    private static $history = [];
 
     /**
      * @var MockHandler
@@ -44,6 +50,14 @@ trait MockTrait
     private static function createHandlerStack()
     {
         self::$mock = new MockHandler(self::$mockQueue);
+    }
+
+    /**
+     * @return MockHandler
+     */
+    public static function getHandlerHistory()
+    {
+         return Middleware::history(self::$history);
     }
 
     /**
@@ -94,5 +108,13 @@ trait MockTrait
     public static function getMock()
     {
         return self::$mock;
+    }
+
+    /**
+     * @return array
+     */
+    public static function getHistroy()
+    {
+        return self::$history;
     }
 }

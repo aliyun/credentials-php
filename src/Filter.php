@@ -100,6 +100,23 @@ class Filter
     }
 
     /**
+     * @param boolean|null $enable_IMDS_v2
+     */
+    public static function enableIMDSv2($enable_IMDS_v2)
+    {
+        if (!is_bool($enable_IMDS_v2)) {
+            throw new InvalidArgumentException('enable_IMDS_v2 must be a string');
+        }
+    }
+
+
+    public static function metadataTokenDuration($metadata_token_duration) {
+        if (!is_int($metadata_token_duration)) {
+            throw new InvalidArgumentException('metadata_token_duration must be a int');
+        }
+    }
+
+    /**
      * @param string $accessKeyId
      * @param string $accessKeySecret
      */

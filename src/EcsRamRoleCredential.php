@@ -22,15 +22,34 @@ class EcsRamRoleCredential implements CredentialsInterface
     private $roleName;
 
     /**
+     * @var boolean
+     */
+    private $enableIMDSv2;
+
+    /**
+     * @var int
+     */
+    private $metadataTokenDuration;
+
+
+    /**
      * EcsRamRoleCredential constructor.
      *
      * @param $role_name
      */
-    public function __construct($role_name = null)
+    public function __construct($role_name = null, $enable_IMDS_v2 = false, $metadata_token_duration = 21600 )
     {
         Filter::roleName($role_name);
 
         $this->roleName = $role_name;
+
+        Filter::enableIMDSv2($enable_IMDS_v2);
+
+        $this->enableIMDSv2 = $enable_IMDS_v2;
+
+        Filter::metadataTokenDuration($metadata_token_duration);
+
+        $this->metadataTokenDuration = $metadata_token_duration;
     }
 
     /**
@@ -116,7 +135,11 @@ class EcsRamRoleCredential implements CredentialsInterface
      */
     protected function getSessionCredential()
     {
-        return (new EcsRamRoleProvider($this))->get();
+        $config = [
+            'enableIMDSv2' => $this->enableIMDSv2,
+            'metadataTokenDuration' => $this->metadataTokenDuration,
+        ];
+        return (new EcsRamRoleProvider($this, $config))->get();
     }
 
     /**
@@ -148,4 +171,5 @@ class EcsRamRoleCredential implements CredentialsInterface
     {
         return $this->getSessionCredential()->getExpiration();
     }
+
 }

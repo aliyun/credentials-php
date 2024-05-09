@@ -41,6 +41,10 @@ class Config
 
     public $expiration = 0;
 
+    public $enableIMDSv2 = false;
+
+    public $metadataTokenDuration = 21600;
+
     public function __construct($config)
     {
         foreach ($config as $k => $v) {

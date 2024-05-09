@@ -2,6 +2,7 @@
 
 namespace AlibabaCloud\Credentials\Providers;
 
+use AlibabaCloud\Credentials\Helper;
 use AlibabaCloud\Credentials\Request\Request;
 use AlibabaCloud\Credentials\StsCredential;
 use Exception;
@@ -27,9 +28,31 @@ class EcsRamRoleProvider extends Provider
     protected $expirationSlot = 10;
 
     /**
+     * refresh time for meta server token.
+     *
+     * @var int
+     */
+    private $staleTime = 0;
+
+    /**
      * @var string
      */
-    private $uri = 'http://100.100.100.200/latest/meta-data/ram/security-credentials/';
+    private $metadataHost = 'http://100.100.100.200';
+
+    /**
+     * @var string
+     */
+    private $metadataToken;
+
+    /**
+     * @var string
+     */
+    private $ecsUri = '/latest/meta-data/ram/security-credentials/';
+
+    /**
+     * @var string
+     */
+    private $metadataTokenUri = '/latest/api/token';
 
     /**
      * Get credential.
@@ -59,6 +82,19 @@ class EcsRamRoleProvider extends Provider
             $result['SecurityToken']
         );
     }
+    
+    
+    protected function getEnableECSIMDSv2()
+    {
+        $enableIMDSv2 = Helper::envNotEmpty('ALIBABA_CLOUD_ECS_IMDSV2_ENABLE');
+        if ($enableIMDSv2) {
+            return strtolower($enableIMDSv2) === 'false' ? false : (bool)$enableIMDSv2;
+        }
+        if(isset($this->config['enableIMDSv2'])) {
+            return $this->config['enableIMDSv2'];
+        }
+        return false;
+    }
 
     /**
      * Get credentials by request.
@@ -70,13 +106,18 @@ class EcsRamRoleProvider extends Provider
     public function request()
     {
         $credential = $this->credential;
-        $url        = $this->uri . $credential->getRoleName();
+        $url        = $this->metadataHost . $this->ecsUri . $credential->getRoleName();
 
         $options = [
             'http_errors'     => false,
             'timeout'         => 1,
             'connect_timeout' => 1,
         ];
+        
+        if ($this->getEnableECSIMDSv2()) {
+            $this->refreshMetadataToken();
+            $options['headers']['X-aliyun-ecs-metadata-token'] = $this->metadataToken; 
+        }
 
         $result = Request::createClient()->request('GET', $url, $options);
 
@@ -87,8 +128,54 @@ class EcsRamRoleProvider extends Provider
 
         if ($result->getStatusCode() !== 200) {
             throw new RuntimeException('Error retrieving credentials from result: ' . $result->toJson());
-        }
+        } 
 
         return $result;
+    }
+
+    /**
+     * Get metadata token by request.
+     *
+     * @return ResponseInterface
+     * @throws Exception
+     * @throws GuzzleException
+     */
+    protected function refreshMetadataToken()
+    {
+        if(!$this->needToRefresh()) {
+            return;
+        }
+        $credential = $this->credential;
+        $url        = $this->metadataHost . $this->metadataTokenUri;
+        $tmpTime = $this->staleTime;
+        $this->staleTime = time() + $this->config['metadataTokenDuration'];
+        $options = [
+            'http_errors'     => false,
+            'timeout'         => 1,
+            'connect_timeout' => 1,
+            'headers' => [
+                'X-aliyun-ecs-metadata-token-ttl-seconds' => $this->config['metadataTokenDuration'],
+            ],
+        ];
+
+        $result = Request::createClient()->request('PUT', $url, $options);
+
+        if ($result->getStatusCode() != 200) {
+            $this->staleTime = $tmpTime;
+            throw new RuntimeException('Failed to get token from ECS Metadata Service. HttpCode= ' . $result->getStatusCode());
+        }
+
+        $this->metadataToken = $result->getBody();
+
+        return;
+    }
+
+
+    /**
+     * @return boolean
+     */
+    protected function needToRefresh()
+    {
+        return \time() >= $this->staleTime;
     }
 }

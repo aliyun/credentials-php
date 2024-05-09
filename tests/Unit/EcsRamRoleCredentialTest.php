@@ -10,6 +10,7 @@ use GuzzleHttp\Exception\GuzzleException;
 use InvalidArgumentException;
 use PHPUnit\Framework\TestCase;
 use RuntimeException;
+use ReflectionClass;
 
 class EcsRamRoleCredentialTest extends TestCase
 {
@@ -45,6 +46,33 @@ class EcsRamRoleCredentialTest extends TestCase
         $this->assertEquals($roleName, $credential->getRoleName());
         $this->assertInstanceOf(ShaHmac1Signature::class, $credential->getSignature());
         $this->assertEquals($expected, (string)$credential);
+    }
+
+    private function getPrivateField($instance, $field) {
+        $reflection = new ReflectionClass(EcsRamRoleCredential::class);
+        $privateProperty = $reflection->getProperty($field);
+        $privateProperty->setAccessible(true);
+        return $privateProperty->getValue($instance);
+    }
+
+    /**
+     * @throws GuzzleException
+     */
+    public function testConstructWithIMDSv2()
+    {
+        // Setup
+        $roleName = 'role_arn';
+        $enableIMDSv2 = true;
+        $metadataTokenDuration = 3600;
+        $credential = new EcsRamRoleCredential($roleName, $enableIMDSv2, $metadataTokenDuration);
+
+        self::assertEquals(true, $this->getPrivateField($credential, 'enableIMDSv2'));
+        self::assertEquals(3600, $this->getPrivateField($credential, 'metadataTokenDuration'));
+
+        $credential = new EcsRamRoleCredential($roleName);
+
+        self::assertEquals(false, $this->getPrivateField($credential, 'enableIMDSv2'));
+        self::assertEquals(21600, $this->getPrivateField($credential, 'metadataTokenDuration'));
     }
 
     /**
