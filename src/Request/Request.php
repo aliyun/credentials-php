@@ -140,6 +140,8 @@ class Request
     {
         if (Credentials::hasMock()) {
             $stack = HandlerStack::create(Credentials::getMock());
+            $history = Credentials::getHandlerHistory();
+            $stack->push($history);
         } else {
             $stack = HandlerStack::create();
         }

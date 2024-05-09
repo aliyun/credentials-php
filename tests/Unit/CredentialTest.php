@@ -173,6 +173,25 @@ class CredentialTest extends TestCase
 
             [
                 [
+                    'type'      => 'ecs_ram_role',
+                    'role_name' => 'test',
+                    'enableIMDSv2' => 'false',
+                ],
+                'enable_IMDS_v2 must be a string',
+            ],
+
+            [
+                [
+                    'type'      => 'ecs_ram_role',
+                    'role_name' => 'test',
+                    'enableIMDSv2' => false,
+                    'metadataTokenDuration' => 3600,
+                ],
+                'metadata_token_duration must be a int',
+            ],
+
+            [
+                [
                     'type' => 'ram_role_arn',
                 ],
                 'Missing required access_key_id option in config for ram_role_arn',

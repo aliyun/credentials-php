@@ -14,7 +14,11 @@ use PHPUnit\Framework\TestCase;
  */
 class MockTraitTest extends TestCase
 {
-
+    public function setUp()
+    {
+        parent::setUp();
+        Credentials::cancelMock();
+    }
     /**
      * @throws \GuzzleHttp\Exception\GuzzleException
      * @expectedException \GuzzleHttp\Exception\RequestException
