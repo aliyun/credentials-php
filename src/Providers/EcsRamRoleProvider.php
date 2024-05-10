@@ -86,9 +86,8 @@ class EcsRamRoleProvider extends Provider
     
     protected function getEnableECSIMDSv2()
     {
-        $enableIMDSv2 = Helper::envNotEmpty('ALIBABA_CLOUD_ECS_IMDSV2_ENABLE');
-        if ($enableIMDSv2) {
-            return strtolower($enableIMDSv2) === 'false' ? false : (bool)$enableIMDSv2;
+        if (Helper::envNotEmpty('ALIBABA_CLOUD_ECS_IMDSV2_ENABLE')) {
+            return Helper::env('ALIBABA_CLOUD_ECS_IMDSV2_ENABLE') === true ? true : false;
         }
         if(isset($this->config['enableIMDSv2'])) {
             return $this->config['enableIMDSv2'];

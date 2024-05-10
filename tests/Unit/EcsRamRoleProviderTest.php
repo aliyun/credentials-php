@@ -89,6 +89,18 @@ class EcsRamRoleProviderTest extends TestCase
 
         self::assertEquals(true, $this->invokeProtectedFunc($sessionCredential, 'getEnableECSIMDSv2'));
 
+        putenv('ALIBABA_CLOUD_ECS_IMDSV2_ENABLE=TRUE');
+
+        self::assertEquals(true, $this->invokeProtectedFunc($sessionCredential, 'getEnableECSIMDSv2'));
+
+        putenv('ALIBABA_CLOUD_ECS_IMDSV2_ENABLE=ok');
+
+        self::assertEquals(false, $this->invokeProtectedFunc($sessionCredential, 'getEnableECSIMDSv2'));
+
+        putenv('ALIBABA_CLOUD_ECS_IMDSV2_ENABLE=1');
+
+        self::assertEquals(false, $this->invokeProtectedFunc($sessionCredential, 'getEnableECSIMDSv2'));
+
         putenv('ALIBABA_CLOUD_ECS_IMDSV2_ENABLE=false');
 
         self::assertEquals(false, $this->invokeProtectedFunc($sessionCredential, 'getEnableECSIMDSv2'));
