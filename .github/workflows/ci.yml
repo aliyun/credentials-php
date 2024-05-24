@@ -15,7 +15,8 @@ jobs:
     strategy:
       matrix:
         operating-system: [ubuntu-latest]
-        php-versions: ['5.6', '7.0', '7.1', '7.2', '7.3', '7.4']
+        php-versions: ['5.6', '7.0', '7.1', '7.2', '7.3', '7.4', '8.0', '8.1', '8.2']
+      fail-fast: false
     name: PHP ${{ matrix.php-versions }} Test on ${{ matrix.operating-system }}
 
     steps:
@@ -38,7 +39,18 @@ jobs:
       run: composer install --prefer-dist --no-progress --no-suggest
 
     - name: Run test case
-      run: composer test
+      run: composer test4LowVersion
+      if: matrix.php-versions < '7.2'
+      env:
+          ACCESS_KEY_ID: ${{ secrets.ACCESS_KEY_ID }}
+          ACCESS_KEY_SECRET: ${{ secrets.ACCESS_KEY_SECRET }}
+          ROLE_ARN: ${{ secrets.ROLE_ARN }}
+          PUBLIC_KEY_ID: ${{ secrets.PUBLIC_KEY_ID }}
+          PRIVATE_KEY_LINE_1: ${{ secrets.PRIVATE_KEY_LINE_1 }}
+
+    - name: Run test case
+      run: composer test4HighVersion
+      if: matrix.php-versions >= '7.2'
       env:
           ACCESS_KEY_ID: ${{ secrets.ACCESS_KEY_ID }}
           ACCESS_KEY_SECRET: ${{ secrets.ACCESS_KEY_SECRET }}

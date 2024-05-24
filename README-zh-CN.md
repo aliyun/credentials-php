@@ -113,12 +113,15 @@ $ramRoleArn->getPolicy();
 
 use AlibabaCloud\Credentials\Credential;
 
-$ecsRamRole = new Credential([
-    'type'      => 'ecs_ram_role',
-    'role_name' => '<role_name>',
+$config = new Credential\Config([
+    'type'         => 'ecs_ram_role',
+    'roleName'     => '<role_name>',
+    'enableIMDSv2' => true,
 ]);
+$ecsRamRole = new Credential($config);
 $ecsRamRole->getRoleName();
-// Note: `role_name` is optional. It will be retrieved automatically if not set. It is highly recommended to set it up to reduce requests.
+// Note: `roleName` is optional. It will be retrieved automatically if not set. It is highly recommended to set it up to reduce requests.
+// Note: `enableIMDSv2` is optional and is recommended to be turned on. It can be replaced by setting environment variable: ALIBABA_CLOUD_ECS_IMDSV2_ENABLE
 ```
 
 #### RsaKeyPair

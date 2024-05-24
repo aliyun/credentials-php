@@ -102,10 +102,10 @@ class Filter
     /**
      * @param boolean|null $enable_IMDS_v2
      */
-    public static function enableIMDSv2($enable_IMDS_v2)
+    public static function enableIMDSv2($enable_imds_v2)
     {
-        if (!is_bool($enable_IMDS_v2)) {
-            throw new InvalidArgumentException('enable_IMDS_v2 must be a string');
+        if (!is_bool($enable_imds_v2)) {
+            throw new InvalidArgumentException('enable_imds_v2 must be a string');
         }
     }
 

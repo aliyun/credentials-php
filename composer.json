@@ -47,7 +47,7 @@
         "ext-sockets": "*",
         "drupal/coder": "^8.3",
         "symfony/dotenv": "^3.4",
-        "phpunit/phpunit": "^5.7|^6.6|^7.5",
+        "phpunit/phpunit": "^5.7|^6.6|^7.5|^9.5",
         "monolog/monolog": "^1.24",
         "composer/composer": "^1.8",
         "mikey179/vfsstream": "^1.6",
@@ -92,6 +92,12 @@
         "fixer": "php-cs-fixer fix ./",
         "test": [
             "phpunit --colors=always"
+        ],
+        "test4HighVersion": [
+            "phpunit -c phpunit.xml.72 --colors=always"
+        ],
+        "test4LowVersion": [
+            "phpunit -c phpunit.xml.56 --colors=always"
         ],
         "unit": [
             "@clearCache",
