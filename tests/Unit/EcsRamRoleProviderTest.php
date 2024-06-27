@@ -16,7 +16,10 @@ use ReflectionClass;
 class EcsRamRoleProviderTest extends TestCase
 {
 
-    public function setUp()
+     /**
+     * @before
+     */
+    protected function initialize()
     {
         parent::setUp();
         Credentials::cancelMock();
@@ -30,7 +33,7 @@ class EcsRamRoleProviderTest extends TestCase
         $roleName = 'test';
         // Setup
         $config = [
-            'enableIMDSv2' => true,
+            'disableIMDSv1' => true,
             'metadataTokenDuration' => 3600,
         ];
 
@@ -41,7 +44,7 @@ class EcsRamRoleProviderTest extends TestCase
 
         $sessionConfig = $this->getPrivateField($sessionCredential, 'config');
 
-        self::assertEquals(true, $sessionConfig['enableIMDSv2']);
+        self::assertEquals(true, $sessionConfig['disableIMDSv1']);
         self::assertEquals(3600, $sessionConfig['metadataTokenDuration']);
     }
 
@@ -61,12 +64,12 @@ class EcsRamRoleProviderTest extends TestCase
     /**
      * @throws GuzzleException
      */
-    public function testGetEnableECSIMDSv2()
+    public function testgetDisableECSIMDSv1()
     {
         // Setup
         $roleName = 'test';
         $config = [
-            'enableIMDSv2' => true,
+            'disableIMDSv1' => true,
             'metadataTokenDuration' => 3600,
         ];
 
@@ -75,7 +78,7 @@ class EcsRamRoleProviderTest extends TestCase
 
         $sessionCredential = new EcsRamRoleProvider($credential, $config);
 
-        self::assertEquals(true, $this->invokeProtectedFunc($sessionCredential, 'getEnableECSIMDSv2'));
+        self::assertEquals(true, $this->invokeProtectedFunc($sessionCredential, 'getDisableECSIMDSv1'));
 
         $config = [
             'metadataTokenDuration' => 3600,
@@ -83,31 +86,31 @@ class EcsRamRoleProviderTest extends TestCase
 
         $sessionCredential = new EcsRamRoleProvider($credential, $config);
 
-        self::assertEquals(false, $this->invokeProtectedFunc($sessionCredential, 'getEnableECSIMDSv2'));
+        self::assertEquals(false, $this->invokeProtectedFunc($sessionCredential, 'getDisableECSIMDSv1'));
 
-        putenv('ALIBABA_CLOUD_ECS_IMDSV2_ENABLE=true');
+        putenv('ALIBABA_CLOUD_IMDSV1_DISABLE=true');
 
-        self::assertEquals(true, $this->invokeProtectedFunc($sessionCredential, 'getEnableECSIMDSv2'));
+        self::assertEquals(true, $this->invokeProtectedFunc($sessionCredential, 'getDisableECSIMDSv1'));
 
-        putenv('ALIBABA_CLOUD_ECS_IMDSV2_ENABLE=TRUE');
+        putenv('ALIBABA_CLOUD_IMDSV1_DISABLE=TRUE');
 
-        self::assertEquals(true, $this->invokeProtectedFunc($sessionCredential, 'getEnableECSIMDSv2'));
+        self::assertEquals(true, $this->invokeProtectedFunc($sessionCredential, 'getDisableECSIMDSv1'));
 
-        putenv('ALIBABA_CLOUD_ECS_IMDSV2_ENABLE=ok');
+        putenv('ALIBABA_CLOUD_IMDSV1_DISABLE=ok');
 
-        self::assertEquals(false, $this->invokeProtectedFunc($sessionCredential, 'getEnableECSIMDSv2'));
+        self::assertEquals(false, $this->invokeProtectedFunc($sessionCredential, 'getDisableECSIMDSv1'));
 
-        putenv('ALIBABA_CLOUD_ECS_IMDSV2_ENABLE=1');
+        putenv('ALIBABA_CLOUD_IMDSV1_DISABLE=1');
 
-        self::assertEquals(false, $this->invokeProtectedFunc($sessionCredential, 'getEnableECSIMDSv2'));
+        self::assertEquals(false, $this->invokeProtectedFunc($sessionCredential, 'getDisableECSIMDSv1'));
 
-        putenv('ALIBABA_CLOUD_ECS_IMDSV2_ENABLE=false');
+        putenv('ALIBABA_CLOUD_IMDSV1_DISABLE=false');
 
-        self::assertEquals(false, $this->invokeProtectedFunc($sessionCredential, 'getEnableECSIMDSv2'));
+        self::assertEquals(false, $this->invokeProtectedFunc($sessionCredential, 'getDisableECSIMDSv1'));
 
-        putenv('ALIBABA_CLOUD_ECS_IMDSV2_ENABLE=');
+        putenv('ALIBABA_CLOUD_IMDSV1_DISABLE=');
 
-        self::assertEquals(false, $this->invokeProtectedFunc($sessionCredential, 'getEnableECSIMDSv2'));
+        self::assertEquals(false, $this->invokeProtectedFunc($sessionCredential, 'getDisableECSIMDSv1'));
     }
 
     private function getPrivateField($instance, $field) {
@@ -125,7 +128,7 @@ class EcsRamRoleProviderTest extends TestCase
         // Setup
         $roleName = 'test';
         $config = [
-            'enableIMDSv2' => true,
+            'disableIMDSv1' => true,
             'metadataTokenDuration' => 3600,
         ];
 
@@ -136,13 +139,13 @@ class EcsRamRoleProviderTest extends TestCase
 
         Credentials::mockResponse(200, [], 'Token');
 
-        $this->invokeProtectedFunc($sessionCredential, 'refreshMetadataToken');
+        $token = $this->invokeProtectedFunc($sessionCredential, 'refreshMetadataToken');
         
         $histroy = Credentials::getHistroy();
 
         $request = end($histroy)['request'];
         $headers = $request->getHeaders();
-        self::assertEquals('Token', $this->getPrivateField($sessionCredential, 'metadataToken'));
+        self::assertEquals('Token', $token);
         self::assertEquals('3600', $headers['X-aliyun-ecs-metadata-token-ttl-seconds'][0]);
     }
 
@@ -156,7 +159,7 @@ class EcsRamRoleProviderTest extends TestCase
         // Setup
         $roleName = 'test';
         $config = [
-            'enableIMDSv2' => true,
+            'disableIMDSv1' => true,
             'metadataTokenDuration' => 3600,
         ];
 
@@ -166,7 +169,37 @@ class EcsRamRoleProviderTest extends TestCase
         $sessionCredential = new EcsRamRoleProvider($credential, $config);
 
         Credentials::mockResponse(404, [], 'Error');
+
+        $this->expectException(RuntimeException::class);
+        $this->expectExceptionMessage('Failed to get token from ECS Metadata Service. HttpCode= 404');
+
         $this->invokeProtectedFunc($sessionCredential, 'refreshMetadataToken');
+        
+    }
+
+    public function testEnableV1404()
+    {
+        // Setup
+        $roleName = 'test';
+        $config = [
+            'disableIMDSv1' => false,
+            'metadataTokenDuration' => 3600,
+        ];
+
+        // Test
+        $credential = new EcsRamRoleCredential($roleName);
+
+        $sessionCredential = new EcsRamRoleProvider($credential, $config);
+
+        Credentials::mockResponse(404, [], 'Error');
+        $token = $this->invokeProtectedFunc($sessionCredential, 'refreshMetadataToken');
+        
+        $histroy = Credentials::getHistroy();
+
+        $request = end($histroy)['request'];
+        $headers = $request->getHeaders();
+        self::assertEquals(null, $token);
+        self::assertEquals(0, $this->getPrivateField($sessionCredential, 'staleTime'));
         
     }
 
@@ -178,7 +211,7 @@ class EcsRamRoleProviderTest extends TestCase
         // Setup
         $roleName = 'test';
         $config = [
-            'enableIMDSv2' => true,
+            'disableIMDSv1' => true,
             'metadataTokenDuration' => 5,
         ];
 

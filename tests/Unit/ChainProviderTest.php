@@ -6,6 +6,8 @@ use AlibabaCloud\Credentials\Helper;
 use AlibabaCloud\Credentials\Providers\ChainProvider;
 use AlibabaCloud\Credentials\Tests\Unit\Ini\VirtualAccessKeyCredential;
 use PHPUnit\Framework\TestCase;
+use RuntimeException;
+use InvalidArgumentException;
 
 /**
  * Class ChainProviderTest
@@ -20,6 +22,8 @@ class ChainProviderTest extends TestCase
      */
     public function testNoProvides()
     {
+        $this->expectException(InvalidArgumentException::class);
+        $this->expectExceptionMessage('No providers in chain');
         ChainProvider::set();
     }
 
@@ -59,6 +63,8 @@ class ChainProviderTest extends TestCase
             ChainProvider::ini()
         );
         self::assertTrue(ChainProvider::hasCustomChain());
+        $this->expectException(RuntimeException::class);
+        $this->expectExceptionMessage('Credentials file is not readable: /a/c');
         ChainProvider::customProvider(ChainProvider::getDefaultName());
     }
 
@@ -83,6 +89,7 @@ class ChainProviderTest extends TestCase
     public function testDefaultProvider()
     {
         ChainProvider::defaultProvider(ChainProvider::getDefaultName());
+        self::assertTrue(true);
     }
 
     public function testSetEnv()
@@ -127,7 +134,10 @@ class ChainProviderTest extends TestCase
         );
     }
 
-    protected function setUp()
+    /**
+     * @before
+     */
+    protected function initialize()
     {
         parent::setUp();
         putenv('ALIBABA_CLOUD_ACCESS_KEY_ID=foo');

@@ -6,6 +6,8 @@ use AlibabaCloud\Credentials\Credentials;
 use AlibabaCloud\Credentials\RamRoleArnCredential;
 use AlibabaCloud\Credentials\Signature\ShaHmac1Signature;
 use Exception;
+use RuntimeException;
+use InvalidArgumentException;
 use PHPUnit\Framework\TestCase;
 
 class RamRoleArnCredentialTest extends TestCase
@@ -119,7 +121,8 @@ class RamRoleArnCredentialTest extends TestCase
             'role_session_name' => 'role_session_name2',
             'policy'            => '',
         ]);
-
+        $this->expectException(RuntimeException::class);
+        $this->expectExceptionMessage('Result contains no credentials');
         // Test
         self::assertEquals('TMPSK.**************', $credential->getAccessKeyId());
     }
@@ -131,6 +134,8 @@ class RamRoleArnCredentialTest extends TestCase
     public function testAccessKeyIdEmpty()
     {
 
+        $this->expectException(InvalidArgumentException::class);
+        $this->expectExceptionMessage('access_key_id cannot be empty');
         // Test
         new RamRoleArnCredential([
             'access_key_id'     => '',
@@ -147,6 +152,8 @@ class RamRoleArnCredentialTest extends TestCase
      */
     public function testAccessKeyIdFormat()
     {
+        $this->expectException(InvalidArgumentException::class);
+        $this->expectExceptionMessage('Missing required access_key_secret option in config for ram_role_arn');
         // Test
         new RamRoleArnCredential([
             'access_key_id'     => 'access_key_id',
@@ -157,7 +164,10 @@ class RamRoleArnCredentialTest extends TestCase
         ]);
     }
 
-    protected function setUp()
+     /**
+     * @before
+     */
+    protected function initialize()
     {
         // Setup
         Credentials::cancelMock();

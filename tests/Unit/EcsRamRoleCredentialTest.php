@@ -20,10 +20,11 @@ class EcsRamRoleCredentialTest extends TestCase
     protected $credential;
 
     /**
+     * @before
      * Sets up the fixture, for example, open a network connection.
      * This method is called before a test is executed.
      */
-    public function setUp()
+    protected function initialize()
     {
         parent::setUp();
         $this->credential = new EcsRamRoleCredential('EcsRamRoleTest');
@@ -62,16 +63,16 @@ class EcsRamRoleCredentialTest extends TestCase
     {
         // Setup
         $roleName = 'role_arn';
-        $enableIMDSv2 = true;
+        $disabl1e_imdsv1 = true;
         $metadataTokenDuration = 3600;
-        $credential = new EcsRamRoleCredential($roleName, $enableIMDSv2, $metadataTokenDuration);
+        $credential = new EcsRamRoleCredential($roleName, $disabl1e_imdsv1, $metadataTokenDuration);
 
-        self::assertEquals(true, $this->getPrivateField($credential, 'enableIMDSv2'));
+        self::assertEquals(true, $this->getPrivateField($credential, 'disableIMDSv1'));
         self::assertEquals(3600, $this->getPrivateField($credential, 'metadataTokenDuration'));
 
         $credential = new EcsRamRoleCredential($roleName);
 
-        self::assertEquals(false, $this->getPrivateField($credential, 'enableIMDSv2'));
+        self::assertEquals(false, $this->getPrivateField($credential, 'disableIMDSv1'));
         self::assertEquals(21600, $this->getPrivateField($credential, 'metadataTokenDuration'));
     }
 
@@ -87,6 +88,7 @@ class EcsRamRoleCredentialTest extends TestCase
             'AccessKeySecret' => 'bar',
             'SecurityToken'   => 'token',
         ];
+        Credentials::mockResponse(200, [], 'Token');
         Credentials::mockResponse(200, [], 'RoleName');
         Credentials::mockResponse(200, [], $result);
 
@@ -107,6 +109,13 @@ class EcsRamRoleCredentialTest extends TestCase
 
         Credentials::mockResponse(404, [], 'RoleName');
 
+        $this->expectException(InvalidArgumentException::class);
+        if (method_exists($this, 'expectExceptionMessageMatches')) {
+            $this->expectExceptionMessageMatches('/The role name was not found in the instance/');
+        } elseif (method_exists($this, 'expectExceptionMessageRegExp')) {
+            $this->expectExceptionMessageRegExp('/The role name was not found in the instance/');
+        }
+        
         self::assertEquals('foo', $this->credential->getAccessKeyId());
     }
 
@@ -121,6 +130,13 @@ class EcsRamRoleCredentialTest extends TestCase
 
         Credentials::mockResponse(500, [], 'RoleName');
 
+        $this->expectException(RuntimeException::class);
+        
+        if (method_exists($this, 'expectExceptionMessageMatches')) {
+            $this->expectExceptionMessageMatches('/Error retrieving credentials from result: RoleName/');
+        } elseif (method_exists($this, 'expectExceptionMessageRegExp')) {
+            $this->expectExceptionMessageRegExp('/Error retrieving credentials from result: RoleName/');
+        }
         self::assertEquals('foo', $this->credential->getAccessKeyId());
     }
 
@@ -134,7 +150,13 @@ class EcsRamRoleCredentialTest extends TestCase
         $this->credential = new EcsRamRoleCredential();
 
         Credentials::mockResponse(200, [], '');
-
+        $this->expectException(RuntimeException::class);
+        if (method_exists($this, 'expectExceptionMessageMatches')) {
+            $this->expectExceptionMessageMatches('/Error retrieving credentials from result is empty/');
+        } elseif (method_exists($this, 'expectExceptionMessageRegExp')) {
+            $this->expectExceptionMessageRegExp('/Error retrieving credentials from result is empty/');
+        }
+        
         self::assertEquals('foo', $this->credential->getAccessKeyId());
     }
 
@@ -152,6 +174,7 @@ class EcsRamRoleCredentialTest extends TestCase
             'AccessKeySecret' => 'bar',
             'SecurityToken'   => 'token',
         ];
+        Credentials::mockResponse(200, [], 'Token');
         Credentials::mockResponse(200, [], $result);
 
         self::assertEquals('foo', $this->credential->getAccessKeyId());
@@ -173,8 +196,10 @@ class EcsRamRoleCredentialTest extends TestCase
             'AccessKeyId' => 'foo',
         ];
         $credential = new EcsRamRoleCredential('EcsRamRoleTest2');
+        Credentials::mockResponse(200, [], 'Token');
         Credentials::mockResponse(200, [], $result);
-
+        $this->expectException(RuntimeException::class);
+        $this->expectExceptionMessage('Result contains no credentials');
         // Test
         self::assertEquals('foo', $credential->getAccessKeyId());
     }
@@ -192,8 +217,11 @@ class EcsRamRoleCredentialTest extends TestCase
             'AccessKeyId' => 'foo',
         ];
         $credential = new EcsRamRoleCredential('EcsRamRoleTest3');
+        Credentials::mockResponse(200, [], 'Token');
         Credentials::mockResponse(404, [], $result);
 
+        $this->expectException(InvalidArgumentException::class);
+        $this->expectExceptionMessage('The role was not found in the instance');
         // Test
         self::assertEquals('foo', $credential->getAccessKeyId());
     }
@@ -212,8 +240,16 @@ class EcsRamRoleCredentialTest extends TestCase
         ];
 
         $credential = new EcsRamRoleCredential('EcsRamRoleTest3');
+        Credentials::mockResponse(200, [], 'Token');
         Credentials::mockResponse(500, [], $result);
 
+        $this->expectException(RuntimeException::class);
+        if (method_exists($this, 'expectExceptionMessageMatches')) {
+            $this->expectExceptionMessageMatches('/Error retrieving credentials from result/');
+        } elseif (method_exists($this, 'expectExceptionMessageRegExp')) {
+            $this->expectExceptionMessageRegExp('/Error retrieving credentials from result/');
+        }
+        
         // Test
         self::assertEquals('foo', $credential->getAccessKeyId());
     }
@@ -227,6 +263,8 @@ class EcsRamRoleCredentialTest extends TestCase
         // Setup
         $roleName = '';
 
+        $this->expectException(InvalidArgumentException::class);
+        $this->expectExceptionMessage('role_name cannot be empty');
         // Test
         new EcsRamRoleCredential($roleName);
     }
@@ -243,6 +281,12 @@ class EcsRamRoleCredentialTest extends TestCase
 
         $credential = new EcsRamRoleCredential('EcsRamRoleTest4');
 
+        $this->expectException(RuntimeException::class);
+        if (method_exists($this, 'expectExceptionMessageMatches')) {
+            $this->expectExceptionMessageMatches('/timed/');
+        } elseif (method_exists($this, 'expectExceptionMessageRegExp')) {
+            $this->expectExceptionMessageRegExp('/timed/');
+        }
         // Test
         self::assertEquals('foo', $credential->getAccessKeyId());
     }

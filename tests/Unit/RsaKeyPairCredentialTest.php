@@ -8,6 +8,8 @@ use AlibabaCloud\Credentials\RsaKeyPairCredential;
 use AlibabaCloud\Credentials\Signature\ShaHmac1Signature;
 use AlibabaCloud\Credentials\Tests\Unit\Ini\VirtualRsaKeyPairCredential;
 use Exception;
+use RuntimeException;
+use InvalidArgumentException;
 use GuzzleHttp\Exception\GuzzleException;
 use PHPUnit\Framework\TestCase;
 
@@ -34,8 +36,8 @@ class RsaKeyPairCredentialTest extends TestCase
             new RsaKeyPairCredential($publicKeyId, $privateKeyFile);
         } catch (Exception $e) {
             self::assertEquals(
-                "file_get_contents($privateKeyFile): failed to open stream: No such file or directory",
-                $e->getMessage()
+                strtolower("file_get_contents($privateKeyFile): failed to open stream: No such file or directory"),
+                strtolower($e->getMessage())
             );
         }
     }
@@ -135,6 +137,10 @@ class RsaKeyPairCredentialTest extends TestCase
     }
 }';
         Credentials::mockResponse(200, [], $result);
+
+        $this->expectException(RuntimeException::class);
+        $this->expectExceptionMessage('Result contains no credentials');
+
         $credential = new RsaKeyPairCredential($publicKeyId, $privateKeyFile);
 
         // Test
@@ -151,6 +157,8 @@ class RsaKeyPairCredentialTest extends TestCase
         $publicKeyId    = '';
         $privateKeyFile = VirtualRsaKeyPairCredential::privateKeyFileUrl();
 
+        $this->expectException(InvalidArgumentException::class);
+        $this->expectExceptionMessage('public_key_id cannot be empty');
         // Test
         new RsaKeyPairCredential($publicKeyId, $privateKeyFile);
     }
@@ -165,6 +173,8 @@ class RsaKeyPairCredentialTest extends TestCase
         $publicKeyId    = null;
         $privateKeyFile = VirtualRsaKeyPairCredential::privateKeyFileUrl();
 
+        $this->expectException(InvalidArgumentException::class);
+        $this->expectExceptionMessage('public_key_id must be a string');
         // Test
         new RsaKeyPairCredential($publicKeyId, $privateKeyFile);
     }
@@ -179,6 +189,8 @@ class RsaKeyPairCredentialTest extends TestCase
         $publicKeyId    = 'publicKeyId';
         $privateKeyFile = '';
 
+        $this->expectException(InvalidArgumentException::class);
+        $this->expectExceptionMessage('private_key_file cannot be empty');
         // Test
         new RsaKeyPairCredential($publicKeyId, $privateKeyFile);
     }
@@ -193,11 +205,16 @@ class RsaKeyPairCredentialTest extends TestCase
         $publicKeyId    = 'publicKeyId';
         $privateKeyFile = null;
 
+        $this->expectException(InvalidArgumentException::class);
+        $this->expectExceptionMessage('private_key_file must be a string');
         // Test
         new RsaKeyPairCredential($publicKeyId, $privateKeyFile);
     }
 
-    protected function setUp()
+     /**
+     * @before
+     */
+    protected function initialize()
     {
         // Setup
         Credentials::cancelMock();

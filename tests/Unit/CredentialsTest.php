@@ -6,6 +6,7 @@ use AlibabaCloud\Credentials\Credentials;
 use AlibabaCloud\Credentials\Providers\ChainProvider;
 use PHPUnit\Framework\TestCase;
 use ReflectionException;
+use RuntimeException;
 
 /**
  * Class CredentialsTest
@@ -35,6 +36,8 @@ class CredentialsTest extends TestCase
      */
     public function testGetNotFound()
     {
+        $this->expectException(RuntimeException::class);
+        $this->expectExceptionMessage("Credential 'no' not found");
         Credentials::get('no');
     }
 
@@ -49,5 +52,6 @@ class CredentialsTest extends TestCase
         Credentials::flush();
         ChainProvider::flush();
         Credentials::get(ChainProvider::getDefaultName());
+        self::assertTrue(true);
     }
 }

@@ -24,7 +24,7 @@ class EcsRamRoleCredential implements CredentialsInterface
     /**
      * @var boolean
      */
-    private $enableIMDSv2;
+    private $disableIMDSv1;
 
     /**
      * @var int
@@ -37,15 +37,15 @@ class EcsRamRoleCredential implements CredentialsInterface
      *
      * @param $role_name
      */
-    public function __construct($role_name = null, $enable_IMDS_v2 = false, $metadata_token_duration = 21600 )
+    public function __construct($role_name = null, $disable_imdsv1 = false, $metadata_token_duration = 21600 )
     {
         Filter::roleName($role_name);
 
         $this->roleName = $role_name;
 
-        Filter::enableIMDSv2($enable_IMDS_v2);
+        Filter::disableIMDSv1($disable_imdsv1);
 
-        $this->enableIMDSv2 = $enable_IMDS_v2;
+        $this->disableIMDSv1 = $disable_imdsv1;
 
         Filter::metadataTokenDuration($metadata_token_duration);
 
@@ -136,7 +136,7 @@ class EcsRamRoleCredential implements CredentialsInterface
     protected function getSessionCredential()
     {
         $config = [
-            'enableIMDSv2' => $this->enableIMDSv2,
+            'disableIMDSv1' => $this->disableIMDSv1,
             'metadataTokenDuration' => $this->metadataTokenDuration,
         ];
         return (new EcsRamRoleProvider($this, $config))->get();
@@ -170,6 +170,14 @@ class EcsRamRoleCredential implements CredentialsInterface
     public function getExpiration()
     {
         return $this->getSessionCredential()->getExpiration();
+    }
+
+    /**
+     * @return bool
+     */
+    public function isDisableIMDSv1()
+    {
+        return $this->disableIMDSv1;
     }
 
 }

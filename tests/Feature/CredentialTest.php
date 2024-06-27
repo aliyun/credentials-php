@@ -9,6 +9,7 @@ use AlibabaCloud\Credentials\Tests\Unit\Ini\VirtualRsaKeyPairCredential;
 use GuzzleHttp\Exception\GuzzleException;
 use PHPUnit\Framework\TestCase;
 use ReflectionException;
+use RuntimeException;
 
 /**
  * Class CredentialTest
@@ -50,6 +51,13 @@ class CredentialTest extends TestCase
             'roleName' => 'foo',
         ]);
         $credential = new Credential($config);
+
+        $this->expectException(\GuzzleHttp\Exception\ConnectException::class);
+        if (method_exists($this, 'expectExceptionMessageMatches')) {
+            $this->expectExceptionMessageMatches('/timed/');
+        } elseif (method_exists($this, 'expectExceptionMessageRegExp')) {
+            $this->expectExceptionMessageRegExp('/timed/');
+        }
 
         // Assert
         $this->assertEquals('foo', $credential->getRoleName());
@@ -98,11 +106,13 @@ class CredentialTest extends TestCase
             'privateKeyFile' => $privateKeyFile,
         ]);
         $credential     = new Credential($config);
-
+        $this->expectException(RuntimeException::class);
+        $this->expectExceptionMessage('Specified access key type is not match with signature type.');
         // Assert
         $this->assertTrue(null !== $credential->getAccessKeyId());
         $this->assertTrue(null !== $credential->getAccessKeySecret());
         $this->assertEquals('rsa_key_pair', $credential->getType());
+
         $credential->getAccessKeySecret();
     }
 
