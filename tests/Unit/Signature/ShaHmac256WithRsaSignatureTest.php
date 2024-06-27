@@ -5,6 +5,7 @@ namespace AlibabaCloud\Credentials\Tests\Unit\Signature;
 use AlibabaCloud\Credentials\Signature\ShaHmac256WithRsaSignature;
 use AlibabaCloud\Credentials\Tests\Unit\Ini\VirtualRsaKeyPairCredential;
 use PHPUnit\Framework\TestCase;
+use InvalidArgumentException;
 
 /**
  * Class ShaHmac256WithRsaSignatureTest
@@ -45,6 +46,13 @@ class ShaHmac256WithRsaSignatureTest extends TestCase
         // Setup
         $string         = 'string';
         $privateKeyFile = VirtualRsaKeyPairCredential::badPrivateKey();
+
+        $this->expectException(InvalidArgumentException::class);
+        if (method_exists($this, 'expectExceptionMessageMatches')) {
+            $this->expectExceptionMessageMatches('/supplied key param cannot be coerced into a private key/i');
+        } elseif (method_exists($this, 'expectExceptionMessageRegExp')) {
+            $this->expectExceptionMessageRegExp('/supplied key param cannot be coerced into a private key/i');
+        }
 
         // Test
         $signature = new ShaHmac256WithRsaSignature();

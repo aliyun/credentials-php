@@ -5,6 +5,7 @@ namespace AlibabaCloud\Credentials\Tests\Unit;
 use AlibabaCloud\Credentials\AccessKeyCredential;
 use AlibabaCloud\Credentials\Signature\ShaHmac1Signature;
 use PHPUnit\Framework\TestCase;
+use InvalidArgumentException;
 
 /**
  * Class AccessKeyCredentialTest
@@ -39,6 +40,9 @@ class AccessKeyCredentialTest extends TestCase
         $accessKeyId     = '';
         $accessKeySecret = 'bar';
 
+        $this->expectException(InvalidArgumentException::class);
+        $this->expectExceptionMessage('access_key_id cannot be empty');
+
         new AccessKeyCredential($accessKeyId, $accessKeySecret);
     }
 
@@ -51,6 +55,9 @@ class AccessKeyCredentialTest extends TestCase
         // Setup
         $accessKeyId     = null;
         $accessKeySecret = 'bar';
+
+        $this->expectException(InvalidArgumentException::class);
+        $this->expectExceptionMessage('access_key_id must be a string');
 
         new AccessKeyCredential($accessKeyId, $accessKeySecret);
     }
@@ -65,6 +72,9 @@ class AccessKeyCredentialTest extends TestCase
         $accessKeyId     = 'foo';
         $accessKeySecret = '';
 
+        $this->expectException(InvalidArgumentException::class);
+        $this->expectExceptionMessage('access_key_secret cannot be empty');
+
         // Test
         new AccessKeyCredential($accessKeyId, $accessKeySecret);
     }
@@ -78,6 +88,9 @@ class AccessKeyCredentialTest extends TestCase
         // Setup
         $accessKeyId     = 'foo';
         $accessKeySecret = null;
+
+        $this->expectException(InvalidArgumentException::class);
+        $this->expectExceptionMessage('access_key_secret must be a string');
 
         // Test
         new AccessKeyCredential($accessKeyId, $accessKeySecret);

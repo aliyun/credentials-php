@@ -42,7 +42,7 @@ class EcsRamRoleProvider extends Provider
     /**
      * @var string
      */
-    private $metadataToken;
+    private $metadataToken = null;
 
     /**
      * @var string
@@ -84,13 +84,13 @@ class EcsRamRoleProvider extends Provider
     }
     
     
-    protected function getEnableECSIMDSv2()
+    protected function getDisableECSIMDSv1()
     {
-        if (Helper::envNotEmpty('ALIBABA_CLOUD_ECS_IMDSV2_ENABLE')) {
-            return Helper::env('ALIBABA_CLOUD_ECS_IMDSV2_ENABLE') === true ? true : false;
+        if (Helper::envNotEmpty('ALIBABA_CLOUD_IMDSV1_DISABLE')) {
+            return Helper::env('ALIBABA_CLOUD_IMDSV1_DISABLE') === true ? true : false;
         }
-        if(isset($this->config['enableIMDSv2'])) {
-            return $this->config['enableIMDSv2'];
+        if(isset($this->config['disableIMDSv1'])) {
+            return $this->config['disableIMDSv1'];
         }
         return false;
     }
@@ -113,8 +113,8 @@ class EcsRamRoleProvider extends Provider
             'connect_timeout' => 1,
         ];
         
-        if ($this->getEnableECSIMDSv2()) {
-            $this->refreshMetadataToken();
+        $this->metadataToken = $this->refreshMetadataToken();
+        if(!is_null($this->metadataToken)) {
             $options['headers']['X-aliyun-ecs-metadata-token'] = $this->metadataToken; 
         }
 
@@ -135,14 +135,14 @@ class EcsRamRoleProvider extends Provider
     /**
      * Get metadata token by request.
      *
-     * @return ResponseInterface
+     * @return bool
      * @throws Exception
      * @throws GuzzleException
      */
     protected function refreshMetadataToken()
     {
         if(!$this->needToRefresh()) {
-            return;
+            return $this->metadataToken;
         }
         $credential = $this->credential;
         $url        = $this->metadataHost . $this->metadataTokenUri;
@@ -161,12 +161,12 @@ class EcsRamRoleProvider extends Provider
 
         if ($result->getStatusCode() != 200) {
             $this->staleTime = $tmpTime;
-            throw new RuntimeException('Failed to get token from ECS Metadata Service. HttpCode= ' . $result->getStatusCode());
+            if ($this->getDisableECSIMDSv1()) {
+                throw new RuntimeException('Failed to get token from ECS Metadata Service. HttpCode= ' . $result->getStatusCode());
+            }
+            return null;
         }
-
-        $this->metadataToken = $result->getBody();
-
-        return;
+        return (string) $result->getBody();
     }
 
 

@@ -5,6 +5,7 @@ namespace AlibabaCloud\Credentials\Tests\Unit;
 use AlibabaCloud\Credentials\Signature\ShaHmac1Signature;
 use AlibabaCloud\Credentials\StsCredential;
 use PHPUnit\Framework\TestCase;
+use InvalidArgumentException;
 
 class StsCredentialTest extends TestCase
 {
@@ -42,6 +43,9 @@ class StsCredentialTest extends TestCase
         $accessKeySecret = 'accessKeySecret';
         $securityToken   = 'securityToken';
 
+        $this->expectException(InvalidArgumentException::class);
+        $this->expectExceptionMessage('access_key_id cannot be empty');
+
         new StsCredential($accessKeyId, $accessKeySecret, $securityToken);
     }
 
@@ -55,6 +59,9 @@ class StsCredentialTest extends TestCase
         $accessKeyId     = null;
         $accessKeySecret = 'accessKeySecret';
         $securityToken   = 'securityToken';
+
+        $this->expectException(InvalidArgumentException::class);
+        $this->expectExceptionMessage('access_key_id must be a string');
 
         new StsCredential($accessKeyId, $accessKeySecret, $securityToken);
     }
@@ -70,6 +77,9 @@ class StsCredentialTest extends TestCase
         $accessKeySecret = '';
         $securityToken   = 'securityToken';
 
+        $this->expectException(InvalidArgumentException::class);
+        $this->expectExceptionMessage('access_key_secret cannot be empty');
+
         new StsCredential($accessKeyId, $accessKeySecret, $securityToken);
     }
 
@@ -83,6 +93,10 @@ class StsCredentialTest extends TestCase
         $accessKeyId     = 'accessKeyId';
         $accessKeySecret = null;
         $securityToken   = 'securityToken';
+
+        $this->expectException(InvalidArgumentException::class);
+        $this->expectExceptionCode(0);
+        $this->expectExceptionMessage('access_key_secret must be a string');
 
         new StsCredential($accessKeyId, $accessKeySecret, $securityToken);
     }

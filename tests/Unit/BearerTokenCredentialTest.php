@@ -5,6 +5,7 @@ namespace AlibabaCloud\Credentials\Tests\Unit;
 use AlibabaCloud\Credentials\BearerTokenCredential;
 use AlibabaCloud\Credentials\Signature\BearerTokenSignature;
 use InvalidArgumentException;
+use Exception;
 use PHPUnit\Framework\TestCase;
 
 /**
@@ -19,23 +20,29 @@ class BearerTokenCredentialTest extends TestCase
      * @expectedException \InvalidArgumentException
      * @expectedExceptionMessage bearer_token cannot be empty
      */
-    public static function testBearerTokenEmpty()
+    public function testBearerTokenEmpty()
     {
         // Setup
         $bearerToken = '';
 
+        $this->expectException(InvalidArgumentException::class);
+        $this->expectExceptionMessage('bearer_token cannot be empty');
         // Test
         new BearerTokenCredential($bearerToken);
+        
     }
 
     /**
      * @expectedException \InvalidArgumentException
      * @expectedExceptionMessage bearer_token must be a string
      */
-    public static function testBearerTokenFormat()
+    public function testBearerTokenFormat()
     {
         // Setup
         $bearerToken = null;
+
+        $this->expectException(InvalidArgumentException::class);
+        $this->expectExceptionMessage('bearer_token must be a string');
 
         // Test
         new BearerTokenCredential($bearerToken);

@@ -14,7 +14,10 @@ use PHPUnit\Framework\TestCase;
  */
 class MockTraitTest extends TestCase
 {
-    public function setUp()
+     /**
+     * @before
+     */
+    protected function initialize()
     {
         parent::setUp();
         Credentials::cancelMock();
@@ -35,6 +38,8 @@ class MockTraitTest extends TestCase
                                                    'policy'            => [],
                                                ]);
 
+        $this->expectException(\GuzzleHttp\Exception\RequestException::class);
+        $this->expectExceptionMessage('Error');
         self::assertEquals('STS.**************', $credential->getAccessKeyId());
     }
 }

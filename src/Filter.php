@@ -100,12 +100,12 @@ class Filter
     }
 
     /**
-     * @param boolean|null $enable_IMDS_v2
+     * @param boolean|null $disable_IMDS_v1
      */
-    public static function enableIMDSv2($enable_IMDS_v2)
+    public static function disableIMDSv1($disable_imdsv1)
     {
-        if (!is_bool($enable_IMDS_v2)) {
-            throw new InvalidArgumentException('enable_IMDS_v2 must be a string');
+        if (!is_bool($disable_imdsv1)) {
+            throw new InvalidArgumentException('disable_IMDS_v1 must be a boolean');
         }
     }
 

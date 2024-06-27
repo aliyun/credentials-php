@@ -41,7 +41,7 @@ class Config
 
     public $expiration = 0;
 
-    public $enableIMDSv2 = false;
+    public $disableIMDSv1 = false;
 
     public $metadataTokenDuration = 21600;
 

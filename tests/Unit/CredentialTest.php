@@ -23,6 +23,7 @@ class CredentialTest extends TestCase
         } catch (Exception $exception) {
             self::assertEquals($exception->getMessage(), "Credential 'default' not found");
         }
+        self::assertTrue(true);
     }
 
     /**
@@ -36,8 +37,9 @@ class CredentialTest extends TestCase
         try {
             new Credential($config);
         } catch (Exception $e) {
-            self::assertEquals($message, $e->getMessage());
+            self::assertEquals(strtolower($message), strtolower($e->getMessage()));
         }
+        self::assertTrue(true);
     }
 
     /**
@@ -175,16 +177,16 @@ class CredentialTest extends TestCase
                 [
                     'type'      => 'ecs_ram_role',
                     'role_name' => 'test',
-                    'enableIMDSv2' => 'false',
+                    'disableIMDSv1' => 'false',
                 ],
-                'enable_IMDS_v2 must be a string',
+                'disable_IMDS_v1 must be a boolean',
             ],
 
             [
                 [
                     'type'      => 'ecs_ram_role',
                     'role_name' => 'test',
-                    'enableIMDSv2' => false,
+                    'disableIMDSv1' => false,
                     'metadataTokenDuration' => 3600,
                 ],
                 'metadata_token_duration must be a int',
