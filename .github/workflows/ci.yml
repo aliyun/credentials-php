@@ -21,7 +21,7 @@ jobs:
 
     steps:
     - name: Checkout
-      uses: actions/checkout@v2
+      uses: actions/checkout@v4
 
     - name: Setup PHP
       uses: shivammathur/setup-php@v2
@@ -41,8 +41,12 @@ jobs:
     - name: Run test case
       run: composer test
       env:
-          ACCESS_KEY_ID: ${{ secrets.ACCESS_KEY_ID }}
-          ACCESS_KEY_SECRET: ${{ secrets.ACCESS_KEY_SECRET }}
-          ROLE_ARN: ${{ secrets.ROLE_ARN }}
-          PUBLIC_KEY_ID: ${{ secrets.PUBLIC_KEY_ID }}
-          PRIVATE_KEY_LINE_1: ${{ secrets.PRIVATE_KEY_LINE_1 }}
+        ACCESS_KEY_ID: ${{ secrets.ACCESS_KEY_ID }}
+        ACCESS_KEY_SECRET: ${{ secrets.ACCESS_KEY_SECRET }}
+        ROLE_ARN: ${{ secrets.ROLE_ARN }}
+        PUBLIC_KEY_ID: ${{ secrets.PUBLIC_KEY_ID }}
+        PRIVATE_KEY_LINE_1: ${{ secrets.PRIVATE_KEY_LINE_1 }}
+    - name: Upload Coverage Report
+      uses: codecov/codecov-action@v4
+      with:
+        token: ${{ secrets.CODECOV_TOKEN }} # required
