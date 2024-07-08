@@ -1,16 +1,15 @@
 English | [简体中文](/README-zh-CN.md)
 
+![](https://aliyunsdk-pages.alicdn.com/icons/AlibabaCloud.svg)
+
 # Alibaba Cloud Credentials for PHP
 
+[![PHP CI](https://github.com/aliyun/credentials-php/actions/workflows/ci.yml/badge.svg)](https://github.com/aliyun/credentials-php/actions/workflows/ci.yml)
+[![codecov](https://codecov.io/gh/aliyun/credentials-php/graph/badge.svg?token=YIkSjtfKbB)](https://codecov.io/gh/aliyun/credentials-php)
 [![Latest Stable Version](https://poser.pugx.org/alibabacloud/credentials/v/stable)](https://packagist.org/packages/alibabacloud/credentials)
 [![composer.lock](https://poser.pugx.org/alibabacloud/credentials/composerlock)](https://packagist.org/packages/alibabacloud/credentials)
 [![Total Downloads](https://poser.pugx.org/alibabacloud/credentials/downloads)](https://packagist.org/packages/alibabacloud/credentials)
 [![License](https://poser.pugx.org/alibabacloud/credentials/license)](https://packagist.org/packages/alibabacloud/credentials)
-[![codecov](https://codecov.io/gh/aliyun/credentials-php/branch/master/graph/badge.svg)](https://codecov.io/gh/aliyun/credentials-php)
-[![Travis Build Status](https://travis-ci.org/aliyun/credentials-php.svg?branch=master)](https://travis-ci.org/aliyun/credentials-php)
-[![Appveyor Build Status](https://ci.appveyor.com/api/projects/status/6jxpwmhyfipagtge/branch/master?svg=true)](https://ci.appveyor.com/project/aliyun/credentials-php)
-
-![](https://aliyunsdk-pages.alicdn.com/icons/AlibabaCloud.svg)
 
 Alibaba Cloud Credentials for PHP is a tool that helps PHP developers manage their credentials.
 
