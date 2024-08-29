@@ -33,7 +33,7 @@ class MockTraitTest extends TestCase
         $credential = new RamRoleArnCredential([
                                                    'access_key_id'     => 'access_key_id',
                                                    'access_key_secret' => 'access_key_secret',
-                                                   'role_arn'          => 'role_arn',
+                                                   'role_arn'          => 'role_arn_mock',
                                                    'role_session_name' => 'role_session_name',
                                                    'policy'            => [],
                                                ]);

@@ -3,7 +3,7 @@
 namespace AlibabaCloud\Credentials\Tests\Unit;
 
 use AlibabaCloud\Credentials\Credentials;
-use AlibabaCloud\Credentials\Helper;
+use AlibabaCloud\Credentials\Utils\Helper;
 use AlibabaCloud\Credentials\RsaKeyPairCredential;
 use AlibabaCloud\Credentials\Signature\ShaHmac1Signature;
 use AlibabaCloud\Credentials\Tests\Unit\Ini\VirtualRsaKeyPairCredential;
@@ -64,6 +64,7 @@ class RsaKeyPairCredentialTest extends TestCase
                 $e->getMessage()
             );
         }
+        ini_set('open_basedir', null);
     }
 
     public function testConstruct()
@@ -85,6 +86,7 @@ class RsaKeyPairCredentialTest extends TestCase
         $this->assertEquals([], $credential->getConfig());
         $this->assertInstanceOf(ShaHmac1Signature::class, $credential->getSignature());
         $this->assertEquals($publicKeyId, $credential->getOriginalAccessKeyId());
+        $this->assertNotEmpty($credential->getOriginalAccessKeySecret());
     }
 
     /**
@@ -115,6 +117,13 @@ class RsaKeyPairCredentialTest extends TestCase
         self::assertEquals('**************', $credential->getAccessKeySecret());
         self::assertEquals('', $credential->getSecurityToken());
         self::assertEquals(strtotime('2023-02-19T07:02:36.225Z'), $credential->getExpiration());
+
+        Credentials::mockResponse(200, [], $result);
+        $credentialModel = $this->credential->getCredential();
+        $this->assertEquals('TMPSK.**************', $credentialModel->getAccessKeyId());
+        $this->assertEquals('**************', $credentialModel->getAccessKeySecret());
+        self::assertEquals('', $credentialModel->getSecurityToken());
+        $this->assertEquals('rsa_key_pair', $credentialModel->getType());
     }
 
     /**
@@ -139,7 +148,7 @@ class RsaKeyPairCredentialTest extends TestCase
         Credentials::mockResponse(200, [], $result);
 
         $this->expectException(RuntimeException::class);
-        $this->expectExceptionMessage('Result contains no credentials');
+        $this->expectExceptionMessage('Error retrieving credentials from RsaKeyPair result:{"RequestId":"F702286E-F231-4F40-BB86-XXXXXX","SessionAccessKey":{"SessionAccessKeyId":"TMPSK.**************","Expiration":"2023-02-19T07:02:36.225Z"}}');
 
         $credential = new RsaKeyPairCredential($publicKeyId, $privateKeyFile);
 
@@ -158,7 +167,7 @@ class RsaKeyPairCredentialTest extends TestCase
         $privateKeyFile = VirtualRsaKeyPairCredential::privateKeyFileUrl();
 
         $this->expectException(InvalidArgumentException::class);
-        $this->expectExceptionMessage('public_key_id cannot be empty');
+        $this->expectExceptionMessage('publicKeyId cannot be empty');
         // Test
         new RsaKeyPairCredential($publicKeyId, $privateKeyFile);
     }
@@ -174,7 +183,7 @@ class RsaKeyPairCredentialTest extends TestCase
         $privateKeyFile = VirtualRsaKeyPairCredential::privateKeyFileUrl();
 
         $this->expectException(InvalidArgumentException::class);
-        $this->expectExceptionMessage('public_key_id must be a string');
+        $this->expectExceptionMessage('publicKeyId must be a string');
         // Test
         new RsaKeyPairCredential($publicKeyId, $privateKeyFile);
     }
@@ -190,7 +199,7 @@ class RsaKeyPairCredentialTest extends TestCase
         $privateKeyFile = '';
 
         $this->expectException(InvalidArgumentException::class);
-        $this->expectExceptionMessage('private_key_file cannot be empty');
+        $this->expectExceptionMessage('privateKeyFile cannot be empty');
         // Test
         new RsaKeyPairCredential($publicKeyId, $privateKeyFile);
     }
@@ -206,7 +215,7 @@ class RsaKeyPairCredentialTest extends TestCase
         $privateKeyFile = null;
 
         $this->expectException(InvalidArgumentException::class);
-        $this->expectExceptionMessage('private_key_file must be a string');
+        $this->expectExceptionMessage('privateKeyFile must be a string');
         // Test
         new RsaKeyPairCredential($publicKeyId, $privateKeyFile);
     }

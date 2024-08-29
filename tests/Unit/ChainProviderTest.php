@@ -1,8 +1,8 @@
 <?php
 
-namespace AlibabaCloud\Credentials\Tests\Unit\Filter;
+namespace AlibabaCloud\Credentials\Tests\Unit;
 
-use AlibabaCloud\Credentials\Helper;
+use AlibabaCloud\Credentials\Utils\Helper;
 use AlibabaCloud\Credentials\Providers\ChainProvider;
 use AlibabaCloud\Credentials\Tests\Unit\Ini\VirtualAccessKeyCredential;
 use PHPUnit\Framework\TestCase;
@@ -12,10 +12,30 @@ use InvalidArgumentException;
 /**
  * Class ChainProviderTest
  *
- * @package AlibabaCloud\Credentials\Tests\Unit\Filter
+ * @package AlibabaCloud\Credentials\Tests\Unit
  */
 class ChainProviderTest extends TestCase
 {
+
+    /**
+     * @before
+     */
+    protected function initialize()
+    {
+        parent::setUp();
+        putenv('ALIBABA_CLOUD_ACCESS_KEY_ID=foo');
+        putenv('ALIBABA_CLOUD_ACCESS_KEY_SECRET=bar');
+    }
+
+    /**
+     * @after
+     */
+    protected function finalize()
+    {
+        parent::tearDown();
+        putenv('ALIBABA_CLOUD_ACCESS_KEY_ID=');
+        putenv('ALIBABA_CLOUD_ACCESS_KEY_SECRET=');
+    }
     /**
      * @expectedException \InvalidArgumentException
      * @expectedExceptionMessage No providers in chain
@@ -36,6 +56,7 @@ class ChainProviderTest extends TestCase
         );
         self::assertTrue(ChainProvider::hasCustomChain());
         ChainProvider::customProvider(ChainProvider::getDefaultName());
+        putenv("ALIBABA_CLOUD_CREDENTIALS_FILE=");
     }
 
     public function testSetIniEmpty()
@@ -66,12 +87,13 @@ class ChainProviderTest extends TestCase
         $this->expectException(RuntimeException::class);
         $this->expectExceptionMessage('Credentials file is not readable: /a/c');
         ChainProvider::customProvider(ChainProvider::getDefaultName());
+        putenv('ALIBABA_CLOUD_CREDENTIALS_FILE=');
     }
 
     public function testInOpenBaseDir()
     {
         if (!Helper::isWindows()) {
-            $dirs = 'vfs://AlibabaCloud:/home:/Users:/private:/a/b:/d';
+            $dirs = 'vfs://AlibabaCloud:/home:/Users:/private:/a/b';
         } else {
             $dirs = 'C:\\projects;C:\\Users';
         }
@@ -84,6 +106,8 @@ class ChainProviderTest extends TestCase
         );
         self::assertTrue(ChainProvider::hasCustomChain());
         ChainProvider::customProvider(ChainProvider::getDefaultName());
+        putenv('ALIBABA_CLOUD_CREDENTIALS_FILE=');
+        ini_set('open_basedir', null);
     }
 
     public function testDefaultProvider()
@@ -108,6 +132,7 @@ class ChainProviderTest extends TestCase
         );
         self::assertTrue(ChainProvider::hasCustomChain());
         ChainProvider::customProvider(ChainProvider::getDefaultName());
+        putenv('ALIBABA_CLOUD_ECS_METADATA=');
     }
 
     public function testDefaultFile()
@@ -116,7 +141,7 @@ class ChainProviderTest extends TestCase
             'credentials',
             ChainProvider::getDefaultFile()
         );
-        putenv('ALIBABA_CLOUD_PROFILE=default');
+        putenv('ALIBABA_CLOUD_PROFILE=');
     }
 
     public function testDefaultName()
@@ -132,15 +157,7 @@ class ChainProviderTest extends TestCase
             'default',
             ChainProvider::getDefaultName()
         );
-    }
 
-    /**
-     * @before
-     */
-    protected function initialize()
-    {
-        parent::setUp();
-        putenv('ALIBABA_CLOUD_ACCESS_KEY_ID=foo');
-        putenv('ALIBABA_CLOUD_ACCESS_KEY_SECRET=bar');
+        putenv('ALIBABA_CLOUD_PROFILE=');
     }
 }

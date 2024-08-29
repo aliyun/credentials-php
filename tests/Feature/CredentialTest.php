@@ -4,7 +4,7 @@ namespace AlibabaCloud\Credentials\Tests\Feature;
 
 use AlibabaCloud\Credentials\Credential;
 use AlibabaCloud\Credentials\Credentials;
-use AlibabaCloud\Credentials\Helper;
+use AlibabaCloud\Credentials\Utils\Helper;
 use AlibabaCloud\Credentials\Tests\Unit\Ini\VirtualRsaKeyPairCredential;
 use GuzzleHttp\Exception\GuzzleException;
 use PHPUnit\Framework\TestCase;
@@ -22,25 +22,6 @@ class CredentialTest extends TestCase
     /**
      * @throws GuzzleException
      * @throws ReflectionException
-     */
-    public function testAccessKey()
-    {
-        $config     = new Credential\Config([
-            'type'            => 'access_key',
-            'accessKeyId'     => 'foo',
-            'accessKeySecret' => 'bar',
-        ]);
-        $credential = new Credential($config);
-
-        // Assert
-        $this->assertEquals('foo', $credential->getAccessKeyId());
-        $this->assertEquals('bar', $credential->getAccessKeySecret());
-        $this->assertEquals('access_key', $credential->getType());
-    }
-
-    /**
-     * @throws GuzzleException
-     * @throws ReflectionException
      * @expectedException \GuzzleHttp\Exception\ConnectException
      * @expectedExceptionMessageRegExp /timed/
      */
@@ -54,15 +35,15 @@ class CredentialTest extends TestCase
 
         $this->expectException(\GuzzleHttp\Exception\ConnectException::class);
         if (method_exists($this, 'expectExceptionMessageMatches')) {
-            $this->expectExceptionMessageMatches('/timed/');
+            $this->expectExceptionMessageMatches('/Connection timeout/');
         } elseif (method_exists($this, 'expectExceptionMessageRegExp')) {
-            $this->expectExceptionMessageRegExp('/timed/');
+            $this->expectExceptionMessageRegExp('/Connection timeout/');
         }
 
         // Assert
         $this->assertEquals('foo', $credential->getRoleName());
         $this->assertEquals('ecs_ram_role', $credential->getType());
-        $credential->getAccessKeySecret();
+        $credential->getCredential();
     }
 
     /**
@@ -84,19 +65,25 @@ class CredentialTest extends TestCase
         $credential = new Credential($config);
 
         // Assert
-        $this->assertTrue(null !== $credential->getAccessKeyId());
-        $this->assertTrue(null !== $credential->getAccessKeySecret());
-        $this->assertEquals('ram_role_arn', $credential->getType());
+        $result = $credential->getCredential();
+        $this->assertNotNull($result->getAccessKeyId());
+        $this->assertNotNull($result->getAccessKeySecret());
+        $this->assertEquals('ram_role_arn', $result->getType());
     }
 
     /**
      * @throws GuzzleException
      * @throws ReflectionException
-     * @expectedException \RuntimeException
-     * @expectedExceptionMessage Specified access key type is not match with signature type.
      */
     public function testRsaKeyPairCredential()
     {
+        $this->expectException(RuntimeException::class);
+        $reg = '/Error refreshing credentials from RsaKeyPair, statusCode: 404/';
+        if (method_exists($this, 'expectExceptionMessageMatches')) {
+            $this->expectExceptionMessageMatches($reg);
+        } elseif (method_exists($this, 'expectExceptionMessageRegExp')) {
+            $this->expectExceptionMessageRegExp($reg);
+        }
         Credentials::cancelMock();
         $publicKeyId    = Helper::envNotEmpty('PUBLIC_KEY_ID');
         $privateKeyFile = VirtualRsaKeyPairCredential::privateKeyFileUrl();
@@ -106,51 +93,40 @@ class CredentialTest extends TestCase
             'privateKeyFile' => $privateKeyFile,
         ]);
         $credential     = new Credential($config);
-        $this->expectException(RuntimeException::class);
-        $this->expectExceptionMessage('Specified access key type is not match with signature type.');
         // Assert
-        $this->assertTrue(null !== $credential->getAccessKeyId());
-        $this->assertTrue(null !== $credential->getAccessKeySecret());
-        $this->assertEquals('rsa_key_pair', $credential->getType());
-
-        $credential->getAccessKeySecret();
+        $result = $credential->getCredential();
+        $this->assertNotNull($result->getAccessKeyId());
+        $this->assertNotNull($result->getAccessKeySecret());
+        $this->assertEquals('rsa_key_pair', $result->getType());
     }
 
     /**
      * @throws GuzzleException
      * @throws ReflectionException
      */
-    public function testSTS()
+    public function testOIDCRoleArnCredential()
     {
-        $config     = new Credential\Config([
-            'type'            => 'sts',
-            'accessKeyId'     => 'foo',
-            'accessKeySecret' => 'bar',
-            'securityToken'   => 'token',
+        Credentials::cancelMock();
+        $credential = new Credential();
+
+        $result = $credential->getCredential();
+        $this->assertNotNull($result->getAccessKeyId());
+        $this->assertNotNull($result->getAccessKeySecret());
+        $this->assertNotNull($result->getSecurityToken());
+        $this->assertEquals('default', $result->getType());
+
+        $config = new Credential\Config([
+            'type'            => 'oidc_role_arn',
+            'roleSessionName' => 'github_php_oidc_role_session_name',
         ]);
+
         $credential = new Credential($config);
 
-        // Assert
-        $this->assertEquals('foo', $credential->getAccessKeyId());
-        $this->assertEquals('bar', $credential->getAccessKeySecret());
-        $this->assertEquals('token', $credential->getSecurityToken());
-        $this->assertEquals('sts', $credential->getType());
+        $result = $credential->getCredential();
+        $this->assertNotNull($result->getAccessKeyId());
+        $this->assertNotNull($result->getAccessKeySecret());
+        $this->assertNotNull($result->getSecurityToken());
+        $this->assertEquals('oidc_role_arn', $result->getType());
     }
 
-    /**
-     * @throws GuzzleException
-     * @throws ReflectionException
-     */
-    public function testBearerToken()
-    {
-        $config     = new Credential\Config([
-            'type'            => 'bearer',
-            'bearerToken'     => 'token',
-        ]);
-        $credential = new Credential($config);
-
-        // Assert
-        $this->assertEquals('token', $credential->getBearerToken());
-        $this->assertEquals('bearer', $credential->getType());
-    }
 }

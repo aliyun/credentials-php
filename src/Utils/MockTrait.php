@@ -1,6 +1,6 @@
 <?php
 
-namespace AlibabaCloud\Credentials;
+namespace AlibabaCloud\Credentials\Utils;
 
 use Exception;
 use GuzzleHttp\Exception\RequestException;
@@ -13,7 +13,7 @@ use Psr\Http\Message\ResponseInterface;
 /**
  * Trait MockTrait
  *
- * @package AlibabaCloud\Credentials
+ * @package AlibabaCloud\Credentials\Utils
  */
 trait MockTrait
 {
