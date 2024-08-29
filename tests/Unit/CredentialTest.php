@@ -1,10 +1,10 @@
 <?php
 
-namespace AlibabaCloud\Credentials\Tests\Unit\Filter;
+namespace AlibabaCloud\Credentials\Tests\Unit;
 
 use AlibabaCloud\Credentials\Credential;
-use AlibabaCloud\Credentials\RamRoleArnCredential;
-use AlibabaCloud\Credentials\Signature\ShaHmac1Signature;
+use AlibabaCloud\Credentials\Credentials;
+use AlibabaCloud\Credentials\Credential\Config;
 use Exception;
 use PHPUnit\Framework\TestCase;
 use ReflectionException;
@@ -12,17 +12,13 @@ use ReflectionException;
 /**
  * Class CredentialTest
  *
- * @package AlibabaCloud\Credentials\Tests\Unit\Filter
+ * @package AlibabaCloud\Credentials\Tests\Unit
  */
 class CredentialTest extends TestCase
 {
     public function testLoad()
     {
-        try {
-            new Credential();
-        } catch (Exception $exception) {
-            self::assertEquals($exception->getMessage(), "Credential 'default' not found");
-        }
+        new Credential();
         self::assertTrue(true);
     }
 
@@ -53,21 +49,21 @@ class CredentialTest extends TestCase
                 [
                     'access_key_id' => 'access_key_id',
                 ],
-                'Missing required type option',
+                'Unsupported credential type option: default, support: access_key, sts, bearer, ecs_ram_role, ram_role_arn, rsa_key_pair, oidc_role_arn, credentials_uri',
             ],
 
             [
                 [
                     'type' => 'none',
                 ],
-                'Invalid type option, support: access_key, sts, ecs_ram_role, ram_role_arn, rsa_key_pair, bearer',
+                'Unsupported credential type option: none, support: access_key, sts, bearer, ecs_ram_role, ram_role_arn, rsa_key_pair, oidc_role_arn, credentials_uri',
             ],
 
             [
                 [
                     'type' => 'access_key',
                 ],
-                'Missing required access_key_id option in config for access_key',
+                'accessKeyId must be a string',
             ],
 
             [
@@ -75,7 +71,7 @@ class CredentialTest extends TestCase
                     'type'          => 'access_key',
                     'access_key_id' => 'foo',
                 ],
-                'Missing required access_key_secret option in config for access_key',
+                'accessKeySecret must be a string',
             ],
 
             [
@@ -84,7 +80,7 @@ class CredentialTest extends TestCase
                     'access_key_id'     => '',
                     'access_key_secret' => 'bar',
                 ],
-                'access_key_id cannot be empty',
+                'accessKeyId cannot be empty',
             ],
 
             [
@@ -93,14 +89,14 @@ class CredentialTest extends TestCase
                     'access_key_id'     => 'foo',
                     'access_key_secret' => '',
                 ],
-                'access_key_secret cannot be empty',
+                'accessKeySecret cannot be empty',
             ],
 
             [
                 [
                     'type' => 'sts',
                 ],
-                'Missing required access_key_id option in config for sts',
+                'accessKeyId must be a string',
             ],
 
             [
@@ -108,7 +104,7 @@ class CredentialTest extends TestCase
                     'type'          => 'sts',
                     'access_key_id' => 'foo',
                 ],
-                'Missing required access_key_secret option in config for sts',
+                'accessKeySecret must be a string',
             ],
 
             [
@@ -117,7 +113,7 @@ class CredentialTest extends TestCase
                     'access_key_id'     => 'foo',
                     'access_key_secret' => 'bar',
                 ],
-                'Missing required expiration option in config for sts',
+                'securityToken must be a string',
             ],
 
             [
@@ -127,7 +123,7 @@ class CredentialTest extends TestCase
                     'access_key_secret' => 'bar',
                     'expiration'        => 3600,
                 ],
-                'access_key_id cannot be empty',
+                'accessKeyId cannot be empty',
             ],
 
             [
@@ -137,7 +133,7 @@ class CredentialTest extends TestCase
                     'access_key_secret' => '',
                     'expiration'        => 3600,
                 ],
-                'access_key_secret cannot be empty',
+                'accessKeySecret cannot be empty',
             ],
 
             [
@@ -147,22 +143,7 @@ class CredentialTest extends TestCase
                     'access_key_secret' => 'bar',
                     'expiration'        => 'string',
                 ],
-                'expiration must be a int',
-            ],
-
-            [
-                [
-                    'type' => 'ecs_ram_role',
-                ],
-                'Missing required role_name option in config for ecs_ram_role',
-            ],
-
-            [
-                [
-                    'type'      => 'ecs_ram_role',
-                    'role_name' => '',
-                ],
-                'role_name cannot be empty',
+                'securityToken must be a string',
             ],
 
             [
@@ -170,7 +151,7 @@ class CredentialTest extends TestCase
                     'type'      => 'ecs_ram_role',
                     'role_name' => 123456,
                 ],
-                'role_name must be a string',
+                'roleName must be a string',
             ],
 
             [
@@ -179,24 +160,14 @@ class CredentialTest extends TestCase
                     'role_name' => 'test',
                     'disableIMDSv1' => 'false',
                 ],
-                'disable_IMDS_v1 must be a boolean',
-            ],
-
-            [
-                [
-                    'type'      => 'ecs_ram_role',
-                    'role_name' => 'test',
-                    'disableIMDSv1' => false,
-                    'metadataTokenDuration' => 3600,
-                ],
-                'metadata_token_duration must be a int',
+                'disableIMDSv1 must be a boolean',
             ],
 
             [
                 [
                     'type' => 'ram_role_arn',
                 ],
-                'Missing required access_key_id option in config for ram_role_arn',
+                'accessKeyId must be a string',
             ],
 
             [
@@ -204,7 +175,7 @@ class CredentialTest extends TestCase
                     'type'          => 'ram_role_arn',
                     'access_key_id' => 'foo',
                 ],
-                'Missing required access_key_secret option in config for ram_role_arn',
+                'accessKeySecret must be a string',
             ],
 
             [
@@ -213,7 +184,7 @@ class CredentialTest extends TestCase
                     'access_key_id'     => 'foo',
                     'access_key_secret' => 'bar',
                 ],
-                'Missing required role_arn option in config for ram_role_arn',
+                'roleArn cannot be empty',
             ],
 
             [
@@ -221,16 +192,16 @@ class CredentialTest extends TestCase
                     'type'              => 'ram_role_arn',
                     'access_key_id'     => 'foo',
                     'access_key_secret' => 'bar',
-                    'role_arn'          => 'role_arn',
+                    'security_token'    => 'token',
                 ],
-                'Missing required role_session_name option in config for ram_role_arn',
+                'roleArn cannot be empty',
             ],
 
             [
                 [
                     'type' => 'rsa_key_pair',
                 ],
-                'Missing required public_key_id option in config for rsa_key_pair',
+                'publicKeyId must be a string',
             ],
 
             [
@@ -238,7 +209,7 @@ class CredentialTest extends TestCase
                     'type'          => 'rsa_key_pair',
                     'public_key_id' => 'public_key_id',
                 ],
-                'Missing required private_key_file option in config for rsa_key_pair',
+                'privateKeyFile must be a string',
             ],
 
             [
@@ -247,7 +218,7 @@ class CredentialTest extends TestCase
                     'public_key_id'    => 'public_key_id',
                     'private_key_file' => '',
                 ],
-                'private_key_file cannot be empty',
+                'privateKeyFile cannot be empty',
             ],
 
             [
@@ -257,6 +228,296 @@ class CredentialTest extends TestCase
                     'private_key_file' => 'invalid_path',
                 ],
                 'file_get_contents(invalid_path): failed to open stream: No such file or directory',
+            ],
+
+            [
+                [
+                    'type' => 'oidc_role_arn',
+                ],
+                'roleArn cannot be empty',
+            ],
+
+            [
+                [
+                    'type' => 'oidc_role_arn',
+                    'role_arn' => 'role_arn',
+                ],
+                'oidcProviderArn cannot be empty',
+            ],
+
+            [
+                [
+                    'type' => 'oidc_role_arn',
+                    'role_arn' => 'role_arn',
+                    'oidc_provider_arn' => 'oidc_provider_arn',
+                ],
+                'oidcTokenFilePath cannot be empty',
+            ],
+
+            [
+                [
+                    'type' => 'credentials_uri',
+                ],
+                'credentialsURI must be a string',
+            ],
+
+            [
+                [
+                    'type' => 'credentials_uri',
+                    'credentialsURI' => ''
+                ],
+                'credentialsURI must be a string',
+            ],
+
+        ];
+    }
+
+    /**
+     * @dataProvider exceptionConfigCases
+     *
+     * @param array  $config
+     * @param string $message
+     */
+    public function testConfigException(array $map, $message)
+    {
+        try {
+            $config  = new Config($map);
+            new Credential($config);
+        } catch (Exception $e) {
+            self::assertEquals(strtolower($message), strtolower($e->getMessage()));
+        }
+        self::assertTrue(true);
+    }
+
+    /**
+     * @return array
+     */
+    public function exceptionConfigCases()
+    {
+        return [
+
+            [
+                [
+                    'accessKeyId' => 'access_key_id',
+                ],
+                'Unsupported credential type option: default, support: access_key, sts, bearer, ecs_ram_role, ram_role_arn, rsa_key_pair, oidc_role_arn, credentials_uri',
+            ],
+
+            [
+                [
+                    'type' => 'none',
+                ],
+                'Unsupported credential type option: none, support: access_key, sts, bearer, ecs_ram_role, ram_role_arn, rsa_key_pair, oidc_role_arn, credentials_uri',
+            ],
+
+            [
+                [
+                    'type' => 'access_key',
+                ],
+                'accessKeyId must be a string',
+            ],
+
+            [
+                [
+                    'type'          => 'access_key',
+                    'accessKeyId' => 'foo',
+                ],
+                'accessKeySecret must be a string',
+            ],
+
+            [
+                [
+                    'type'              => 'access_key',
+                    'accessKeyId'     => '',
+                    'accessKeySecret' => 'bar',
+                ],
+                'accessKeyId cannot be empty',
+            ],
+
+            [
+                [
+                    'type'              => 'access_key',
+                    'accessKeyId'     => 'foo',
+                    'accessKeySecret' => '',
+                ],
+                'accessKeySecret cannot be empty',
+            ],
+
+            [
+                [
+                    'type' => 'sts',
+                ],
+                'accessKeyId must be a string',
+            ],
+
+            [
+                [
+                    'type'          => 'sts',
+                    'accessKeyId' => 'foo',
+                ],
+                'accessKeySecret must be a string',
+            ],
+
+            [
+                [
+                    'type'              => 'sts',
+                    'accessKeyId'     => 'foo',
+                    'accessKeySecret' => 'bar',
+                ],
+                'securityToken must be a string',
+            ],
+
+            [
+                [
+                    'type'              => 'sts',
+                    'accessKeyId'     => '',
+                    'accessKeySecret' => 'bar',
+                    'expiration'        => 3600,
+                ],
+                'accessKeyId cannot be empty',
+            ],
+
+            [
+                [
+                    'type'              => 'sts',
+                    'accessKeyId'     => 'foo',
+                    'accessKeySecret' => '',
+                    'expiration'        => 3600,
+                ],
+                'accessKeySecret cannot be empty',
+            ],
+
+            [
+                [
+                    'type'              => 'sts',
+                    'accessKeyId'     => 'foo',
+                    'accessKeySecret' => 'bar',
+                    'expiration'        => 'string',
+                ],
+                'securityToken must be a string',
+            ],
+
+            [
+                [
+                    'type'      => 'ecs_ram_role',
+                    'roleName' => 123456,
+                ],
+                'roleName must be a string',
+            ],
+
+            [
+                [
+                    'type'      => 'ecs_ram_role',
+                    'roleName' => 'test',
+                    'disableIMDSv1' => 'false',
+                ],
+                'disableIMDSv1 must be a boolean',
+            ],
+
+            [
+                [
+                    'type' => 'ram_role_arn',
+                ],
+                'accessKeyId must be a string',
+            ],
+
+            [
+                [
+                    'type'          => 'ram_role_arn',
+                    'accessKeyId' => 'foo',
+                ],
+                'accessKeySecret must be a string',
+            ],
+
+            [
+                [
+                    'type'              => 'ram_role_arn',
+                    'accessKeyId'     => 'foo',
+                    'accessKeySecret' => 'bar',
+                ],
+                'roleArn cannot be empty',
+            ],
+
+            [
+                [
+                    'type'              => 'ram_role_arn',
+                    'accessKeyId'     => 'foo',
+                    'accessKeySecret' => 'bar',
+                    'securityToken'    => 'token',
+                ],
+                'roleArn cannot be empty',
+            ],
+
+            [
+                [
+                    'type' => 'rsa_key_pair',
+                ],
+                'publicKeyId must be a string',
+            ],
+
+            [
+                [
+                    'type'          => 'rsa_key_pair',
+                    'publicKeyId' => 'public_key_id',
+                ],
+                'privateKeyFile must be a string',
+            ],
+
+            [
+                [
+                    'type'             => 'rsa_key_pair',
+                    'publicKeyId'    => 'public_key_id',
+                    'privateKeyFile' => '',
+                ],
+                'privateKeyFile cannot be empty',
+            ],
+
+            [
+                [
+                    'type'             => 'rsa_key_pair',
+                    'publicKeyId'    => 'public_key_id',
+                    'privateKeyFile' => 'invalid_path',
+                ],
+                'file_get_contents(invalid_path): failed to open stream: No such file or directory',
+            ],
+
+            [
+                [
+                    'type' => 'oidc_role_arn',
+                ],
+                'roleArn cannot be empty',
+            ],
+
+            [
+                [
+                    'type' => 'oidc_role_arn',
+                    'roleArn' => 'role_arn',
+                ],
+                'oidcProviderArn cannot be empty',
+            ],
+
+            [
+                [
+                    'type' => 'oidc_role_arn',
+                    'roleArn' => 'role_arn',
+                    'oidcProviderArn' => 'oidc_provider_arn',
+                ],
+                'oidcTokenFilePath cannot be empty',
+            ],
+
+            [
+                [
+                    'type' => 'credentials_uri',
+                ],
+                'credentialsURI must be a string',
+            ],
+
+            [
+                [
+                    'type' => 'credentials_uri',
+                    'credentialsURI' => ''
+                ],
+                'credentialsURI cannot be empty',
             ],
 
         ];
@@ -278,10 +539,37 @@ class CredentialTest extends TestCase
         ];
         $credential = new Credential($config);
 
+        $result = '{
+    "RequestId": "88FEA385-EF5D-4A8A-8C00-A07DAE3BFD44",
+    "AssumedRoleUser": {
+        "AssumedRoleId": "********************",
+        "Arn": "********************"
+    },
+    "Credentials": {
+        "AccessKeySecret": "********************",
+        "AccessKeyId": "STS.**************",
+        "Expiration": "2049-10-25T03:56:19Z",
+        "SecurityToken": "**************"
+    }
+}';
+        Credentials::mockResponse(200, [], $result);
+
         self::assertEquals('foo', $credential->getOriginalAccessKeyId());
         self::assertEquals('bar', $credential->getOriginalAccessKeySecret());
-        self::assertEquals($config, $credential->getConfig());
-        self::assertInstanceOf(RamRoleArnCredential::class, $credential->getCredential());
+        self::assertEquals([
+            'type'              => 'ram_role_arn',
+            'accessKeyId'     => 'foo',
+            'accessKeySecret' => 'bar',
+            'roleArn'          => 'role_arn',
+            'roleSessionName' => 'role_session_name',
+        ], $credential->getConfig());
+        self::assertEquals("STS.**************", $credential->getAccessKeyId());
+        self::assertEquals("********************", $credential->getAccessKeySecret());
+        self::assertEquals("**************", $credential->getSecurityToken());
+        self::assertEquals("", $credential->getBearerToken());
+        self::assertEquals("ram_role_arn", $credential->getType());
+        $credentialModel = $credential->getCredential();
+        self::assertEquals("STS.**************", $credentialModel->getAccessKeyId());
     }
 
     /**
@@ -300,7 +588,55 @@ class CredentialTest extends TestCase
 
         self::assertEquals('foo', $credential->getAccessKeyId());
         self::assertEquals('bar', $credential->getAccessKeySecret());
-        self::assertEquals($config, $credential->getConfig());
-        self::assertInstanceOf(ShaHmac1Signature::class, $credential->getSignature());
+        self::assertEquals("", $credential->getSecurityToken());
+        self::assertEquals("", $credential->getBearerToken());
+        self::assertEquals("access_key", $credential->getType());
+        $config = $credential->getConfig();
+        self::assertEquals('foo', $config['accessKeyId']);
+        self::assertEquals('bar', $config['accessKeySecret']);
+        $result = $credential->getCredential();
+        self::assertEquals('foo', $result->getAccessKeyId());
+        self::assertEquals('bar', $result->getAccessKeySecret());
+        self::assertEquals('access_key', $result->getType());
+    }
+
+    /**
+     * @throws GuzzleException
+     * @throws ReflectionException
+     */
+    public function testSTS()
+    {
+        $config     = new Credential\Config([
+            'type'            => 'sts',
+            'accessKeyId'     => 'foo',
+            'accessKeySecret' => 'bar',
+            'securityToken'   => 'token',
+        ]);
+        $credential = new Credential($config);
+
+        // Assert
+        $result = $credential->getCredential();
+        $this->assertEquals('foo', $result->getAccessKeyId());
+        $this->assertEquals('bar', $result->getAccessKeySecret());
+        $this->assertEquals('token', $result->getSecurityToken());
+        $this->assertEquals('sts', $result->getType());
+    }
+
+    /**
+     * @throws GuzzleException
+     * @throws ReflectionException
+     */
+    public function testBearerToken()
+    {
+        $config     = new Credential\Config([
+            'type'            => 'bearer',
+            'bearerToken'     => 'token',
+        ]);
+        $credential = new Credential($config);
+
+        // Assert
+        $result = $credential->getCredential();
+        $this->assertEquals('token', $result->getBearerToken());
+        $this->assertEquals('bearer', $result->getType());
     }
 }

@@ -1,13 +1,15 @@
 <?php
 
-namespace AlibabaCloud\Credentials;
+namespace AlibabaCloud\Credentials\Utils;
 
+use AlibabaCloud\Credentials\Credential;
+use org\bovigo\vfs\vfsStream;
 use Closure;
 
 /**
  * Class Helper
  *
- * @package AlibabaCloud\Credentials
+ * @package AlibabaCloud\Credentials\Utils
  */
 class Helper
 {
@@ -49,6 +51,10 @@ class Helper
     {
         $open_basedir = ini_get('open_basedir');
         if (!$open_basedir) {
+            return true;
+        }
+        if (0 === strpos($filename, vfsStream::SCHEME)) {
+            // 虚拟文件忽略
             return true;
         }
 
@@ -198,5 +204,48 @@ class Helper
     {
         dump(...$parameters);
         exit;
+    }
+
+    /**
+     * Snake to camel case.
+     *
+     * @param string $str
+     *
+     * @return string
+     */
+    public static function snakeToCamelCase($str)
+    {
+        $components = explode('_', $str);
+        $camelCaseStr = $components[0];
+        for ($i = 1; $i < count($components); $i++) {
+            $camelCaseStr .= ucfirst($components[$i]);
+        }
+        return $camelCaseStr;
+    }
+
+    /**
+     * Get user agent.
+     *
+     * @param string $userAgent
+     *
+     * @return string
+     */
+    public static function getUserAgent()
+    {
+        return sprintf('AlibabaCloud (%s; %s) PHP/%s Credentials/%s TeaDSL/1', PHP_OS, \PHP_SAPI, PHP_VERSION, Credential::VERSION);
+    }
+
+    /**
+     * @param array $arrays
+     * @param string $key
+     *
+     * @return mix
+     */
+    public static function unsetReturnNull(array $arrays, $key)
+    {
+        if(isset($arrays[$key])) {
+            return $arrays[$key];
+        }
+        return null;
     }
 }

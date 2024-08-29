@@ -8,6 +8,10 @@ on:
 defaults:
   run:
     shell: bash
+
+permissions:
+  id-token: write
+
 jobs:
   build:
 
@@ -37,6 +41,19 @@ jobs:
 
     - name: Install dependencies
       run: composer install --prefer-dist --no-progress --no-suggest
+    
+    - name: Setup OIDC
+      run: npm install @actions/core@1.6.0 @actions/http-client
+
+    - name: Get Id Token
+      uses: actions/github-script@v7
+      id: idtoken
+      with:
+        script: |
+          const coreDemo = require('@actions/core');
+          const idToken = await coreDemo.getIDToken('sts.aliyuncs.com');
+          const fsx = require('fs/promises');
+          await fsx.writeFile('/tmp/oidc_token', idToken);
 
     - name: Run test case
       run: composer test
@@ -46,6 +63,12 @@ jobs:
         ROLE_ARN: ${{ secrets.ROLE_ARN }}
         PUBLIC_KEY_ID: ${{ secrets.PUBLIC_KEY_ID }}
         PRIVATE_KEY_LINE_1: ${{ secrets.PRIVATE_KEY_LINE_1 }}
+
+        # for OIDC
+        ALIBABA_CLOUD_OIDC_PROVIDER_ARN: ${{ secrets.ALIBABA_CLOUD_OIDC_PROVIDER_ARN }}
+        ALIBABA_CLOUD_OIDC_TOKEN_FILE: "/tmp/oidc_token"
+        ALIBABA_CLOUD_ROLE_ARN: ${{ secrets.OIDC_ROLE_ARN }}
+    
     - name: Upload Coverage Report
       uses: codecov/codecov-action@v4
       with:
