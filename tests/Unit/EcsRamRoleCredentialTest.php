@@ -4,7 +4,6 @@ namespace AlibabaCloud\Credentials\Tests\Unit;
 
 use AlibabaCloud\Credentials\Credentials;
 use AlibabaCloud\Credentials\EcsRamRoleCredential;
-use AlibabaCloud\Credentials\Signature\ShaHmac1Signature;
 use Exception;
 use GuzzleHttp\Exception\GuzzleException;
 use InvalidArgumentException;
@@ -45,7 +44,6 @@ class EcsRamRoleCredentialTest extends TestCase
 
         // Assert
         $this->assertEquals($roleName, $credential->getRoleName());
-        $this->assertInstanceOf(ShaHmac1Signature::class, $credential->getSignature());
         $this->assertEquals($expected, (string)$credential);
     }
 

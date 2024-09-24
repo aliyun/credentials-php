@@ -134,7 +134,6 @@ $bearerToken = new Credential([
     'bearer_token' => '<bearer_token>',
 ]);
 $bearerToken->getBearerToken();
-$bearerToken->getSignature();
 ```
 
 ## Default credential provider chain

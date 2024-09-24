@@ -1,6 +1,6 @@
 <?php
 
-namespace AlibabaCloud\Credentials\Tests\Unit\Filter;
+namespace AlibabaCloud\Credentials\Tests\Unit;
 
 use AlibabaCloud\Credentials\Credentials;
 use AlibabaCloud\Credentials\Providers\ChainProvider;
@@ -11,10 +11,11 @@ use RuntimeException;
 /**
  * Class CredentialsTest
  *
- * @package AlibabaCloud\Credentials\Tests\Unit\Filter
+ * @package AlibabaCloud\Credentials\Tests\Unit
  */
 class CredentialsTest extends TestCase
 {
+
     public function testALL()
     {
         self::assertEquals(true, is_array(Credentials::all()));

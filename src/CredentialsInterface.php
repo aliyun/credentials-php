@@ -2,22 +2,19 @@
 
 namespace AlibabaCloud\Credentials;
 
-use AlibabaCloud\Credentials\Signature\SignatureInterface;
+use AlibabaCloud\Credentials\Credential\CredentialModel;
 
 /**
+ * @internal This class is intended for internal use within the package. 
  * Interface CredentialsInterface
  *
  * @codeCoverageIgnore
  */
 interface CredentialsInterface
 {
-    /**
-     * @return string
-     */
-    public function __toString();
 
     /**
-     * @return SignatureInterface
+     * @return CredentialModel
      */
-    public function getSignature();
+    public function getCredential();
 }

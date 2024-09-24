@@ -4,8 +4,7 @@ namespace AlibabaCloud\Credentials\Tests\Unit;
 
 use AlibabaCloud\Credentials\Credentials;
 use AlibabaCloud\Credentials\EcsRamRoleCredential;
-use AlibabaCloud\Credentials\Providers\EcsRamRoleProvider;
-use AlibabaCloud\Credentials\Signature\ShaHmac1Signature;
+use AlibabaCloud\Credentials\Providers\EcsRamRoleCredentialsProvider;
 use Exception;
 use GuzzleHttp\Exception\GuzzleException;
 use InvalidArgumentException;
@@ -13,7 +12,7 @@ use PHPUnit\Framework\TestCase;
 use RuntimeException;
 use ReflectionClass;
 
-class EcsRamRoleProviderTest extends TestCase
+class EcsRamRoleCredentialsProviderTest extends TestCase
 {
 
      /**
@@ -40,7 +39,7 @@ class EcsRamRoleProviderTest extends TestCase
         // Test
         $credential = new EcsRamRoleCredential($roleName);
 
-        $sessionCredential = new EcsRamRoleProvider($credential, $config);
+        $sessionCredential = new EcsRamRoleCredentialsProvider($credential, $config);
 
         $sessionConfig = $this->getPrivateField($sessionCredential, 'config');
 
@@ -53,7 +52,7 @@ class EcsRamRoleProviderTest extends TestCase
      * @throws Exception
      */
     private function invokeProtectedFunc($instance, $method) {
-        $reflection = new ReflectionClass(EcsRamRoleProvider::class);
+        $reflection = new ReflectionClass(EcsRamRoleCredentialsProvider::class);
         $method = $reflection->getMethod($method);
         $method->setAccessible(true);
 
@@ -76,7 +75,7 @@ class EcsRamRoleProviderTest extends TestCase
         // Test
         $credential = new EcsRamRoleCredential($roleName);
 
-        $sessionCredential = new EcsRamRoleProvider($credential, $config);
+        $sessionCredential = new EcsRamRoleCredentialsProvider($credential, $config);
 
         self::assertEquals(true, $this->invokeProtectedFunc($sessionCredential, 'getDisableECSIMDSv1'));
 
@@ -84,37 +83,37 @@ class EcsRamRoleProviderTest extends TestCase
             'metadataTokenDuration' => 3600,
         ];
 
-        $sessionCredential = new EcsRamRoleProvider($credential, $config);
+        $sessionCredential = new EcsRamRoleCredentialsProvider($credential, $config);
 
         self::assertEquals(false, $this->invokeProtectedFunc($sessionCredential, 'getDisableECSIMDSv1'));
 
-        putenv('ALIBABA_CLOUD_IMDSV1_DISABLE=true');
+        putenv('ALIBABA_CLOUD_IMDSV1_DISABLED=true');
 
         self::assertEquals(true, $this->invokeProtectedFunc($sessionCredential, 'getDisableECSIMDSv1'));
 
-        putenv('ALIBABA_CLOUD_IMDSV1_DISABLE=TRUE');
+        putenv('ALIBABA_CLOUD_IMDSV1_DISABLED=TRUE');
 
         self::assertEquals(true, $this->invokeProtectedFunc($sessionCredential, 'getDisableECSIMDSv1'));
 
-        putenv('ALIBABA_CLOUD_IMDSV1_DISABLE=ok');
+        putenv('ALIBABA_CLOUD_IMDSV1_DISABLED=ok');
 
         self::assertEquals(false, $this->invokeProtectedFunc($sessionCredential, 'getDisableECSIMDSv1'));
 
-        putenv('ALIBABA_CLOUD_IMDSV1_DISABLE=1');
+        putenv('ALIBABA_CLOUD_IMDSV1_DISABLED=1');
 
         self::assertEquals(false, $this->invokeProtectedFunc($sessionCredential, 'getDisableECSIMDSv1'));
 
-        putenv('ALIBABA_CLOUD_IMDSV1_DISABLE=false');
+        putenv('ALIBABA_CLOUD_IMDSV1_DISABLED=false');
 
         self::assertEquals(false, $this->invokeProtectedFunc($sessionCredential, 'getDisableECSIMDSv1'));
 
-        putenv('ALIBABA_CLOUD_IMDSV1_DISABLE=');
+        putenv('ALIBABA_CLOUD_IMDSV1_DISABLED=');
 
         self::assertEquals(false, $this->invokeProtectedFunc($sessionCredential, 'getDisableECSIMDSv1'));
     }
 
     private function getPrivateField($instance, $field) {
-        $reflection = new ReflectionClass(EcsRamRoleProvider::class);
+        $reflection = new ReflectionClass(EcsRamRoleCredentialsProvider::class);
         $privateProperty = $reflection->getProperty($field);
         $privateProperty->setAccessible(true);
         return $privateProperty->getValue($instance);
@@ -135,7 +134,7 @@ class EcsRamRoleProviderTest extends TestCase
         // Test
         $credential = new EcsRamRoleCredential($roleName);
 
-        $sessionCredential = new EcsRamRoleProvider($credential, $config);
+        $sessionCredential = new EcsRamRoleCredentialsProvider($credential, $config);
 
         Credentials::mockResponse(200, [], 'Token');
 
@@ -166,7 +165,7 @@ class EcsRamRoleProviderTest extends TestCase
         // Test
         $credential = new EcsRamRoleCredential($roleName);
 
-        $sessionCredential = new EcsRamRoleProvider($credential, $config);
+        $sessionCredential = new EcsRamRoleCredentialsProvider($credential, $config);
 
         Credentials::mockResponse(404, [], 'Error');
 
@@ -189,7 +188,7 @@ class EcsRamRoleProviderTest extends TestCase
         // Test
         $credential = new EcsRamRoleCredential($roleName);
 
-        $sessionCredential = new EcsRamRoleProvider($credential, $config);
+        $sessionCredential = new EcsRamRoleCredentialsProvider($credential, $config);
 
         Credentials::mockResponse(404, [], 'Error');
         $token = $this->invokeProtectedFunc($sessionCredential, 'refreshMetadataToken');

@@ -1,7 +1,8 @@
 <?php
 
-namespace AlibabaCloud\Credentials;
+namespace AlibabaCloud\Credentials\Utils;
 
+use AlibabaCloud\Credentials\Credential;
 use Closure;
 
 /**
@@ -198,5 +199,34 @@ class Helper
     {
         dump(...$parameters);
         exit;
+    }
+
+    /**
+     * Snake to camel case.
+     *
+     * @param string $str
+     *
+     * @return string
+     */
+    public static function snakeToCamelCase($str)
+    {
+        $components = explode('_', $str);
+        $camelCaseStr = $components[0];
+        for ($i = 1; $i < count($components); $i++) {
+            $camelCaseStr .= ucfirst($components[$i]);
+        }
+        return $camelCaseStr;
+    }
+
+    /**
+     * Get user agent.
+     *
+     * @param string $userAgent
+     *
+     * @return string
+     */
+    public static function getUserAgent()
+    {
+        return sprintf('AlibabaCloud (%s; %s) PHP/%s Credentials/%s TeaDSL/1', PHP_OS, \PHP_SAPI, PHP_VERSION, Credential::VERSION);
     }
 }

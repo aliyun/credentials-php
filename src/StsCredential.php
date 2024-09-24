@@ -2,9 +2,11 @@
 
 namespace AlibabaCloud\Credentials;
 
-use AlibabaCloud\Credentials\Signature\ShaHmac1Signature;
+use AlibabaCloud\Credentials\Utils\Filter;
+use AlibabaCloud\Credentials\Credential\CredentialModel;
 
 /**
+ * @deprecated
  * Use the STS Token to complete the authentication.
  */
 class StsCredential implements CredentialsInterface
@@ -42,10 +44,10 @@ class StsCredential implements CredentialsInterface
     {
         Filter::accessKey($access_key_id, $access_key_secret);
         Filter::expiration($expiration);
-        $this->accessKeyId     = $access_key_id;
+        $this->accessKeyId = $access_key_id;
         $this->accessKeySecret = $access_key_secret;
-        $this->expiration      = $expiration;
-        $this->securityToken   = $security_token;
+        $this->expiration = $expiration;
+        $this->securityToken = $security_token;
     }
 
     /**
@@ -89,10 +91,16 @@ class StsCredential implements CredentialsInterface
     }
 
     /**
-     * @return ShaHmac1Signature
+     * @inheritDoc
      */
-    public function getSignature()
+    public function getCredential()
     {
-        return new ShaHmac1Signature();
+        return new CredentialModel([
+            'accessKeyId' => $this->accessKeyId,
+            'accessKeySecret' => $this->accessKeySecret,
+            'securityToken' => $this->securityToken,
+            'type' => 'sts',
+        ]);
     }
+
 }

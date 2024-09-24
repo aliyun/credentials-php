@@ -134,7 +134,6 @@ $bearerToken = new Credential([
     'bearer_token' => '<bearer_token>',
 ]);
 $bearerToken->getBearerToken();
-$bearerToken->getSignature();
 ```
 
 ## 默认凭证提供程序链

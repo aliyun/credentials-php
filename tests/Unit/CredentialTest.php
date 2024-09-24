@@ -1,10 +1,9 @@
 <?php
 
-namespace AlibabaCloud\Credentials\Tests\Unit\Filter;
+namespace AlibabaCloud\Credentials\Tests\Unit;
 
 use AlibabaCloud\Credentials\Credential;
 use AlibabaCloud\Credentials\RamRoleArnCredential;
-use AlibabaCloud\Credentials\Signature\ShaHmac1Signature;
 use Exception;
 use PHPUnit\Framework\TestCase;
 use ReflectionException;
@@ -12,7 +11,7 @@ use ReflectionException;
 /**
  * Class CredentialTest
  *
- * @package AlibabaCloud\Credentials\Tests\Unit\Filter
+ * @package AlibabaCloud\Credentials\Tests\Unit
  */
 class CredentialTest extends TestCase
 {
@@ -300,7 +299,12 @@ class CredentialTest extends TestCase
 
         self::assertEquals('foo', $credential->getAccessKeyId());
         self::assertEquals('bar', $credential->getAccessKeySecret());
-        self::assertEquals($config, $credential->getConfig());
-        self::assertInstanceOf(ShaHmac1Signature::class, $credential->getSignature());
+        $config = $credential->getConfig();
+        self::assertEquals('foo', $config['accessKeyId']);
+        self::assertEquals('bar', $config['accessKeySecret']);
+        $result = $credential->getCredential();
+        self::assertEquals('foo', $result->getAccessKeyId());
+        self::assertEquals('bar', $result->getAccessKeySecret());
+        self::assertEquals('access_key', $result->getType());
     }
 }

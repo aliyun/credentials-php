@@ -2,7 +2,6 @@
 
 namespace AlibabaCloud\Credentials\Tests\Unit;
 
-use AlibabaCloud\Credentials\Signature\ShaHmac1Signature;
 use AlibabaCloud\Credentials\StsCredential;
 use PHPUnit\Framework\TestCase;
 use InvalidArgumentException;
@@ -25,7 +24,6 @@ class StsCredentialTest extends TestCase
         $this->assertEquals($accessKeySecret, $credential->getAccessKeySecret());
         $this->assertEquals($securityToken, $credential->getSecurityToken());
         $this->assertEquals($expiration, $credential->getExpiration());
-        $this->assertInstanceOf(ShaHmac1Signature::class, $credential->getSignature());
         $this->assertEquals(
             "$accessKeyId#$accessKeySecret#$securityToken",
             (string)$credential

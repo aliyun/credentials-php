@@ -3,7 +3,6 @@
 namespace AlibabaCloud\Credentials\Tests\Unit;
 
 use AlibabaCloud\Credentials\AccessKeyCredential;
-use AlibabaCloud\Credentials\Signature\ShaHmac1Signature;
 use PHPUnit\Framework\TestCase;
 use InvalidArgumentException;
 
@@ -26,13 +25,12 @@ class AccessKeyCredentialTest extends TestCase
         // Assert
         $this->assertEquals($accessKeyId, $credential->getAccessKeyId());
         $this->assertEquals($accessKeySecret, $credential->getAccessKeySecret());
-        $this->assertInstanceOf(ShaHmac1Signature::class, $credential->getSignature());
         $this->assertEquals("$accessKeyId#$accessKeySecret", (string)$credential);
     }
 
     /**
      * @expectedException \InvalidArgumentException
-     * @expectedExceptionMessage access_key_id cannot be empty
+     * @expectedExceptionMessage accessKeyId cannot be empty
      */
     public function testAccessKeyIdEmpty()
     {
@@ -41,14 +39,14 @@ class AccessKeyCredentialTest extends TestCase
         $accessKeySecret = 'bar';
 
         $this->expectException(InvalidArgumentException::class);
-        $this->expectExceptionMessage('access_key_id cannot be empty');
+        $this->expectExceptionMessage('accessKeyId cannot be empty');
 
         new AccessKeyCredential($accessKeyId, $accessKeySecret);
     }
 
     /**
      * @expectedException \InvalidArgumentException
-     * @expectedExceptionMessage access_key_id must be a string
+     * @expectedExceptionMessage accessKeyId must be a string
      */
     public function testAccessKeyIdFormat()
     {
@@ -57,14 +55,14 @@ class AccessKeyCredentialTest extends TestCase
         $accessKeySecret = 'bar';
 
         $this->expectException(InvalidArgumentException::class);
-        $this->expectExceptionMessage('access_key_id must be a string');
+        $this->expectExceptionMessage('accessKeyId must be a string');
 
         new AccessKeyCredential($accessKeyId, $accessKeySecret);
     }
 
     /**
      * @expectedException \InvalidArgumentException
-     * @expectedExceptionMessage access_key_secret cannot be empty
+     * @expectedExceptionMessage accessKeySecret cannot be empty
      */
     public function testAccessKeySecretEmpty()
     {
@@ -73,7 +71,7 @@ class AccessKeyCredentialTest extends TestCase
         $accessKeySecret = '';
 
         $this->expectException(InvalidArgumentException::class);
-        $this->expectExceptionMessage('access_key_secret cannot be empty');
+        $this->expectExceptionMessage('accessKeySecret cannot be empty');
 
         // Test
         new AccessKeyCredential($accessKeyId, $accessKeySecret);
@@ -81,7 +79,7 @@ class AccessKeyCredentialTest extends TestCase
 
     /**
      * @expectedException \InvalidArgumentException
-     * @expectedExceptionMessage access_key_secret must be a string
+     * @expectedExceptionMessage accessKeySecret must be a string
      */
     public function testAccessKeySecretFormat()
     {
@@ -90,7 +88,7 @@ class AccessKeyCredentialTest extends TestCase
         $accessKeySecret = null;
 
         $this->expectException(InvalidArgumentException::class);
-        $this->expectExceptionMessage('access_key_secret must be a string');
+        $this->expectExceptionMessage('accessKeySecret must be a string');
 
         // Test
         new AccessKeyCredential($accessKeyId, $accessKeySecret);

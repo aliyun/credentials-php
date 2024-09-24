@@ -2,13 +2,16 @@
 
 namespace AlibabaCloud\Credentials;
 
-use AlibabaCloud\Credentials\Providers\RsaKeyPairProvider;
-use AlibabaCloud\Credentials\Signature\ShaHmac1Signature;
+use AlibabaCloud\Credentials\Providers\Credentials;
+use AlibabaCloud\Credentials\Providers\RsaKeyPairCredentialsProvider;
+use AlibabaCloud\Credentials\Credential\CredentialModel;
+use AlibabaCloud\Credentials\Utils\Filter;
 use Exception;
 use GuzzleHttp\Exception\GuzzleException;
 use InvalidArgumentException;
 
 /**
+ * @deprecated
  * Use the RSA key pair to complete the authentication (supported only on Japanese site)
  */
 class RsaKeyPairCredential implements CredentialsInterface
@@ -18,6 +21,11 @@ class RsaKeyPairCredential implements CredentialsInterface
      * @var string
      */
     private $publicKeyId;
+
+    /**
+     * @var string
+     */
+    private $privateKeyFile;
 
     /**
      * @var string
@@ -42,7 +50,8 @@ class RsaKeyPairCredential implements CredentialsInterface
         Filter::privateKeyFile($private_key_file);
 
         $this->publicKeyId = $public_key_id;
-        $this->config      = $config;
+        $this->privateKeyFile = $private_key_file;
+        $this->config = $config;
         try {
             $this->privateKey = file_get_contents($private_key_file);
         } catch (Exception $exception) {
@@ -99,14 +108,6 @@ class RsaKeyPairCredential implements CredentialsInterface
     }
 
     /**
-     * @return ShaHmac1Signature
-     */
-    public function getSignature()
-    {
-        return new ShaHmac1Signature();
-    }
-
-    /**
      * @return string
      * @throws Exception
      * @throws GuzzleException
@@ -117,13 +118,17 @@ class RsaKeyPairCredential implements CredentialsInterface
     }
 
     /**
-     * @return StsCredential
+     * @return Credentials
      * @throws Exception
      * @throws GuzzleException
      */
     protected function getSessionCredential()
     {
-        return (new RsaKeyPairProvider($this))->get();
+        $params = [
+            'publicKeyId' => $this->publicKeyId,
+            'privateKeyFile' => $this->privateKeyFile,
+        ];
+        return (new RsaKeyPairCredentialsProvider($params))->getCredentials();
     }
 
     /**
@@ -154,5 +159,19 @@ class RsaKeyPairCredential implements CredentialsInterface
     public function getExpiration()
     {
         return $this->getSessionCredential()->getExpiration();
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function getCredential()
+    {
+        $credentials = $this->getSessionCredential();
+        return new CredentialModel([
+            'accessKeyId' => $credentials->getAccessKeyId(),
+            'accessKeySecret' => $credentials->getAccessKeySecret(),
+            'securityToken' => $credentials->getSecurityToken(),
+            'type' => 'rsa_key_pair',
+        ]);
     }
 }

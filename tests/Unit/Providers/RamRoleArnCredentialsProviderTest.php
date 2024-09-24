@@ -10,7 +10,7 @@ use RuntimeException;
 use InvalidArgumentException;
 use PHPUnit\Framework\TestCase;
 
-class RamRoleArnCredentialTest extends TestCase
+class RamRoleArnCredentialsProviderTest extends TestCase
 {
 
     /**

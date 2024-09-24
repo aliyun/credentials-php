@@ -1,6 +1,6 @@
 <?php
 
-namespace AlibabaCloud\Credentials;
+namespace AlibabaCloud\Credentials\Utils;
 
 use Exception;
 use GuzzleHttp\Exception\RequestException;

@@ -2,7 +2,7 @@
 
 namespace AlibabaCloud\Credentials\Tests\Unit\Ini;
 
-use AlibabaCloud\Credentials\Helper;
+use AlibabaCloud\Credentials\Utils\Helper;
 
 /**
  * Class VirtualRsaKeyPairCredential

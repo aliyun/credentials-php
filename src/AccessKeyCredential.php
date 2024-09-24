@@ -2,9 +2,11 @@
 
 namespace AlibabaCloud\Credentials;
 
-use AlibabaCloud\Credentials\Signature\ShaHmac1Signature;
+use AlibabaCloud\Credentials\Utils\Filter;
+use AlibabaCloud\Credentials\Credential\CredentialModel;
 
 /**
+ * @deprecated
  * Use the AccessKey to complete the authentication.
  */
 class AccessKeyCredential implements CredentialsInterface
@@ -29,7 +31,7 @@ class AccessKeyCredential implements CredentialsInterface
     {
         Filter::accessKey($access_key_id, $access_key_secret);
 
-        $this->accessKeyId     = $access_key_id;
+        $this->accessKeyId = $access_key_id;
         $this->accessKeySecret = $access_key_secret;
     }
 
@@ -57,16 +59,19 @@ class AccessKeyCredential implements CredentialsInterface
         return "$this->accessKeyId#$this->accessKeySecret";
     }
 
-    /**
-     * @return ShaHmac1Signature
-     */
-    public function getSignature()
-    {
-        return new ShaHmac1Signature();
-    }
-
     public function getSecurityToken()
     {
         return '';
+    }
+    /**
+     * @inheritDoc
+     */
+    public function getCredential()
+    {
+        return new CredentialModel([
+            'accessKeyId' => $this->accessKeyId,
+            'accessKeySecret' => $this->accessKeySecret,
+            'type' => 'access_key',
+        ]);
     }
 }

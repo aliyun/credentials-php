@@ -3,8 +3,8 @@
 namespace AlibabaCloud\Credentials\Tests\Feature;
 
 use AlibabaCloud\Credentials\Credential;
-use AlibabaCloud\Credentials\Credentials;
-use AlibabaCloud\Credentials\Helper;
+use AlibabaCloud\Credentials\Request\Request as Requests;
+use AlibabaCloud\Credentials\Utils\Helper;
 use AlibabaCloud\Credentials\Tests\Unit\Ini\VirtualRsaKeyPairCredential;
 use GuzzleHttp\Exception\GuzzleException;
 use PHPUnit\Framework\TestCase;
@@ -36,6 +36,11 @@ class CredentialTest extends TestCase
         $this->assertEquals('foo', $credential->getAccessKeyId());
         $this->assertEquals('bar', $credential->getAccessKeySecret());
         $this->assertEquals('access_key', $credential->getType());
+
+        $result = $credential->getCredential();
+        $this->assertEquals('foo', $result->getAccessKeyId());
+        $this->assertEquals('bar', $result->getAccessKeySecret());
+        $this->assertEquals('access_key', $result->getType());
     }
 
     /**
@@ -54,15 +59,15 @@ class CredentialTest extends TestCase
 
         $this->expectException(\GuzzleHttp\Exception\ConnectException::class);
         if (method_exists($this, 'expectExceptionMessageMatches')) {
-            $this->expectExceptionMessageMatches('/timed/');
+            $this->expectExceptionMessageMatches('/Timeout/');
         } elseif (method_exists($this, 'expectExceptionMessageRegExp')) {
-            $this->expectExceptionMessageRegExp('/timed/');
+            $this->expectExceptionMessageRegExp('/Timeout/');
         }
 
         // Assert
         $this->assertEquals('foo', $credential->getRoleName());
         $this->assertEquals('ecs_ram_role', $credential->getType());
-        $credential->getAccessKeySecret();
+        $credential->getCredential();
     }
 
     /**
@@ -71,7 +76,7 @@ class CredentialTest extends TestCase
      */
     public function testRamRoleArnCredential()
     {
-        Credentials::cancelMock();
+        Requests::cancelMock();
         $config = new Credential\Config([
             'type'            => 'ram_role_arn',
             'accessKeyId'     => Helper::envNotEmpty('ACCESS_KEY_ID'),
@@ -84,20 +89,26 @@ class CredentialTest extends TestCase
         $credential = new Credential($config);
 
         // Assert
-        $this->assertTrue(null !== $credential->getAccessKeyId());
-        $this->assertTrue(null !== $credential->getAccessKeySecret());
-        $this->assertEquals('ram_role_arn', $credential->getType());
+        $result = $credential->getCredential();
+        $this->assertTrue(null !== $result->getAccessKeyId());
+        $this->assertTrue(null !== $result->getAccessKeySecret());
+        $this->assertEquals('ram_role_arn', $result->getType());
     }
 
     /**
      * @throws GuzzleException
      * @throws ReflectionException
-     * @expectedException \RuntimeException
-     * @expectedExceptionMessage Specified access key type is not match with signature type.
      */
     public function testRsaKeyPairCredential()
     {
-        Credentials::cancelMock();
+        $this->expectException(RuntimeException::class);
+        $reg = '/Specified access key is not found or invalid./';
+        if (method_exists($this, 'expectExceptionMessageMatches')) {
+            $this->expectExceptionMessageMatches($reg);
+        } elseif (method_exists($this, 'expectExceptionMessageRegExp')) {
+            $this->expectExceptionMessageRegExp($reg);
+        }
+        Requests::cancelMock();
         $publicKeyId    = Helper::envNotEmpty('PUBLIC_KEY_ID');
         $privateKeyFile = VirtualRsaKeyPairCredential::privateKeyFileUrl();
         $config         = new Credential\Config([
@@ -109,11 +120,10 @@ class CredentialTest extends TestCase
         $this->expectException(RuntimeException::class);
         $this->expectExceptionMessage('Specified access key type is not match with signature type.');
         // Assert
-        $this->assertTrue(null !== $credential->getAccessKeyId());
-        $this->assertTrue(null !== $credential->getAccessKeySecret());
-        $this->assertEquals('rsa_key_pair', $credential->getType());
-
-        $credential->getAccessKeySecret();
+        $result = $credential->getCredential();
+        $this->assertTrue(null !== $result->getAccessKeyId());
+        $this->assertTrue(null !== $result->getAccessKeySecret());
+        $this->assertEquals('rsa_key_pair', $result->getType());
     }
 
     /**
@@ -131,10 +141,11 @@ class CredentialTest extends TestCase
         $credential = new Credential($config);
 
         // Assert
-        $this->assertEquals('foo', $credential->getAccessKeyId());
-        $this->assertEquals('bar', $credential->getAccessKeySecret());
-        $this->assertEquals('token', $credential->getSecurityToken());
-        $this->assertEquals('sts', $credential->getType());
+        $result = $credential->getCredential();
+        $this->assertEquals('foo', $result->getAccessKeyId());
+        $this->assertEquals('bar', $result->getAccessKeySecret());
+        $this->assertEquals('token', $result->getSecurityToken());
+        $this->assertEquals('sts', $result->getType());
     }
 
     /**
@@ -150,7 +161,8 @@ class CredentialTest extends TestCase
         $credential = new Credential($config);
 
         // Assert
-        $this->assertEquals('token', $credential->getBearerToken());
-        $this->assertEquals('bearer', $credential->getType());
+        $result = $credential->getCredential();
+        $this->assertEquals('token', $result->getBearerToken());
+        $this->assertEquals('bearer', $result->getType());
     }
 }

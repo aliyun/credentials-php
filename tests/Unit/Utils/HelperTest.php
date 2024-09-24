@@ -2,7 +2,8 @@
 
 namespace AlibabaCloud\Credentials\Tests\Unit;
 
-use AlibabaCloud\Credentials\Helper;
+use AlibabaCloud\Credentials\Credential;
+use AlibabaCloud\Credentials\Utils\Helper;
 use PHPUnit\Framework\TestCase;
 use ReflectionClass;
 use ReflectionException;
@@ -115,10 +116,10 @@ class HelperTest extends TestCase
 
         self::assertEquals(
             [
-                0   => 'abc',
-                1   => 'a',
-                2   => 'b',
-                3   => [
+                0 => 'abc',
+                1 => 'a',
+                2 => 'b',
+                3 => [
                     0 => 'c',
                     1 => 'd',
                 ],
@@ -141,7 +142,7 @@ class HelperTest extends TestCase
         putenv('HOME=');
         putenv('HOMEDRIVE=C:');
         putenv('HOMEPATH=\\Users\\Alibaba');
-        $ref    = new ReflectionClass(Helper::class);
+        $ref = new ReflectionClass(Helper::class);
         $method = $ref->getMethod('getHomeDirectory');
         $method->setAccessible(true);
         $this->assertEquals('C:\\Users\\Alibaba', $method->invoke(null));
@@ -156,9 +157,25 @@ class HelperTest extends TestCase
         putenv('HOME=/root');
         putenv('HOMEDRIVE=');
         putenv('HOMEPATH=');
-        $ref    = new ReflectionClass(Helper::class);
+        $ref = new ReflectionClass(Helper::class);
         $method = $ref->getMethod('getHomeDirectory');
         $method->setAccessible(true);
         $this->assertEquals('/root', $method->invoke(null));
+    }
+
+    public function testSnakeToCamelCase()
+    {
+        self::assertEquals('', Helper::snakeToCamelCase(''));
+        self::assertEquals('bearerToken', Helper::snakeToCamelCase('bearer_token'));
+        // take care
+        self::assertEquals('disableImdsV1', Helper::snakeToCamelCase('disable_imds_v1'));
+        self::assertEquals('publicKeyId', Helper::snakeToCamelCase('public_key_id'));
+        self::assertEquals('accessKeyId', Helper::snakeToCamelCase('access_key_id'));
+    }
+
+    public function testGetUserAgent()
+    {
+        self::assertStringStartsWith('AlibabaCloud', Helper::getUserAgent());
+        self::assertStringEndsWith('Credentials/' . Credential::VERSION . ' TeaDSL/1', Helper::getUserAgent());
     }
 }

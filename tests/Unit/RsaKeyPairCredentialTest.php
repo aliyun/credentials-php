@@ -3,9 +3,9 @@
 namespace AlibabaCloud\Credentials\Tests\Unit;
 
 use AlibabaCloud\Credentials\Credentials;
-use AlibabaCloud\Credentials\Helper;
+use AlibabaCloud\Credentials\Request\Request as Requests;
+use AlibabaCloud\Credentials\Utils\Helper;
 use AlibabaCloud\Credentials\RsaKeyPairCredential;
-use AlibabaCloud\Credentials\Signature\ShaHmac1Signature;
 use AlibabaCloud\Credentials\Tests\Unit\Ini\VirtualRsaKeyPairCredential;
 use Exception;
 use RuntimeException;
@@ -83,7 +83,6 @@ class RsaKeyPairCredentialTest extends TestCase
             (string)$credential
         );
         $this->assertEquals([], $credential->getConfig());
-        $this->assertInstanceOf(ShaHmac1Signature::class, $credential->getSignature());
         $this->assertEquals($publicKeyId, $credential->getOriginalAccessKeyId());
     }
 
@@ -103,10 +102,10 @@ class RsaKeyPairCredentialTest extends TestCase
         "SessionAccessKeySecret": "**************"
     }
 }';
-        Credentials::mockResponse(200, [], $result);
-        Credentials::mockResponse(200, [], $result);
-        Credentials::mockResponse(200, [], $result);
-        Credentials::mockResponse(200, [], $result);
+        Requests::mockResponse(200, [], $result);
+        Requests::mockResponse(200, [], $result);
+        Requests::mockResponse(200, [], $result);
+        Requests::mockResponse(200, [], $result);
 
         // Test
         $credential = new RsaKeyPairCredential($publicKeyId, $privateKeyFile);
@@ -128,7 +127,7 @@ class RsaKeyPairCredentialTest extends TestCase
         // Setup
         $publicKeyId    = 'public_key_id_new';
         $privateKeyFile = VirtualRsaKeyPairCredential::privateKeyFileUrl();
-        Credentials::cancelMock();
+        Requests::cancelMock();
         $result = '{
     "RequestId": "F702286E-F231-4F40-BB86-XXXXXX",
     "SessionAccessKey": {
@@ -136,7 +135,7 @@ class RsaKeyPairCredentialTest extends TestCase
         "Expiration": "2023-02-19T07:02:36.225Z"
     }
 }';
-        Credentials::mockResponse(200, [], $result);
+        Requests::mockResponse(200, [], $result);
 
         $this->expectException(RuntimeException::class);
         $this->expectExceptionMessage('Result contains no credentials');
@@ -217,7 +216,7 @@ class RsaKeyPairCredentialTest extends TestCase
     protected function initialize()
     {
         // Setup
-        Credentials::cancelMock();
+        Requests::cancelMock();
 
         // Setup
         $publicKeyId    = 'public_key_id';

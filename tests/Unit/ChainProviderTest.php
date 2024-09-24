@@ -1,8 +1,8 @@
 <?php
 
-namespace AlibabaCloud\Credentials\Tests\Unit\Filter;
+namespace AlibabaCloud\Credentials\Tests\Unit;
 
-use AlibabaCloud\Credentials\Helper;
+use AlibabaCloud\Credentials\Utils\Helper;
 use AlibabaCloud\Credentials\Providers\ChainProvider;
 use AlibabaCloud\Credentials\Tests\Unit\Ini\VirtualAccessKeyCredential;
 use PHPUnit\Framework\TestCase;
@@ -12,7 +12,7 @@ use InvalidArgumentException;
 /**
  * Class ChainProviderTest
  *
- * @package AlibabaCloud\Credentials\Tests\Unit\Filter
+ * @package AlibabaCloud\Credentials\Tests\Unit
  */
 class ChainProviderTest extends TestCase
 {
