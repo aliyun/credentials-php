@@ -36,7 +36,7 @@
         "ext-simplexml": "*",
         "ext-xmlwriter": "*",
         "guzzlehttp/guzzle": "^6.3|^7.0",
-        "adbario/php-dot-notation": "^2.2",
+        "adbario/php-dot-notation": "^2.2|^3.0",
         "alibabacloud/tea": "^3.0"
     },
     "require-dev": {
