@@ -119,7 +119,7 @@ $config = new Config([
     'roleSessionName'       => '<role_session_name>',
     // 设置更小的权限策略，非必填。示例值：{"Statement": [{"Action": ["*"],"Effect": "Allow","Resource": ["*"]}],"Version":"1"}
     'policy'                => '',
-    # 设置session过期时间
+    // 设置session过期时间，非必填。
     'roleSessionExpiration' => 3600,
 ]);
 $client = new Credential($config);

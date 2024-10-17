@@ -121,7 +121,7 @@ $config = new Config([
     'roleSessionName'       => '<role_session_name>',
     // Optional. Specify limited permissions for the RAM role. Example: {"Statement": [{"Action": ["*"],"Effect": "Allow","Resource": ["*"]}],"Version":"1"}.
     'policy'                => '',
-    # Specify the expiration of the session
+    // Optional. Specify the expiration of the session
     'roleSessionExpiration' => 3600,
 ]);
 $client = new Credential($config);
