@@ -62,7 +62,7 @@ Setup access_key credential through [User Information Management][ak], it have f
 <?php
 
 use AlibabaCloud\Credentials\Credential;
-namespace AlibabaCloud\Credentials\Credential\Config;
+use AlibabaCloud\Credentials\Credential\Config;
 
 // Access Key
 $config = new Config([
@@ -85,7 +85,7 @@ Create a temporary security credential by applying Temporary Security Credential
 <?php
 
 use AlibabaCloud\Credentials\Credential;
-namespace AlibabaCloud\Credentials\Credential\Config;
+use AlibabaCloud\Credentials\Credential\Config;
 
 $config = new Config([
     'type'            => 'sts',
@@ -109,7 +109,7 @@ By specifying [RAM Role][RAM Role], the credential will be able to automatically
 <?php
 
 use AlibabaCloud\Credentials\Credential;
-namespace AlibabaCloud\Credentials\Credential\Config;
+use AlibabaCloud\Credentials\Credential\Config;
 
 $config = new Config([
     'type'                  => 'ram_role_arn',
@@ -140,7 +140,7 @@ The Credentials tool automatically obtains the RAM role attached to an ECS insta
 <?php
 
 use AlibabaCloud\Credentials\Credential;
-namespace AlibabaCloud\Credentials\Credential\Config;
+use AlibabaCloud\Credentials\Credential\Config;
 
 $config = new Config([
     'type'         => 'ecs_ram_role',
@@ -163,7 +163,7 @@ After you attach a RAM role to a worker node in an Container Service for Kuberne
 <?php
 
 use AlibabaCloud\Credentials\Credential;
-namespace AlibabaCloud\Credentials\Credential\Config;
+use AlibabaCloud\Credentials\Credential\Config;
 
 $config = new Config([
     'type'                  => 'oidc_role_arn',
@@ -196,7 +196,7 @@ By specifying the url, the credential will be able to automatically request main
 <?php
 
 use AlibabaCloud\Credentials\Credential;
-namespace AlibabaCloud\Credentials\Credential\Config;
+use AlibabaCloud\Credentials\Credential\Config;
 
 $config = new Config([
     'type'               => 'credentials_uri',
@@ -217,12 +217,16 @@ If credential is required by the Cloud Call Centre (CCC), please apply for Beare
 <?php
 
 use AlibabaCloud\Credentials\Credential;
+use AlibabaCloud\Credentials\Credential\Config;
 
-$bearerToken = new Credential([
-    'type'         => 'bearer',
-    'bearer_token' => '<bearer_token>',
+$config = new Config([
+    'type'            => 'bearer',
+    'bearerToken'     => '<bearer_token>',
 ]);
-$bearerToken->getBearerToken();
+$client = new Credential($config);
+
+$credential = $client->getCredential();
+$credential->getBearerToken();
 ```
 
 ## Default credential provider chain

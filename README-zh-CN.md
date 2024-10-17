@@ -60,7 +60,7 @@ $credential->getSecurityToken();
 <?php
 
 use AlibabaCloud\Credentials\Credential;
-namespace AlibabaCloud\Credentials\Credential\Config;
+use AlibabaCloud\Credentials\Credential\Config;
 
 // Access Key
 $config = new Config([
@@ -83,7 +83,7 @@ $credential->getAccessKeySecret();
 <?php
 
 use AlibabaCloud\Credentials\Credential;
-namespace AlibabaCloud\Credentials\Credential\Config;
+use AlibabaCloud\Credentials\Credential\Config;
 
 $config = new Config([
     'type'            => 'sts',
@@ -107,7 +107,7 @@ $credential->getSecurityToken();
 <?php
 
 use AlibabaCloud\Credentials\Credential;
-namespace AlibabaCloud\Credentials\Credential\Config;
+use AlibabaCloud\Credentials\Credential\Config;
 
 $config = new Config([
     'type'                  => 'ram_role_arn',
@@ -138,7 +138,7 @@ Credentials工具会自动获取ECS实例绑定的RAM角色，调用ECS的元数
 <?php
 
 use AlibabaCloud\Credentials\Credential;
-namespace AlibabaCloud\Credentials\Credential\Config;
+use AlibabaCloud\Credentials\Credential\Config;
 
 $config = new Config([
     'type'         => 'ecs_ram_role',
@@ -161,7 +161,7 @@ $credential->getSecurityToken();
 <?php
 
 use AlibabaCloud\Credentials\Credential;
-namespace AlibabaCloud\Credentials\Credential\Config;
+use AlibabaCloud\Credentials\Credential\Config;
 
 $config = new Config([
     'type'                  => 'oidc_role_arn',
@@ -194,7 +194,7 @@ $credential->getSecurityToken();
 <?php
 
 use AlibabaCloud\Credentials\Credential;
-namespace AlibabaCloud\Credentials\Credential\Config;
+use AlibabaCloud\Credentials\Credential\Config;
 
 $config = new Config([
     'type'               => 'credentials_uri',
@@ -215,7 +215,7 @@ $credential->getBearerToken();
 <?php
 
 use AlibabaCloud\Credentials\Credential;
-namespace AlibabaCloud\Credentials\Credential\Config;
+use AlibabaCloud\Credentials\Credential\Config;
 
 $config = new Config([
     'type'            => 'bearer',
