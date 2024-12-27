@@ -10,6 +10,7 @@ use GuzzleHttp\Exception\GuzzleException;
 use InvalidArgumentException;
 use RuntimeException;
 use Exception;
+use AlibabaCloud\Credentials\Credential\RefreshResult;
 
 /**
  * @internal This class is intended for internal use within the package. 
@@ -199,7 +200,7 @@ class OIDCRoleArnCredentialsProvider extends SessionCredentialsProvider
     /**
      * Get credentials by request.
      *
-     * @return array
+     * @return RefreshResult
      * @throws RuntimeException
      * @throws GuzzleException
      */
@@ -242,7 +243,13 @@ class OIDCRoleArnCredentialsProvider extends SessionCredentialsProvider
             throw new RuntimeException('Error retrieving credentials from OIDC result:' . $result->toJson());
         }
 
-        return $credentials;
+        return new RefreshResult(new Credentials([
+            'accessKeyId' => $credentials['AccessKeyId'],
+            'accessKeySecret' => $credentials['AccessKeySecret'],
+            'securityToken' => $credentials['SecurityToken'],
+            'expiration' => \strtotime($credentials['Expiration']),
+            'providerName' => $this->getProviderName(),
+        ]), $this->getStaleTime(strtotime($credentials['Expiration'])) );
     }
 
     public function key()
