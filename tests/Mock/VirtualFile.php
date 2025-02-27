@@ -2,6 +2,7 @@
 
 namespace AlibabaCloud\Credentials\Tests\Mock;
 
+use AlibabaCloud\Configure\Config;
 use org\bovigo\vfs\vfsStream;
 
 class VirtualFile
@@ -41,7 +42,7 @@ class VirtualFile
     {
         return vfsStream::newFile($fileName)
                         ->withContent($this->content)
-                        ->at(vfsStream::setup('AlibabaCloud'))
+                        ->at(vfsStream::setup(Config::KEY))
                         ->url();
     }
 }

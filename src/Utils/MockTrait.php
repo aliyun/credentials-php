@@ -10,11 +10,7 @@ use GuzzleHttp\Middleware;
 use Psr\Http\Message\RequestInterface;
 use Psr\Http\Message\ResponseInterface;
 
-/**
- * Trait MockTrait
- *
- * @package AlibabaCloud\Credentials\Utils
- */
+
 trait MockTrait
 {
     /**

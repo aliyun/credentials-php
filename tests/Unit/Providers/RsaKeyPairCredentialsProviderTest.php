@@ -2,6 +2,7 @@
 
 namespace AlibabaCloud\Credentials\Tests\Unit\Providers;
 
+use AlibabaCloud\Configure\Config;
 use AlibabaCloud\Credentials\Credentials;
 use AlibabaCloud\Credentials\Tests\Unit\Ini\VirtualRsaKeyPairCredential;
 use AlibabaCloud\Credentials\Providers\RsaKeyPairCredentialsProvider;
@@ -10,11 +11,6 @@ use InvalidArgumentException;
 use PHPUnit\Framework\TestCase;
 use ReflectionClass;
 
-/**
- * Class RsaKeyPairCredentialsProviderTest
- *
- * @package AlibabaCloud\Credentials\Tests\Unit\Providers
- */
 class RsaKeyPairCredentialsProviderTest extends TestCase
 {
 
@@ -42,7 +38,7 @@ class RsaKeyPairCredentialsProviderTest extends TestCase
         $params = [
             'publicKeyId' => 'test',
             'privateKeyFile' => $url,
-            'stsEndpoint' => 'sts.aliyuncs.com',
+            'stsEndpoint' => 'sts.' . Config:: ENDPOINT_SUFFIX,
             'durationSeconds' => 6000,
         ];
         $config = [
@@ -59,7 +55,7 @@ class RsaKeyPairCredentialsProviderTest extends TestCase
         self::assertEquals('test', $provider->getPublicKeyId());
         $stsEndpoint = $this->getPrivateField($provider, 'stsEndpoint');
         $durationSeconds = $this->getPrivateField($provider, 'durationSeconds');
-        self::assertEquals('sts.aliyuncs.com', $stsEndpoint);
+        self::assertEquals('sts.' . Config:: ENDPOINT_SUFFIX, $stsEndpoint);
         self::assertEquals(6000, $durationSeconds);
 
         $params = [
@@ -74,7 +70,7 @@ class RsaKeyPairCredentialsProviderTest extends TestCase
         self::assertEquals('test', $provider->getPublicKeyId());
         $stsEndpoint = $this->getPrivateField($provider, 'stsEndpoint');
         $durationSeconds = $this->getPrivateField($provider, 'durationSeconds');
-        self::assertEquals('sts.ap-northeast-1.aliyuncs.com', $stsEndpoint);
+        self::assertEquals('sts.ap-northeast-1.' . Config:: ENDPOINT_SUFFIX, $stsEndpoint);
         self::assertEquals(3600, $durationSeconds);
 
     }

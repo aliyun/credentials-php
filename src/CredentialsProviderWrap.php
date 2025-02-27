@@ -5,12 +5,6 @@ namespace AlibabaCloud\Credentials;
 use AlibabaCloud\Credentials\Credential\CredentialModel;
 use AlibabaCloud\Credentials\Providers\CredentialsProvider;
 
-/**
- * @internal This class is intended for internal use within the package. 
- * Class CredentialsProviderWrap
- * 
- * @package AlibabaCloud\Credentials
- */
 class CredentialsProviderWrap implements CredentialsInterface
 {
     /**
@@ -64,13 +58,5 @@ class CredentialsProviderWrap implements CredentialsInterface
     public function __toString()
     {
         return "credentialsProviderWrap#$this->typeName";
-    }
-
-    /**
-     * @return ShaHmac1Signature
-     */
-    public function getSignature()
-    {
-        return null;
     }
 }

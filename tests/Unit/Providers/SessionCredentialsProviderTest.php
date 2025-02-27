@@ -76,11 +76,6 @@ class TestSessionCredentialsProvider extends SessionCredentialsProvider
     }
 }
 
-/**
- * Class SessionCredentialsProviderTest
- *
- * @package AlibabaCloud\Credentials\Tests\Unit\Providers
- */
 class SessionCredentialsProviderTest extends TestCase
 {
 

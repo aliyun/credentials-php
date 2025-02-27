@@ -9,12 +9,8 @@ use GuzzleHttp\Exception\GuzzleException;
 use PHPUnit\Framework\TestCase;
 use RuntimeException;
 use ReflectionClass;
+use AlibabaCloud\Configure\Config;
 
-/**
- * Class EcsRamRoleCredentialsProviderTest
- *
- * @package AlibabaCloud\Credentials\Tests\Unit\Providers
- */
 class EcsRamRoleCredentialsProviderTest extends TestCase
 {
 
@@ -61,8 +57,8 @@ class EcsRamRoleCredentialsProviderTest extends TestCase
             'connectTimeout' => 10,
             'readTimeout' => 10,
         ];
-        putenv("ALIBABA_CLOUD_ECS_METADATA=roleName");
-        putenv("ALIBABA_CLOUD_IMDSV1_DISABLED=false");
+        putenv(Config:: ENV_PREFIX . "ECS_METADATA=roleName");
+        putenv(Config:: ENV_PREFIX . "IMDSV1_DISABLED=false");
 
         $provider = new EcsRamRoleCredentialsProvider($params, $config);
 
@@ -77,8 +73,8 @@ class EcsRamRoleCredentialsProviderTest extends TestCase
         self::assertEquals(true, $provider->isDisableIMDSv1());
         self::assertEquals('ecs_ram_role', $provider->getProviderName());
 
-        putenv("ALIBABA_CLOUD_ECS_METADATA=");
-        putenv("ALIBABA_CLOUD_IMDSV1_DISABLED=");
+        putenv(Config:: ENV_PREFIX . "ECS_METADATA=");
+        putenv(Config:: ENV_PREFIX . "IMDSV1_DISABLED=");
     }
 
     /**
@@ -88,7 +84,7 @@ class EcsRamRoleCredentialsProviderTest extends TestCase
     public function testEnvDisabled()
     {
 
-        putenv("ALIBABA_CLOUD_ECS_METADATA_DISABLED=true");
+        putenv(Config:: ENV_PREFIX . "ECS_METADATA_DISABLED=true");
         $provider = new EcsRamRoleCredentialsProvider([], []);
 
         $this->expectException(RuntimeException::class);
@@ -99,7 +95,7 @@ class EcsRamRoleCredentialsProviderTest extends TestCase
         }
         $provider->getCredentials();
 
-        putenv("ALIBABA_CLOUD_ECS_METADATA_DISABLED=");
+        putenv(Config:: ENV_PREFIX . "ECS_METADATA_DISABLED=");
     }
 
     public function testGetDisableECSIMDSv1()
@@ -124,37 +120,37 @@ class EcsRamRoleCredentialsProviderTest extends TestCase
 
         self::assertEquals(false, $this->invokeProtectedFunc($provider, 'isDisableIMDSv1'));
 
-        putenv('ALIBABA_CLOUD_IMDSV1_DISABLED=true');
+        putenv(Config::ENV_PREFIX + 'IMDSV1_DISABLED=true');
+        
+        $provider = new EcsRamRoleCredentialsProvider($params);
+
+        self::assertEquals(true, $this->invokeProtectedFunc($provider, 'isDisableIMDSv1'));
+
+        putenv(Config::ENV_PREFIX + 'IMDSV1_DISABLED=TRUE');
 
         $provider = new EcsRamRoleCredentialsProvider($params);
 
         self::assertEquals(true, $this->invokeProtectedFunc($provider, 'isDisableIMDSv1'));
 
-        putenv('ALIBABA_CLOUD_IMDSV1_DISABLED=TRUE');
-
-        $provider = new EcsRamRoleCredentialsProvider($params);
-
-        self::assertEquals(true, $this->invokeProtectedFunc($provider, 'isDisableIMDSv1'));
-
-        putenv('ALIBABA_CLOUD_IMDSV1_DISABLED=ok');
+        putenv(Config::ENV_PREFIX + 'IMDSV1_DISABLED=ok');
 
         $provider = new EcsRamRoleCredentialsProvider($params);
 
         self::assertEquals(false, $this->invokeProtectedFunc($provider, 'isDisableIMDSv1'));
 
-        putenv('ALIBABA_CLOUD_IMDSV1_DISABLED=1');
+        putenv(Config::ENV_PREFIX + 'IMDSV1_DISABLED=1');
 
         $provider = new EcsRamRoleCredentialsProvider($params);
 
         self::assertEquals(false, $this->invokeProtectedFunc($provider, 'isDisableIMDSv1'));
 
-        putenv('ALIBABA_CLOUD_IMDSV1_DISABLED=false');
+        putenv(Config::ENV_PREFIX + 'IMDSV1_DISABLED=false');
 
         $provider = new EcsRamRoleCredentialsProvider($params);
 
         self::assertEquals(false, $this->invokeProtectedFunc($provider, 'isDisableIMDSv1'));
 
-        putenv('ALIBABA_CLOUD_IMDSV1_DISABLED=');
+        putenv(Config::ENV_PREFIX + 'IMDSV1_DISABLED=');
 
         $provider = new EcsRamRoleCredentialsProvider($params);
 

@@ -8,11 +8,6 @@ use PHPUnit\Framework\TestCase;
 use ReflectionException;
 use RuntimeException;
 
-/**
- * Class CredentialsTest
- *
- * @package AlibabaCloud\Credentials\Tests\Unit
- */
 class CredentialsTest extends TestCase
 {
 

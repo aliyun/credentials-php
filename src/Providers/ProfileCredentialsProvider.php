@@ -4,13 +4,8 @@ namespace AlibabaCloud\Credentials\Providers;
 
 use AlibabaCloud\Credentials\Utils\Helper;
 use RuntimeException;
+use AlibabaCloud\Configure\Config;
 
-/**
- * @internal This class is intended for internal use within the package. 
- * Class ProfileCredentialsProvider
- *
- * @package AlibabaCloud\Credentials\Providers
- */
 class ProfileCredentialsProvider implements CredentialsProvider
 {
 
@@ -43,8 +38,8 @@ class ProfileCredentialsProvider implements CredentialsProvider
 
     private function filterProfileName(array $params)
     {
-        if (Helper::envNotEmpty('ALIBABA_CLOUD_PROFILE')) {
-            $this->profileName = Helper::env('ALIBABA_CLOUD_PROFILE');
+        if (Helper::envNotEmpty(Config::ENV_PREFIX + 'PROFILE')) {
+            $this->profileName = Helper::env(Config::ENV_PREFIX + 'PROFILE');
         }
 
         if (isset($params['profileName'])) {
@@ -58,7 +53,7 @@ class ProfileCredentialsProvider implements CredentialsProvider
 
     private function filterProfileFile()
     {
-        $this->profileFile = Helper::envNotEmpty('ALIBABA_CLOUD_CREDENTIALS_FILE');
+        $this->profileFile = Helper::envNotEmpty(Config::ENV_PREFIX + 'CREDENTIALS_FILE');
 
         if (!$this->profileFile) {
             $this->profileFile = self::getDefaultFile();
@@ -173,7 +168,7 @@ class ProfileCredentialsProvider implements CredentialsProvider
     {
         return Helper::getHomeDirectory() .
             DIRECTORY_SEPARATOR .
-            '.alibabacloud' .
+            Config::CREDENTIAL_FILE_PATH .
             DIRECTORY_SEPARATOR .
             'credentials';
     }

@@ -8,11 +8,6 @@ use InvalidArgumentException;
 use Exception;
 use PHPUnit\Framework\TestCase;
 
-/**
- * Class BearerTokenCredentialTest
- *
- * @package AlibabaCloud\Credentials\Tests\Unit
- */
 class BearerTokenCredentialTest extends TestCase
 {
 

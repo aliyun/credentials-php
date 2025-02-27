@@ -11,13 +11,8 @@ use InvalidArgumentException;
 use RuntimeException;
 use Exception;
 use AlibabaCloud\Credentials\Credential\RefreshResult;
+use AlibabaCloud\Configure\Config;
 
-/**
- * @internal This class is intended for internal use within the package. 
- * Class OIDCRoleArnCredentialsProvider
- *
- * @package AlibabaCloud\Credentials\Providers
- */
 class OIDCRoleArnCredentialsProvider extends SessionCredentialsProvider
 {
 
@@ -88,8 +83,8 @@ class OIDCRoleArnCredentialsProvider extends SessionCredentialsProvider
 
     private function filterRoleArn(array $params)
     {
-        if (Helper::envNotEmpty('ALIBABA_CLOUD_ROLE_ARN')) {
-            $this->roleArn = Helper::env('ALIBABA_CLOUD_ROLE_ARN');
+        if (Helper::envNotEmpty(Config::ENV_PREFIX . 'ROLE_ARN')) {
+            $this->roleArn = Helper::env(Config::ENV_PREFIX . 'ROLE_ARN');
         }
 
         if (isset($params['roleArn'])) {
@@ -101,8 +96,8 @@ class OIDCRoleArnCredentialsProvider extends SessionCredentialsProvider
 
     private function filterOIDCProviderArn(array $params)
     {
-        if (Helper::envNotEmpty('ALIBABA_CLOUD_OIDC_PROVIDER_ARN')) {
-            $this->oidcProviderArn = Helper::env('ALIBABA_CLOUD_OIDC_PROVIDER_ARN');
+        if (Helper::envNotEmpty(Config::ENV_PREFIX . 'OIDC_PROVIDER_ARN')) {
+            $this->oidcProviderArn = Helper::env(Config::ENV_PREFIX . 'OIDC_PROVIDER_ARN');
         }
 
         if (isset($params['oidcProviderArn'])) {
@@ -114,8 +109,8 @@ class OIDCRoleArnCredentialsProvider extends SessionCredentialsProvider
 
     private function filterOIDCTokenFilePath(array $params)
     {
-        if (Helper::envNotEmpty('ALIBABA_CLOUD_OIDC_TOKEN_FILE')) {
-            $this->oidcTokenFilePath = Helper::env('ALIBABA_CLOUD_OIDC_TOKEN_FILE');
+        if (Helper::envNotEmpty(Config::ENV_PREFIX . 'OIDC_TOKEN_FILE')) {
+            $this->oidcTokenFilePath = Helper::env(Config::ENV_PREFIX . 'OIDC_TOKEN_FILE');
         }
 
         if (isset($params['oidcTokenFilePath'])) {
@@ -127,8 +122,8 @@ class OIDCRoleArnCredentialsProvider extends SessionCredentialsProvider
 
     private function filterRoleSessionName(array $params)
     {
-        if (Helper::envNotEmpty('ALIBABA_CLOUD_ROLE_SESSION_NAME')) {
-            $this->roleSessionName = Helper::env('ALIBABA_CLOUD_ROLE_SESSION_NAME');
+        if (Helper::envNotEmpty(Config::ENV_PREFIX . 'ROLE_SESSION_NAME')) {
+            $this->roleSessionName = Helper::env(Config::ENV_PREFIX . 'ROLE_SESSION_NAME');
         }
 
         if (isset($params['roleSessionName'])) {
@@ -168,15 +163,15 @@ class OIDCRoleArnCredentialsProvider extends SessionCredentialsProvider
     private function filterSTSEndpoint(array $params)
     {
         $prefix = 'sts';
-        if (Helper::envNotEmpty('ALIBABA_CLOUD_VPC_ENDPOINT_ENABLED') || (isset($params['enableVpc']) && $params['enableVpc'] === true)) {
+        if (Helper::envNotEmpty(Config::ENV_PREFIX . 'VPC_ENDPOINT_ENABLED') || (isset($params['enableVpc']) && $params['enableVpc'] === true)) {
             $prefix = 'sts-vpc';
         }
-        if (Helper::envNotEmpty('ALIBABA_CLOUD_STS_REGION')) {
-            $this->stsEndpoint = $prefix . '.' . Helper::env('ALIBABA_CLOUD_STS_REGION') . '.aliyuncs.com';
+        if (Helper::envNotEmpty(Config::ENV_PREFIX . 'STS_REGION')) {
+            $this->stsEndpoint = $prefix . '.' . Helper::env(Config::ENV_PREFIX . 'STS_REGION') . '.' . Config::ENDPOINT_SUFFIX;
         }
 
         if (isset($params['stsRegionId'])) {
-            $this->stsEndpoint = $prefix . '.' . $params['stsRegionId'] . '.aliyuncs.com';
+            $this->stsEndpoint = $prefix . '.' . $params['stsRegionId'] . '.' . Config::ENDPOINT_SUFFIX;
         }
 
         if (isset($params['stsEndpoint'])) {
@@ -184,7 +179,7 @@ class OIDCRoleArnCredentialsProvider extends SessionCredentialsProvider
         }
 
         if (is_null($this->stsEndpoint) || $this->stsEndpoint === '') {
-            $this->stsEndpoint = 'sts.aliyuncs.com';
+            $this->stsEndpoint = Config::STS_DEFAULT_ENDPOINT;
         }
     }
 

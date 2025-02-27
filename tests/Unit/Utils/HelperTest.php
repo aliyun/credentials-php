@@ -7,12 +7,8 @@ use AlibabaCloud\Credentials\Utils\Helper;
 use PHPUnit\Framework\TestCase;
 use ReflectionClass;
 use ReflectionException;
+use AlibabaCloud\Configure\Config;
 
-/**
- * Class HelperTest
- *
- * @package AlibabaCloud\Credentials\Tests\Unit
- */
 class HelperTest extends TestCase
 {
     public static function testDefault()
@@ -58,25 +54,25 @@ class HelperTest extends TestCase
 
     public static function testString()
     {
-        putenv('STRING="Alibaba Cloud"');
-        self::assertEquals('"Alibaba Cloud"', getenv('STRING'));
-        self::assertEquals('Alibaba Cloud', Helper::env('STRING'));
+        putenv('STRING="Cloud"');
+        self::assertEquals('"Cloud"', getenv('STRING'));
+        self::assertEquals('Cloud', Helper::env('STRING'));
 
-        putenv('STRING="Alibaba Cloud');
-        self::assertEquals('"Alibaba Cloud', getenv('STRING'));
-        self::assertEquals('"Alibaba Cloud', Helper::env('STRING'));
+        putenv('STRING="Cloud');
+        self::assertEquals('"Cloud', getenv('STRING'));
+        self::assertEquals('"Cloud', Helper::env('STRING'));
     }
 
     public static function testEnvNotEmpty()
     {
-        self::assertFalse(Helper::envNotEmpty('ALIBABA_CLOUD_NOT_EXISTS'));
+        self::assertFalse(Helper::envNotEmpty(Config::ENV_PREFIX + 'NOT_EXISTS'));
     }
 
     public static function testEnvNotEmptyException()
     {
-        putenv('ALIBABA_CLOUD_NOT_EXISTS=');
+        putenv(Config::ENV_PREFIX + 'NOT_EXISTS=');
 
-        self::assertFalse(Helper::envNotEmpty('ALIBABA_CLOUD_NOT_EXISTS'));
+        self::assertFalse(Helper::envNotEmpty(Config::ENV_PREFIX + 'NOT_EXISTS'));
     }
 
     public static function testInOpenBaseDir()
@@ -86,11 +82,11 @@ class HelperTest extends TestCase
             ini_set('open_basedir', $dirs);
             self::assertEquals($dirs, ini_get('open_basedir'));
         } else {
-            $dirs = 'vfs://AlibabaCloud:/home:/Users:/private:/a/b';
+            $dirs = 'vfs://' . Config::KEY . ':/home:/Users:/private:/a/b';
             ini_set('open_basedir', $dirs);
             self::assertEquals($dirs, ini_get('open_basedir'));
-            self::assertTrue(Helper::inOpenBasedir('/Users/alibabacloud'));
-            self::assertTrue(Helper::inOpenBasedir('/private/alibabacloud'));
+            self::assertTrue(Helper::inOpenBasedir('/Users/test'));
+            self::assertTrue(Helper::inOpenBasedir('/private/test'));
             self::assertFalse(Helper::inOpenBasedir('/no/permission'));
             self::assertFalse(Helper::inOpenBasedir('/a'));
             self::assertTrue(Helper::inOpenBasedir('/a/b/'));
@@ -142,11 +138,11 @@ class HelperTest extends TestCase
     {
         putenv('HOME=');
         putenv('HOMEDRIVE=C:');
-        putenv('HOMEPATH=\\Users\\Alibaba');
+        putenv('HOMEPATH=\\Users\\Test');
         $ref = new ReflectionClass(Helper::class);
         $method = $ref->getMethod('getHomeDirectory');
         $method->setAccessible(true);
-        $this->assertEquals('C:\\Users\\Alibaba', $method->invoke(null));
+        $this->assertEquals('C:\\Users\\Test', $method->invoke(null));
     }
 
     /**
@@ -176,11 +172,12 @@ class HelperTest extends TestCase
 
     public function testGetUserAgent()
     {
-        self::assertStringStartsWith('AlibabaCloud', Helper::getUserAgent());
+        self::assertStringStartsWith(Config::KEY, Helper::getUserAgent());
         self::assertStringEndsWith('Credentials/' . Credential::VERSION . ' TeaDSL/1', Helper::getUserAgent());
     }
 
-    public function testUnsetReturnNull() {
+    public function testUnsetReturnNull()
+    {
         $params = [
             'key' => 'value',
             'test' => '',

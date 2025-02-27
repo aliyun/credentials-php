@@ -2,6 +2,7 @@
 
 namespace AlibabaCloud\Credentials\Tests\Unit\Ini;
 
+use AlibabaCloud\Configure\Config;
 use org\bovigo\vfs\vfsStream;
 
 /**
@@ -75,7 +76,7 @@ EOT;
 
         return vfsStream::newFile($fileName)
                         ->withContent($this->content)
-                        ->at(vfsStream::setup('AlibabaCloud'))
+                        ->at(vfsStream::setup(Config::KEY))
                         ->url();
     }
 

@@ -2,6 +2,7 @@
 
 namespace AlibabaCloud\Credentials\Tests\Unit\Providers;
 
+use AlibabaCloud\Configure\Config;
 use AlibabaCloud\Credentials\Credentials;
 use AlibabaCloud\Credentials\Tests\Mock\VirtualFile;
 use AlibabaCloud\Credentials\Providers\OIDCRoleArnCredentialsProvider;
@@ -10,11 +11,6 @@ use InvalidArgumentException;
 use PHPUnit\Framework\TestCase;
 use ReflectionClass;
 
-/**
- * Class OIDCRoleArnCredentialsProviderTest
- *
- * @package AlibabaCloud\Credentials\Tests\Unit\Providers
- */
 class OIDCRoleArnCredentialsProviderTest extends TestCase
 {
 
@@ -47,18 +43,18 @@ class OIDCRoleArnCredentialsProviderTest extends TestCase
             'policy' => 'policy',
             'stsRegionId' => 'cn-beijing',
             'enableVpc' => true,
-            'stsEndpoint' => 'sts.cn-zhangjiakou.aliyuncs.com'
+            'stsEndpoint' => 'sts.cn-zhangjiakou.' . Config:: ENDPOINT_SUFFIX
         ];
         $config = [
             'connectTimeout' => 10,
             'readTimeout' => 10,
         ];
-        putenv("ALIBABA_CLOUD_ROLE_ARN=roleArn");
-        putenv("ALIBABA_CLOUD_OIDC_PROVIDER_ARN=providerArn");
-        putenv("ALIBABA_CLOUD_OIDC_TOKEN_FILE=/b/c");
-        putenv("ALIBABA_CLOUD_ROLE_SESSION_NAME=sessionName");
-        putenv("ALIBABA_CLOUD_STS_REGION=cn-hangzhou");
-        putenv("ALIBABA_CLOUD_VPC_ENDPOINT_ENABLED=true");
+        putenv(Config:: ENV_PREFIX . "ROLE_ARN=roleArn");
+        putenv(Config:: ENV_PREFIX . "OIDC_PROVIDER_ARN=providerArn");
+        putenv(Config:: ENV_PREFIX . "OIDC_TOKEN_FILE=/b/c");
+        putenv(Config:: ENV_PREFIX . "ROLE_SESSION_NAME=sessionName");
+        putenv(Config:: ENV_PREFIX . "STS_REGION=cn-hangzhou");
+        putenv(Config:: ENV_PREFIX . "VPC_ENDPOINT_ENABLED=true");
 
         $provider = new OIDCRoleArnCredentialsProvider($params, $config);
         self::assertEquals('oidc_role_arn', $provider->getProviderName());
@@ -67,7 +63,7 @@ class OIDCRoleArnCredentialsProviderTest extends TestCase
         $policy = $this->getPrivateField($provider, 'policy');
         $oidcTokenFilePath = $this->getPrivateField($provider, 'oidcTokenFilePath');
         $durationSeconds = $this->getPrivateField($provider, 'durationSeconds');
-        self::assertEquals('sts.cn-zhangjiakou.aliyuncs.com', $stsEndpoint);
+        self::assertEquals('sts.cn-zhangjiakou.' . Config:: ENDPOINT_SUFFIX, $stsEndpoint);
         self::assertEquals('policy', $policy);
         self::assertEquals('/a/b', $oidcTokenFilePath);
         self::assertEquals(3600, $durationSeconds);
@@ -79,17 +75,17 @@ class OIDCRoleArnCredentialsProviderTest extends TestCase
         $policy = $this->getPrivateField($provider, 'policy');
         $oidcTokenFilePath = $this->getPrivateField($provider, 'oidcTokenFilePath');
         $durationSeconds = $this->getPrivateField($provider, 'durationSeconds');
-        self::assertEquals('sts-vpc.cn-hangzhou.aliyuncs.com', $stsEndpoint);
+        self::assertEquals('stscn-hangzhou.' . Config:: ENDPOINT_SUFFIX, $stsEndpoint);
         self::assertNull($policy);
         self::assertEquals('/b/c', $oidcTokenFilePath);
         self::assertEquals(3600, $durationSeconds);
 
-        putenv("ALIBABA_CLOUD_ROLE_ARN=");
-        putenv("ALIBABA_CLOUD_OIDC_PROVIDER_ARN=");
-        putenv("ALIBABA_CLOUD_OIDC_TOKEN_FILE=");
-        putenv("ALIBABA_CLOUD_ROLE_SESSION_NAME=");
-        putenv("ALIBABA_CLOUD_STS_REGION=");
-        putenv("ALIBABA_CLOUD_VPC_ENDPOINT_ENABLED=");
+        putenv(Config:: ENV_PREFIX . "ROLE_ARN=");
+        putenv(Config:: ENV_PREFIX . "OIDC_PROVIDER_ARN=");
+        putenv(Config:: ENV_PREFIX . "OIDC_TOKEN_FILE=");
+        putenv(Config:: ENV_PREFIX . "ROLE_SESSION_NAME=");
+        putenv(Config:: ENV_PREFIX . "STS_REGION=");
+        putenv(Config:: ENV_PREFIX . "VPC_ENDPOINT_ENABLED=");
     }
 
     public function testConstructErrorRoleArn()

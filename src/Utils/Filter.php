@@ -4,11 +4,7 @@ namespace AlibabaCloud\Credentials\Utils;
 
 use InvalidArgumentException;
 
-/**
- * Class Filter
- *
- * @package AlibabaCloud\Credentials\Utils
- */
+
 class Filter
 {
 

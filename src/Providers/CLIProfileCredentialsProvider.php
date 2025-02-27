@@ -4,13 +4,8 @@ namespace AlibabaCloud\Credentials\Providers;
 
 use AlibabaCloud\Credentials\Utils\Helper;
 use RuntimeException;
+use AlibabaCloud\Configure\Config;
 
-/**
- * @internal This class is intended for internal use within the package. 
- * Class CLIProfileCredentialsProvider
- *
- * @package AlibabaCloud\Credentials\Providers
- */
 class CLIProfileCredentialsProvider implements CredentialsProvider
 {
 
@@ -37,8 +32,8 @@ class CLIProfileCredentialsProvider implements CredentialsProvider
 
     private function filterProfileName(array $params)
     {
-        if (Helper::envNotEmpty('ALIBABA_CLOUD_PROFILE')) {
-            $this->profileName = Helper::env('ALIBABA_CLOUD_PROFILE');
+        if (Helper::envNotEmpty(Config::ENV_PREFIX . 'PROFILE')) {
+            $this->profileName = Helper::env(Config::ENV_PREFIX . 'PROFILE');
         }
 
         if (isset($params['profileName'])) {
@@ -146,7 +141,7 @@ class CLIProfileCredentialsProvider implements CredentialsProvider
      */
     public function getCredentials()
     {
-        if (Helper::envNotEmpty('ALIBABA_CLOUD_CLI_PROFILE_DISABLED') && Helper::env('ALIBABA_CLOUD_CLI_PROFILE_DISABLED') === true) {
+        if (Helper::envNotEmpty(Config::ENV_PREFIX . 'CLI_PROFILE_DISABLED') && Helper::env(Config::ENV_PREFIX . 'CLI_PROFILE_DISABLED') === true) {
             throw new RuntimeException('CLI credentials file is disabled');
         }
         $cliProfileFile = self::getDefaultFile();
@@ -172,7 +167,7 @@ class CLIProfileCredentialsProvider implements CredentialsProvider
     {
         return Helper::getHomeDirectory() .
             DIRECTORY_SEPARATOR .
-            '.aliyun' .
+            Config::CLI_CONFIG_DIR .
             DIRECTORY_SEPARATOR .
             'config.json';
     }

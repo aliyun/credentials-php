@@ -3,14 +3,11 @@
 namespace AlibabaCloud\Credentials\Utils;
 
 use AlibabaCloud\Credentials\Credential;
+use AlibabaCloud\Configure\Config;
 use org\bovigo\vfs\vfsStream;
 use Closure;
 
-/**
- * Class Helper
- *
- * @package AlibabaCloud\Credentials\Utils
- */
+
 class Helper
 {
     /**
@@ -232,7 +229,7 @@ class Helper
      */
     public static function getUserAgent()
     {
-        return sprintf('AlibabaCloud (%s; %s) PHP/%s Credentials/%s TeaDSL/1', PHP_OS, \PHP_SAPI, PHP_VERSION, Credential::VERSION);
+        return sprintf(Config::KEY . ' (%s; %s) PHP/%s Credentials/%s TeaDSL/1', PHP_OS, \PHP_SAPI, PHP_VERSION, Credential::VERSION);
     }
 
     /**

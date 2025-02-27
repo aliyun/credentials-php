@@ -10,13 +10,8 @@ use GuzzleHttp\Exception\GuzzleException;
 use InvalidArgumentException;
 use RuntimeException;
 use AlibabaCloud\Credentials\Credential\RefreshResult;
+use AlibabaCloud\Configure\Config;
 
-/**
- * @internal This class is intended for internal use within the package. 
- * Class RamRoleArnCredentialsProvider
- *
- * @package AlibabaCloud\Credentials\Providers
- */
 class RamRoleArnCredentialsProvider extends SessionCredentialsProvider
 {
 
@@ -87,8 +82,8 @@ class RamRoleArnCredentialsProvider extends SessionCredentialsProvider
 
     private function filterRoleArn(array $params)
     {
-        if (Helper::envNotEmpty('ALIBABA_CLOUD_ROLE_ARN')) {
-            $this->roleArn = Helper::env('ALIBABA_CLOUD_ROLE_ARN');
+        if (Helper::envNotEmpty(Config::ENV_PREFIX + 'ROLE_ARN')) {
+            $this->roleArn = Helper::env(Config::ENV_PREFIX + 'ROLE_ARN');
         }
 
         if (isset($params['roleArn'])) {
@@ -100,8 +95,8 @@ class RamRoleArnCredentialsProvider extends SessionCredentialsProvider
 
     private function filterRoleSessionName(array $params)
     {
-        if (Helper::envNotEmpty('ALIBABA_CLOUD_ROLE_SESSION_NAME')) {
-            $this->roleSessionName = Helper::env('ALIBABA_CLOUD_ROLE_SESSION_NAME');
+        if (Helper::envNotEmpty(Config::ENV_PREFIX + 'ROLE_SESSION_NAME')) {
+            $this->roleSessionName = Helper::env(Config::ENV_PREFIX + 'ROLE_SESSION_NAME');
         }
 
         if (isset($params['roleSessionName'])) {
@@ -150,15 +145,15 @@ class RamRoleArnCredentialsProvider extends SessionCredentialsProvider
     private function filterSTSEndpoint(array $params)
     {
         $prefix = 'sts';
-        if (Helper::envNotEmpty('ALIBABA_CLOUD_VPC_ENDPOINT_ENABLED') || (isset($params['enableVpc']) && $params['enableVpc'] === true)) {
+        if (Helper::envNotEmpty(Config::ENV_PREFIX . 'VPC_ENDPOINT_ENABLED') || (isset($params['enableVpc']) && $params['enableVpc'] === true)) {
             $prefix = 'sts-vpc';
         }
-        if (Helper::envNotEmpty('ALIBABA_CLOUD_STS_REGION')) {
-            $this->stsEndpoint = $prefix . '.' . Helper::env('ALIBABA_CLOUD_STS_REGION') . '.aliyuncs.com';
+        if (Helper::envNotEmpty(Config::ENV_PREFIX . 'STS_REGION')) {
+            $this->stsEndpoint = $prefix . '.' . Helper::env(Config::ENV_PREFIX . 'STS_REGION') . '.' . Config::ENDPOINT_SUFFIX;
         }
 
         if (isset($params['stsRegionId'])) {
-            $this->stsEndpoint = $prefix . '.' . $params['stsRegionId'] . '.aliyuncs.com';
+            $this->stsEndpoint = $prefix . '.' . $params['stsRegionId'] . '.' . Config::ENDPOINT_SUFFIX;
         }
 
         if (isset($params['stsEndpoint'])) {
@@ -166,7 +161,7 @@ class RamRoleArnCredentialsProvider extends SessionCredentialsProvider
         }
 
         if (is_null($this->stsEndpoint) || $this->stsEndpoint === '') {
-            $this->stsEndpoint = 'sts.aliyuncs.com';
+            $this->stsEndpoint = Config::STS_DEFAULT_ENDPOINT;
         }
     }
 
@@ -215,13 +210,12 @@ class RamRoleArnCredentialsProvider extends SessionCredentialsProvider
         $options['read_timeout'] = $this->readTimeout;
         $options['connect_timeout'] = $this->connectTimeout;
 
-        $options['query']['Action'] = 'AssumeRole';
-        $options['query']['Version'] = '2015-04-01';
-        $options['query']['Format'] = 'JSON';
-        $options['query']['Timestamp'] = gmdate('Y-m-d\TH:i:s\Z');
-        $options['query']['SignatureMethod'] = 'HMAC-SHA1';
-        $options['query']['SignatureVersion'] = '1.0';
-        $options['query']['SignatureNonce'] = Request::uuid(json_encode($options['query']));
+        $date = gmdate('Y-m-d\TH:i:s\Z');
+        $options['headers']['x-acs-action'] = 'AssumeRole';
+        $options['headers']['x-acs-action'] = '2015-04-01';
+        $options['query']['accept'] = 'application/json';
+        $options['headers']['x-acs-date'] = $date;
+        
         $options['query']['RoleArn'] = $this->roleArn;
         $options['query']['RoleSessionName'] = $this->roleSessionName;
         $options['query']['DurationSeconds'] = (string) $this->durationSeconds;
@@ -232,15 +226,23 @@ class RamRoleArnCredentialsProvider extends SessionCredentialsProvider
             $options['query']['ExternalId'] = $this->externalId;
         }
 
+        $options['headers']['x-acs-signature-nonce'] = Request::uuid(json_encode($options['query']));
+
         $sessionCredentials = $this->credentialsProvider->getCredentials();
-        $options['query']['AccessKeyId'] = $sessionCredentials->getAccessKeyId();
         if (!is_null($sessionCredentials->getSecurityToken())) {
-            $options['query']['SecurityToken'] = $sessionCredentials->getSecurityToken();
+            $options['headers']['x-acs-accesskey-id'] = $sessionCredentials->getAccessKeyId();
+            $options['headers']['x-acs-security-token'] = $sessionCredentials->getSecurityToken();
         }
-        $options['query']['Signature'] = Request::shaHmac1sign(
-            Request::signString('GET', $options['query']),
-            $sessionCredentials->getAccessKeySecret() . '&'
+        
+        $dateNew = substr($date, 0, 11);
+        $dateNew = str_replace(
+            "-",
+            "",
+            $dateNew
         );
+        $region = $this->getRegion($request->productId, $config->endpoint, $config->regionId);
+        $signingkey = $this->getSigningkey($signatureAlgorithm, $accessKeySecret, $request->productId, $region, $dateNew);
+        $request->headers["Authorization"] = $this->getAuthorization($request->pathname, $request->method, $request->query, $request->headers, $signatureAlgorithm, $hashedRequestPayload, $accessKeyId, $signingkey, $request->productId, $region, $dateNew);
 
         $url = (new Uri())->withScheme('https')->withHost($this->stsEndpoint);
 

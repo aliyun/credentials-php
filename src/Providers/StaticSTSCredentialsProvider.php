@@ -4,13 +4,8 @@ namespace AlibabaCloud\Credentials\Providers;
 
 use AlibabaCloud\Credentials\Utils\Helper;
 use AlibabaCloud\Credentials\Utils\Filter;
+use AlibabaCloud\Configure\Config;
 
-/**
- * @internal This class is intended for internal use within the package. 
- * Class StaticSTSCredentialsProvider
- *
- * @package AlibabaCloud\Credentials\Providers
- */
 class StaticSTSCredentialsProvider implements CredentialsProvider
 {
 
@@ -41,16 +36,16 @@ class StaticSTSCredentialsProvider implements CredentialsProvider
 
     private function filterSTS(array $params)
     {
-        if (Helper::envNotEmpty('ALIBABA_CLOUD_ACCESS_KEY_ID')) {
-            $this->accessKeyId = Helper::env('ALIBABA_CLOUD_ACCESS_KEY_ID');
+        if (Helper::envNotEmpty(Config::ENV_PREFIX . 'ACCESS_KEY_ID')) {
+            $this->accessKeyId = Helper::env(Config::ENV_PREFIX . 'ACCESS_KEY_ID');
         }
 
-        if (Helper::envNotEmpty('ALIBABA_CLOUD_ACCESS_KEY_SECRET')) {
-            $this->accessKeySecret = Helper::env('ALIBABA_CLOUD_ACCESS_KEY_SECRET');
+        if (Helper::envNotEmpty(Config::ENV_PREFIX . 'ACCESS_KEY_SECRET')) {
+            $this->accessKeySecret = Helper::env(Config::ENV_PREFIX . 'ACCESS_KEY_SECRET');
         }
 
-        if (Helper::envNotEmpty('ALIBABA_CLOUD_SECURITY_TOKEN')) {
-            $this->securityToken = Helper::env('ALIBABA_CLOUD_SECURITY_TOKEN');
+        if (Helper::envNotEmpty(Config::ENV_PREFIX . 'SECURITY_TOKEN')) {
+            $this->securityToken = Helper::env(Config::ENV_PREFIX . 'SECURITY_TOKEN');
         }
 
         if (isset($params['accessKeyId'])) {

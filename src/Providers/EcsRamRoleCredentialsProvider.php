@@ -9,20 +9,15 @@ use GuzzleHttp\Exception\GuzzleException;
 use InvalidArgumentException;
 use RuntimeException;
 use AlibabaCloud\Credentials\Credential\RefreshResult;
+use AlibabaCloud\Configure\Config;
 
-/**
- * @internal This class is intended for internal use within the package. 
- * Class EcsRamRoleCredentialsProvider
- *
- * @package AlibabaCloud\Credentials\Providers
- */
 class EcsRamRoleCredentialsProvider extends SessionCredentialsProvider
 {
 
     /**
      * @var string
      */
-    private $metadataHost = 'http://100.100.100.200';
+    private $metadataHost = 'http://' . Config::ECS_METADATA_HOST;
 
     /**
      * @var string
@@ -90,8 +85,8 @@ class EcsRamRoleCredentialsProvider extends SessionCredentialsProvider
 
     private function filterRoleName(array $params)
     {
-        if (Helper::envNotEmpty('ALIBABA_CLOUD_ECS_METADATA')) {
-            $this->roleName = Helper::env('ALIBABA_CLOUD_ECS_METADATA');
+        if (Helper::envNotEmpty(Config::ENV_PREFIX . 'ECS_METADATA')) {
+            $this->roleName = Helper::env(Config::ENV_PREFIX . 'ECS_METADATA');
         }
 
         if (isset($params['roleName'])) {
@@ -101,8 +96,8 @@ class EcsRamRoleCredentialsProvider extends SessionCredentialsProvider
 
     private function filterDisableECSIMDSv1($params)
     {
-        if (Helper::envNotEmpty('ALIBABA_CLOUD_IMDSV1_DISABLED')) {
-            $this->disableIMDSv1 = Helper::env('ALIBABA_CLOUD_IMDSV1_DISABLED') === true ? true : false;
+        if (Helper::envNotEmpty(Config::ENV_PREFIX . 'IMDSV1_DISABLED')) {
+            $this->disableIMDSv1 = Helper::env(Config::ENV_PREFIX . 'IMDSV1_DISABLED') === true ? true : false;
         }
 
         if (isset($params['disableIMDSv1'])) {
@@ -120,7 +115,7 @@ class EcsRamRoleCredentialsProvider extends SessionCredentialsProvider
      */
     public function refreshCredentials()
     {
-        if (Helper::envNotEmpty('ALIBABA_CLOUD_ECS_METADATA_DISABLED') && Helper::env('ALIBABA_CLOUD_ECS_METADATA_DISABLED') === true) {
+        if (Helper::envNotEmpty(Config::ENV_PREFIX . 'ECS_METADATA_DISABLED') && Helper::env(Config::ENV_PREFIX . 'ECS_METADATA_DISABLED') === true) {
             throw new RuntimeException('IMDS credentials is disabled');
         }
 
@@ -135,7 +130,7 @@ class EcsRamRoleCredentialsProvider extends SessionCredentialsProvider
 
         $metadataToken = $this->getMetadataToken();
         if (!is_null($metadataToken)) {
-            $options['headers']['X-aliyun-ecs-metadata-token'] = $metadataToken;
+            $options['headers'][Config::ECS_METADATA_HEADER_PREFIX . 'ecs-metadata-token'] = $metadataToken;
         }
 
         $result = Request::createClient()->request('GET', $url, $options);
@@ -181,12 +176,12 @@ class EcsRamRoleCredentialsProvider extends SessionCredentialsProvider
 
         $metadataToken = $this->getMetadataToken();
         if (!is_null($metadataToken)) {
-            $options['headers']['X-aliyun-ecs-metadata-token'] = $metadataToken;
+            $options['headers'][Config::ECS_METADATA_HEADER_PREFIX . 'ecs-metadata-token'] = $metadataToken;
         }
 
         $result = Request::createClient()->request(
             'GET',
-            'http://100.100.100.200/latest/meta-data/ram/security-credentials/',
+            $this->metadataHost . $this->ecsUri,
             $options
         );
 
@@ -219,7 +214,7 @@ class EcsRamRoleCredentialsProvider extends SessionCredentialsProvider
         $options = Request::commonOptions();
         $options['read_timeout'] = $this->readTimeout;
         $options['connect_timeout'] = $this->connectTimeout;
-        $options['headers']['X-aliyun-ecs-metadata-token-ttl-seconds'] = $this->metadataTokenDuration;
+        $options['headers'][Config::ECS_METADATA_HEADER_PREFIX . 'ecs-metadata-token-ttl-seconds'] = $this->metadataTokenDuration;
 
         $result = Request::createClient()->request('PUT', $url, $options);
 

@@ -17,19 +17,13 @@ use GuzzleHttp\Exception\GuzzleException;
 use InvalidArgumentException;
 use RuntimeException;
 
-/**
- * Class Credential
- *
- * @package AlibabaCloud\Credentials
- *
- */
 class Credential
 {
 
     /**
      * Version of the Client
      */
-    const VERSION = '1.1.5';
+    const VERSION = '1.0.0';
 
     /**
      * @var Config
@@ -124,7 +118,7 @@ class Credential
                     'policy' => $config->policy,
                     'durationSeconds' => $config->roleSessionExpiration,
                     'externalId' => $config->externalId,
-                    'stsEndpoint' => $config->STSEndpoint,
+                    'stsEndpoint' => $config->stsEndpoint,
                 ], [
                     'connectTimeout' => $config->connectTimeout,
                     'readTimeout' => $config->readTimeout,
@@ -135,7 +129,7 @@ class Credential
                     'publicKeyId' => $config->publicKeyId,
                     'privateKeyFile' => $config->privateKeyFile,
                     'durationSeconds' => $config->roleSessionExpiration,
-                    'stsEndpoint' => $config->STSEndpoint,
+                    'stsEndpoint' => $config->stsEndpoint,
                 ], [
                     'connectTimeout' => $config->connectTimeout,
                     'readTimeout' => $config->readTimeout,
@@ -158,7 +152,7 @@ class Credential
                     'roleSessionName' => $config->roleSessionName,
                     'policy' => $config->policy,
                     'durationSeconds' => $config->roleSessionExpiration,
-                    'stsEndpoint' => $config->STSEndpoint,
+                    'stsEndpoint' => $config->stsEndpoint,
                 ], [
                     'connectTimeout' => $config->connectTimeout,
                     'readTimeout' => $config->readTimeout,
@@ -166,7 +160,7 @@ class Credential
                 return new CredentialsProviderWrap('oidc_role_arn', $provider);
             case "credentials_uri":
                 $provider = new URLCredentialsProvider([
-                    'credentialsURI' => $config->credentialsURI,
+                    'credentialsURI' => $config->credentialsUri,
                 ], [
                     'connectTimeout' => $config->connectTimeout,
                     'readTimeout' => $config->readTimeout,
@@ -193,66 +187,6 @@ class Credential
     public function getConfig()
     {
         return $this->config->toMap();
-    }
-
-    /**
-     * @deprecated use getCredential() instead
-     *
-     * @return string
-     * @throws RuntimeException
-     * @throws GuzzleException
-     */
-    public function getType()
-    {
-        return $this->credential->getCredential()->getType();
-    }
-
-    /**
-     * @deprecated use getCredential() instead
-     * 
-     * @return string
-     * @throws RuntimeException
-     * @throws GuzzleException
-     */
-    public function getAccessKeyId()
-    {
-        return $this->credential->getCredential()->getAccessKeyId();
-    }
-
-    /**
-     * @deprecated use getCredential() instead
-     * 
-     * @return string
-     * @throws RuntimeException
-     * @throws GuzzleException
-     */
-    public function getAccessKeySecret()
-    {
-        return $this->credential->getCredential()->getAccessKeySecret();
-    }
-
-    /**
-     * @deprecated use getCredential() instead
-     * 
-     * @return string
-     * @throws RuntimeException
-     * @throws GuzzleException
-     */
-    public function getSecurityToken()
-    {
-        return $this->credential->getCredential()->getSecurityToken();
-    }
-
-    /**
-     * @deprecated use getCredential() instead
-     * 
-     * @return string
-     * @throws RuntimeException
-     * @throws GuzzleException
-     */
-    public function getBearerToken()
-    {
-        return $this->credential->getCredential()->getBearerToken();
     }
 
     /**
