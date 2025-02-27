@@ -11,11 +11,6 @@ use PHPUnit\Framework\TestCase;
 use ReflectionException;
 use RuntimeException;
 
-/**
- * Class CredentialTest
- *
- * @package AlibabaCloud\Credentials\Tests\Feature
- */
 class CredentialTest extends TestCase
 {
 

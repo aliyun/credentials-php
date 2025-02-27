@@ -2,6 +2,7 @@
 
 namespace AlibabaCloud\Credentials\Tests\Unit\Providers;
 
+use AlibabaCloud\Configure\Config;
 use AlibabaCloud\Credentials\Credentials;
 use AlibabaCloud\Credentials\Providers\CLIProfileCredentialsProvider;
 use AlibabaCloud\Credentials\Tests\Unit\Ini\VirtualCLIConfig;
@@ -10,11 +11,6 @@ use ReflectionClass;
 use RuntimeException;
 use InvalidArgumentException;
 
-/**
- * Class CLIProfileCredentialsProviderTest
- *
- * @package AlibabaCloud\Credentials\Tests\Unit\Providers
- */
 class CLIProfileCredentialsProviderTest extends TestCase
 {
     /**
@@ -64,7 +60,7 @@ class CLIProfileCredentialsProviderTest extends TestCase
         $params = [
             'profileName' => 'test',
         ];
-        putenv("ALIBABA_CLOUD_PROFILE=profileName");
+        putenv(Config:: ENV_PREFIX . "PROFILE=profileName");
 
         $provider = new CLIProfileCredentialsProvider($params);
 
@@ -73,7 +69,7 @@ class CLIProfileCredentialsProviderTest extends TestCase
         self::assertEquals('test', $profileName);
         self::assertEquals('cli_profile', $provider->getProviderName());
 
-        putenv("ALIBABA_CLOUD_PROFILE=");
+        putenv(Config:: ENV_PREFIX . "PROFILE=");
     }
 
     public function testEmpty()
@@ -247,7 +243,7 @@ class CLIProfileCredentialsProviderTest extends TestCase
 
     public function testDisableCLI()
     {
-        putenv("ALIBABA_CLOUD_CLI_PROFILE_DISABLED=true");
+        putenv(Config:: ENV_PREFIX . "CLI_PROFILE_DISABLED=true");
 
         $provider = new CLIProfileCredentialsProvider();
 
@@ -259,6 +255,6 @@ class CLIProfileCredentialsProviderTest extends TestCase
         }
         $provider->getCredentials();
 
-        putenv("ALIBABA_CLOUD_CLI_PROFILE_DISABLED=");
+        putenv(Config:: ENV_PREFIX . "CLI_PROFILE_DISABLED=");
     }
 }

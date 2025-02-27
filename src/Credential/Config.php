@@ -24,9 +24,6 @@ class Config extends Model
         if (null !== $this->bearerToken) {
             $res['bearerToken'] = $this->bearerToken;
         }
-        if (null !== $this->durationSeconds) {
-            $res['durationSeconds'] = $this->durationSeconds;
-        }
         if (null !== $this->roleArn) {
             $res['roleArn'] = $this->roleArn;
         }
@@ -48,14 +45,14 @@ class Config extends Model
         if (null !== $this->roleName) {
             $res['roleName'] = $this->roleName;
         }
-        if (null !== $this->credentialsURI) {
-            $res['credentialsURI'] = $this->credentialsURI;
+        if (null !== $this->credentialsUri) {
+            $res['credentialsUri'] = $this->credentialsUri;
         }
         if (null !== $this->type) {
             $res['type'] = $this->type;
         }
-        if (null !== $this->STSEndpoint) {
-            $res['STSEndpoint'] = $this->STSEndpoint;
+        if (null !== $this->stsEndpoint) {
+            $res['stsEndpoint'] = $this->stsEndpoint;
         }
         if (null !== $this->externalId) {
             $res['externalId'] = $this->externalId;
@@ -81,9 +78,6 @@ class Config extends Model
         if (isset($map['bearerToken'])) {
             $model->bearerToken = $map['bearerToken'];
         }
-        if (isset($map['durationSeconds'])) {
-            $model->durationSeconds = $map['durationSeconds'];
-        }
         if (isset($map['roleArn'])) {
             $model->roleArn = $map['roleArn'];
         }
@@ -105,14 +99,14 @@ class Config extends Model
         if (isset($map['roleName'])) {
             $model->roleName = $map['roleName'];
         }
-        if (isset($map['credentialsURI'])) {
-            $model->credentialsURI = $map['credentialsURI'];
+        if (isset($map['credentialsUri'])) {
+            $model->credentialsUri = $map['credentialsUri'];
         }
         if (isset($map['type'])) {
             $model->type = $map['type'];
         }
-        if (isset($map['STSEndpoint'])) {
-            $model->STSEndpoint = $map['STSEndpoint'];
+        if (isset($map['stsEndpoint'])) {
+            $model->stsEndpoint = $map['stsEndpoint'];
         }
         if (isset($map['externalId'])) {
             $model->externalId = $map['externalId'];
@@ -203,7 +197,7 @@ class Config extends Model
      * @description sts endpoint
      * @var string
      */
-    public $STSEndpoint;
+    public $stsEndpoint;
 
     public $publicKeyId;
 
@@ -231,37 +225,7 @@ class Config extends Model
      * @description credentials URI
      * @var string
      */
-    public $credentialsURI;
-
-    /**
-     * @deprecated
-     */
-    public $metadataTokenDuration;
-
-    /**
-     * @deprecated
-     */
-    public $durationSeconds;
-
-    /**
-     * @deprecated
-     */
-    public $host;
-
-    /**
-     * @deprecated
-     */
-    public $expiration;
-
-    /**
-     * @deprecated
-     */
-    public $certFile = "";
-
-    /**
-     * @deprecated
-     */
-    public $certPassword = "";
+    public $credentialsUri;
 
     /**
      * @internal

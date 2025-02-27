@@ -2,6 +2,7 @@
 
 namespace AlibabaCloud\Credentials\Tests\Unit\Ini;
 
+use AlibabaCloud\Configure\Config;
 use org\bovigo\vfs\vfsStream;
 
 /**
@@ -45,7 +46,7 @@ class VirtualCLIConfig
 
         return vfsStream::newFile($fileName)
                         ->withContent($this->content)
-                        ->at(vfsStream::setup('.aliyun'))
+                        ->at(vfsStream::setup(Config::CLI_CONFIG_DIR))
                         ->url();
     }
 

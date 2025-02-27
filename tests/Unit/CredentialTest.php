@@ -9,11 +9,6 @@ use Exception;
 use PHPUnit\Framework\TestCase;
 use ReflectionException;
 
-/**
- * Class CredentialTest
- *
- * @package AlibabaCloud\Credentials\Tests\Unit
- */
 class CredentialTest extends TestCase
 {
     public function testLoad()

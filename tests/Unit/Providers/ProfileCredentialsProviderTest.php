@@ -14,12 +14,8 @@ use PHPUnit\Framework\TestCase;
 use ReflectionClass;
 use RuntimeException;
 use InvalidArgumentException;
+use AlibabaCloud\Configure\Config;
 
-/**
- * Class ProfileCredentialsProviderTest
- *
- * @package AlibabaCloud\Credentials\Tests\Unit\Providers
- */
 class ProfileCredentialsProviderTest extends TestCase
 {
 
@@ -53,8 +49,8 @@ class ProfileCredentialsProviderTest extends TestCase
         $params = [
             'profileName' => 'test',
         ];
-        putenv("ALIBABA_CLOUD_PROFILE=profileName");
-        putenv("ALIBABA_CLOUD_CREDENTIALS_FILE=/a/b");
+        putenv(Config:: ENV_PREFIX . "PROFILE=profileName");
+        putenv(Config:: ENV_PREFIX . "CREDENTIALS_FILE=/a/b");
 
         $provider = new ProfileCredentialsProvider($params);
 
@@ -65,15 +61,15 @@ class ProfileCredentialsProviderTest extends TestCase
         self::assertEquals('/a/b', $profileFile);
         self::assertEquals('profile', $provider->getProviderName());
 
-        putenv("ALIBABA_CLOUD_PROFILE=");
-        putenv("ALIBABA_CLOUD_CREDENTIALS_FILE=");
+        putenv(Config:: ENV_PREFIX . "PROFILE=");
+        putenv(Config:: ENV_PREFIX . "CREDENTIALS_FILE=");
     }
 
     public function testInvalidType()
     {
         $vf = VirtualAccessKeyCredential::invalidType();
-        putenv("ALIBABA_CLOUD_CREDENTIALS_FILE=$vf");
-        putenv("ALIBABA_CLOUD_PROFILE=phpunit");
+        putenv(Config:: ENV_PREFIX . "CREDENTIALS_FILE=$vf");
+        putenv(Config:: ENV_PREFIX . "PROFILE=phpunit");
         $this->expectException(RuntimeException::class);
         if (method_exists($this, 'expectExceptionMessageMatches')) {
             $this->expectExceptionMessageMatches('/Unsupported credential type from credentials file: invalidType/');
@@ -82,29 +78,29 @@ class ProfileCredentialsProviderTest extends TestCase
         }
         $provider = new ProfileCredentialsProvider();
         $provider->getCredentials();
-        putenv("ALIBABA_CLOUD_PROFILE=");
-        putenv("ALIBABA_CLOUD_CREDENTIALS_FILE=");
+        putenv(Config:: ENV_PREFIX . "PROFILE=");
+        putenv(Config:: ENV_PREFIX . "CREDENTIALS_FILE=");
     }
 
     public function testAK()
     {
         $vf = VirtualAccessKeyCredential::ok();
-        putenv("ALIBABA_CLOUD_CREDENTIALS_FILE=$vf");
-        putenv("ALIBABA_CLOUD_PROFILE=ok");
+        putenv(Config:: ENV_PREFIX . "CREDENTIALS_FILE=$vf");
+        putenv(Config:: ENV_PREFIX . "PROFILE=ok");
         $provider = new ProfileCredentialsProvider();
         $credentials = $provider->getCredentials();
         self::assertEquals('foo', $credentials->getAccessKeyId());
         self::assertEquals('bar', $credentials->getAccessKeySecret());
         self::assertEquals('profile/static_ak', $credentials->getProviderName());
-        putenv("ALIBABA_CLOUD_PROFILE=");
-        putenv("ALIBABA_CLOUD_CREDENTIALS_FILE=");
+        putenv(Config:: ENV_PREFIX . "PROFILE=");
+        putenv(Config:: ENV_PREFIX . "CREDENTIALS_FILE=");
     }
 
     public function testAKNoKeyError()
     {
         $vf = VirtualAccessKeyCredential::noKey();
-        putenv("ALIBABA_CLOUD_CREDENTIALS_FILE=$vf");
-        putenv("ALIBABA_CLOUD_PROFILE=phpunit");
+        putenv(Config:: ENV_PREFIX . "CREDENTIALS_FILE=$vf");
+        putenv(Config:: ENV_PREFIX . "PROFILE=phpunit");
         $this->expectException(InvalidArgumentException::class);
         if (method_exists($this, 'expectExceptionMessageMatches')) {
             $this->expectExceptionMessageMatches('/accessKeyId must be a string/');
@@ -113,15 +109,15 @@ class ProfileCredentialsProviderTest extends TestCase
         }
         $provider = new ProfileCredentialsProvider();
         $provider->getCredentials();
-        putenv("ALIBABA_CLOUD_PROFILE=");
-        putenv("ALIBABA_CLOUD_CREDENTIALS_FILE=");
+        putenv(Config:: ENV_PREFIX . "PROFILE=");
+        putenv(Config:: ENV_PREFIX . "CREDENTIALS_FILE=");
     }
 
     public function testAKNoTypeError()
     {
         $vf = VirtualAccessKeyCredential::noType();
-        putenv("ALIBABA_CLOUD_CREDENTIALS_FILE=$vf");
-        putenv("ALIBABA_CLOUD_PROFILE=phpunit");
+        putenv(Config:: ENV_PREFIX . "CREDENTIALS_FILE=$vf");
+        putenv(Config:: ENV_PREFIX . "PROFILE=phpunit");
         $this->expectException(RuntimeException::class);
         if (method_exists($this, 'expectExceptionMessageMatches')) {
             $this->expectExceptionMessageMatches('/Unsupported credential type from credentials file/');
@@ -130,15 +126,15 @@ class ProfileCredentialsProviderTest extends TestCase
         }
         $provider = new ProfileCredentialsProvider();
         $provider->getCredentials();
-        putenv("ALIBABA_CLOUD_PROFILE=");
-        putenv("ALIBABA_CLOUD_CREDENTIALS_FILE=");
+        putenv(Config:: ENV_PREFIX . "PROFILE=");
+        putenv(Config:: ENV_PREFIX . "CREDENTIALS_FILE=");
     }
 
     public function testRamRoleArn()
     {
         $vf = VirtualRamRoleArnCredential::client();
-        putenv("ALIBABA_CLOUD_CREDENTIALS_FILE=$vf");
-        putenv("ALIBABA_CLOUD_PROFILE=phpunit");
+        putenv(Config:: ENV_PREFIX . "CREDENTIALS_FILE=$vf");
+        putenv(Config:: ENV_PREFIX . "PROFILE=phpunit");
         $provider = new ProfileCredentialsProvider();
 
         $result = '{
@@ -155,15 +151,15 @@ class ProfileCredentialsProviderTest extends TestCase
         self::assertEquals('foo', $credentials->getAccessKeyId());
         self::assertEquals('bar', $credentials->getAccessKeySecret());
         self::assertEquals('profile/ram_role_arn/static_ak', $credentials->getProviderName());
-        putenv("ALIBABA_CLOUD_PROFILE=");
-        putenv("ALIBABA_CLOUD_CREDENTIALS_FILE=");
+        putenv(Config:: ENV_PREFIX . "PROFILE=");
+        putenv(Config:: ENV_PREFIX . "CREDENTIALS_FILE=");
     }
 
     public function testRamRoleArnError()
     {
         $vf = VirtualRamRoleArnCredential::noRoleArn();
-        putenv("ALIBABA_CLOUD_CREDENTIALS_FILE=$vf");
-        putenv("ALIBABA_CLOUD_PROFILE=phpunit");
+        putenv(Config:: ENV_PREFIX . "CREDENTIALS_FILE=$vf");
+        putenv(Config:: ENV_PREFIX . "PROFILE=phpunit");
         $provider = new ProfileCredentialsProvider();
         $this->expectException(InvalidArgumentException::class);
         if (method_exists($this, 'expectExceptionMessageMatches')) {
@@ -172,16 +168,16 @@ class ProfileCredentialsProviderTest extends TestCase
             $this->expectExceptionMessageRegExp('/roleArn cannot be empty/');
         }
         $provider->getCredentials();
-        putenv("ALIBABA_CLOUD_PROFILE=");
-        putenv("ALIBABA_CLOUD_CREDENTIALS_FILE=");
+        putenv(Config:: ENV_PREFIX . "PROFILE=");
+        putenv(Config:: ENV_PREFIX . "CREDENTIALS_FILE=");
     }
 
     public function testEcsRamRole()
     {
         $vf = VirtualEcsRamRoleCredential::client();
-        putenv("ALIBABA_CLOUD_ECS_METADATA_DISABLED=false");
-        putenv("ALIBABA_CLOUD_CREDENTIALS_FILE=$vf");
-        putenv("ALIBABA_CLOUD_PROFILE=phpunit");
+        putenv(Config:: ENV_PREFIX . "ECS_METADATA_DISABLED=false");
+        putenv(Config:: ENV_PREFIX . "CREDENTIALS_FILE=$vf");
+        putenv(Config:: ENV_PREFIX . "PROFILE=phpunit");
         $provider = new ProfileCredentialsProvider();
 
         $result           = [
@@ -199,9 +195,9 @@ class ProfileCredentialsProviderTest extends TestCase
         self::assertEquals('foo', $credentials->getAccessKeyId());
         self::assertEquals('bar', $credentials->getAccessKeySecret());
         self::assertEquals('profile/ecs_ram_role', $credentials->getProviderName());
-        putenv("ALIBABA_CLOUD_PROFILE=");
-        putenv("ALIBABA_CLOUD_CREDENTIALS_FILE=");
-        putenv("ALIBABA_CLOUD_ECS_METADATA_DISABLED=");
+        putenv(Config:: ENV_PREFIX . "PROFILE=");
+        putenv(Config:: ENV_PREFIX . "CREDENTIALS_FILE=");
+        putenv(Config:: ENV_PREFIX . "ECS_METADATA_DISABLED=");
     }
 
     public function testOIDCRoleArn()
@@ -209,8 +205,8 @@ class ProfileCredentialsProviderTest extends TestCase
         $vf = new VirtualFile("token");
         $url = $vf->url("token-file");
         $vf = VirtualOIDCRoleArnCredential::client($url);
-        putenv("ALIBABA_CLOUD_CREDENTIALS_FILE=$vf");
-        putenv("ALIBABA_CLOUD_PROFILE=phpunit");
+        putenv(Config:: ENV_PREFIX . "CREDENTIALS_FILE=$vf");
+        putenv(Config:: ENV_PREFIX . "PROFILE=phpunit");
 
         $this->expectException(InvalidArgumentException::class);
         if (method_exists($this, 'expectExceptionMessageMatches')) {
@@ -220,15 +216,15 @@ class ProfileCredentialsProviderTest extends TestCase
         }
         $provider = new ProfileCredentialsProvider();
         $provider->getCredentials();
-        putenv("ALIBABA_CLOUD_PROFILE=");
-        putenv("ALIBABA_CLOUD_CREDENTIALS_FILE=");
+        putenv(Config:: ENV_PREFIX . "PROFILE=");
+        putenv(Config:: ENV_PREFIX . "CREDENTIALS_FILE=");
     }
 
     public function testOIDCRoleArnError()
     {
         $vf = VirtualOIDCRoleArnCredential::noRoleArn();
-        putenv("ALIBABA_CLOUD_CREDENTIALS_FILE=$vf");
-        putenv("ALIBABA_CLOUD_PROFILE=phpunit");
+        putenv(Config:: ENV_PREFIX . "CREDENTIALS_FILE=$vf");
+        putenv(Config:: ENV_PREFIX . "PROFILE=phpunit");
         $provider = new ProfileCredentialsProvider();
         $this->expectException(InvalidArgumentException::class);
         if (method_exists($this, 'expectExceptionMessageMatches')) {
@@ -237,15 +233,15 @@ class ProfileCredentialsProviderTest extends TestCase
             $this->expectExceptionMessageRegExp('/roleArn cannot be empty/');
         }
         $provider->getCredentials();
-        putenv("ALIBABA_CLOUD_PROFILE=");
-        putenv("ALIBABA_CLOUD_CREDENTIALS_FILE=");
+        putenv(Config:: ENV_PREFIX . "PROFILE=");
+        putenv(Config:: ENV_PREFIX . "CREDENTIALS_FILE=");
     }
 
     public function testRsaKeyPairNoPrivateKeyFile()
     {
         $vf = VirtualRsaKeyPairCredential::noPrivateKeyFile();
-        putenv("ALIBABA_CLOUD_CREDENTIALS_FILE=$vf");
-        putenv("ALIBABA_CLOUD_PROFILE=phpunit");
+        putenv(Config:: ENV_PREFIX . "CREDENTIALS_FILE=$vf");
+        putenv(Config:: ENV_PREFIX . "PROFILE=phpunit");
         $provider = new ProfileCredentialsProvider();
         $this->expectException(InvalidArgumentException::class);
         if (method_exists($this, 'expectExceptionMessageMatches')) {
@@ -254,15 +250,15 @@ class ProfileCredentialsProviderTest extends TestCase
             $this->expectExceptionMessageRegExp('/privateKeyFile must be a string/');
         }
         $provider->getCredentials();
-        putenv("ALIBABA_CLOUD_PROFILE=");
-        putenv("ALIBABA_CLOUD_CREDENTIALS_FILE=");
+        putenv(Config:: ENV_PREFIX . "PROFILE=");
+        putenv(Config:: ENV_PREFIX . "CREDENTIALS_FILE=");
     }
 
     public function testRsaKeyPairNoPublicKeyId()
     {
         $vf = VirtualRsaKeyPairCredential::noPublicKeyId();
-        putenv("ALIBABA_CLOUD_CREDENTIALS_FILE=$vf");
-        putenv("ALIBABA_CLOUD_PROFILE=phpunit");
+        putenv(Config:: ENV_PREFIX . "CREDENTIALS_FILE=$vf");
+        putenv(Config:: ENV_PREFIX . "PROFILE=phpunit");
         $provider = new ProfileCredentialsProvider();
         $this->expectException(InvalidArgumentException::class);
         if (method_exists($this, 'expectExceptionMessageMatches')) {
@@ -271,8 +267,8 @@ class ProfileCredentialsProviderTest extends TestCase
             $this->expectExceptionMessageRegExp('/publicKeyId must be a string/');
         }
         $provider->getCredentials();
-        putenv("ALIBABA_CLOUD_PROFILE=");
-        putenv("ALIBABA_CLOUD_CREDENTIALS_FILE=");
+        putenv(Config:: ENV_PREFIX . "PROFILE=");
+        putenv(Config:: ENV_PREFIX . "CREDENTIALS_FILE=");
     }
 
     public function testSetIniError()
@@ -283,9 +279,9 @@ class ProfileCredentialsProviderTest extends TestCase
         } elseif (method_exists($this, 'expectExceptionMessageRegExp')) {
             $this->expectExceptionMessageRegExp('/Unable to open credentials file/');
         }
-        putenv('ALIBABA_CLOUD_CREDENTIALS_FILE=/c/d');
+        putenv(Config::ENV_PREFIX + 'CREDENTIALS_FILE=/c/d');
         $provider = new ProfileCredentialsProvider();
         $provider->getCredentials();
-        putenv('ALIBABA_CLOUD_CREDENTIALS_FILE=');
+        putenv(Config::ENV_PREFIX + 'CREDENTIALS_FILE=');
     }
 }

@@ -10,13 +10,8 @@ use GuzzleHttp\Exception\GuzzleException;
 use InvalidArgumentException;
 use RuntimeException;
 use AlibabaCloud\Credentials\Credential\RefreshResult;
+use AlibabaCloud\Configure\Config;
 
-/**
- * @internal This class is intended for internal use within the package. 
- * Class RamRoleArnCredentialsProvider
- *
- * @package AlibabaCloud\Credentials\Providers
- */
 class RamRoleArnCredentialsProvider extends SessionCredentialsProvider
 {
 
@@ -87,8 +82,8 @@ class RamRoleArnCredentialsProvider extends SessionCredentialsProvider
 
     private function filterRoleArn(array $params)
     {
-        if (Helper::envNotEmpty('ALIBABA_CLOUD_ROLE_ARN')) {
-            $this->roleArn = Helper::env('ALIBABA_CLOUD_ROLE_ARN');
+        if (Helper::envNotEmpty(Config::ENV_PREFIX + 'ROLE_ARN')) {
+            $this->roleArn = Helper::env(Config::ENV_PREFIX + 'ROLE_ARN');
         }
 
         if (isset($params['roleArn'])) {
@@ -100,8 +95,8 @@ class RamRoleArnCredentialsProvider extends SessionCredentialsProvider
 
     private function filterRoleSessionName(array $params)
     {
-        if (Helper::envNotEmpty('ALIBABA_CLOUD_ROLE_SESSION_NAME')) {
-            $this->roleSessionName = Helper::env('ALIBABA_CLOUD_ROLE_SESSION_NAME');
+        if (Helper::envNotEmpty(Config::ENV_PREFIX + 'ROLE_SESSION_NAME')) {
+            $this->roleSessionName = Helper::env(Config::ENV_PREFIX + 'ROLE_SESSION_NAME');
         }
 
         if (isset($params['roleSessionName'])) {
@@ -150,15 +145,15 @@ class RamRoleArnCredentialsProvider extends SessionCredentialsProvider
     private function filterSTSEndpoint(array $params)
     {
         $prefix = 'sts';
-        if (Helper::envNotEmpty('ALIBABA_CLOUD_VPC_ENDPOINT_ENABLED') || (isset($params['enableVpc']) && $params['enableVpc'] === true)) {
+        if (Helper::envNotEmpty(Config::ENV_PREFIX . 'VPC_ENDPOINT_ENABLED') || (isset($params['enableVpc']) && $params['enableVpc'] === true)) {
             $prefix = 'sts-vpc';
         }
-        if (Helper::envNotEmpty('ALIBABA_CLOUD_STS_REGION')) {
-            $this->stsEndpoint = $prefix . '.' . Helper::env('ALIBABA_CLOUD_STS_REGION') . '.aliyuncs.com';
+        if (Helper::envNotEmpty(Config::ENV_PREFIX . 'STS_REGION')) {
+            $this->stsEndpoint = $prefix . '.' . Helper::env(Config::ENV_PREFIX . 'STS_REGION') . '.' . Config::ENDPOINT_SUFFIX;
         }
 
         if (isset($params['stsRegionId'])) {
-            $this->stsEndpoint = $prefix . '.' . $params['stsRegionId'] . '.aliyuncs.com';
+            $this->stsEndpoint = $prefix . '.' . $params['stsRegionId'] . '.' . Config::ENDPOINT_SUFFIX;
         }
 
         if (isset($params['stsEndpoint'])) {
@@ -166,7 +161,7 @@ class RamRoleArnCredentialsProvider extends SessionCredentialsProvider
         }
 
         if (is_null($this->stsEndpoint) || $this->stsEndpoint === '') {
-            $this->stsEndpoint = 'sts.aliyuncs.com';
+            $this->stsEndpoint = Config::STS_DEFAULT_ENDPOINT;
         }
     }
 

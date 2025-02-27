@@ -8,17 +8,12 @@ use AlibabaCloud\Credentials\Request\Request;
 use GuzzleHttp\Psr7\Uri;
 use GuzzleHttp\Exception\GuzzleException;
 use AlibabaCloud\Credentials\Credential\RefreshResult;
+use AlibabaCloud\Configure\Config;
 
 use InvalidArgumentException;
 use RuntimeException;
 use Exception;
 
-/**
- * @internal This class is intended for internal use within the package.
- * Class RsaKeyPairCredentialsProvider
- *
- * @package AlibabaCloud\Credentials\Providers
- */
 class RsaKeyPairCredentialsProvider extends SessionCredentialsProvider
 {
 
@@ -109,7 +104,7 @@ class RsaKeyPairCredentialsProvider extends SessionCredentialsProvider
         }
 
         if (is_null($this->stsEndpoint) || $this->stsEndpoint === '') {
-            $this->stsEndpoint = 'sts.ap-northeast-1.aliyuncs.com';
+            $this->stsEndpoint = 'sts.ap-northeast-1.' . Config:: ENDPOINT_SUFFIX;
         }
     }
 

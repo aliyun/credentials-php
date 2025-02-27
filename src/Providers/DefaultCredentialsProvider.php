@@ -7,13 +7,8 @@ use AlibabaCloud\Credentials\Utils\Helper;
 use InvalidArgumentException;
 use RuntimeException;
 use Exception;
+use AlibabaCloud\Configure\Config;
 
-/**
- * @internal This class is intended for internal use within the package. 
- * Class DefaultCredentialsProvider
- *
- * @package AlibabaCloud\Credentials\Providers
- */
 class DefaultCredentialsProvider implements CredentialsProvider
 {
 
@@ -62,9 +57,9 @@ class DefaultCredentialsProvider implements CredentialsProvider
             new EnvironmentVariableCredentialsProvider(),
         ];
         if (
-            Helper::envNotEmpty('ALIBABA_CLOUD_ROLE_ARN')
-            && Helper::envNotEmpty('ALIBABA_CLOUD_OIDC_PROVIDER_ARN')
-            && Helper::envNotEmpty('ALIBABA_CLOUD_OIDC_TOKEN_FILE')
+            Helper::envNotEmpty(Config::ENV_PREFIX . 'ROLE_ARN')
+            && Helper::envNotEmpty(Config::ENV_PREFIX . 'OIDC_PROVIDER_ARN')
+            && Helper::envNotEmpty(Config::ENV_PREFIX . 'OIDC_TOKEN_FILE')
         ) {
             array_push(
                 self::$defaultProviders,
@@ -83,7 +78,7 @@ class DefaultCredentialsProvider implements CredentialsProvider
             self::$defaultProviders,
             new EcsRamRoleCredentialsProvider()
         );
-        if (Helper::envNotEmpty('ALIBABA_CLOUD_CREDENTIALS_URI')) {
+        if (Helper::envNotEmpty(Config::ENV_PREFIX . 'CREDENTIALS_URI')) {
             array_push(
                 self::$defaultProviders,
                 new URLCredentialsProvider()

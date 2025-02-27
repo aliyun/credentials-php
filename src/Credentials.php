@@ -8,11 +8,6 @@ use AlibabaCloud\Credentials\Utils\MockTrait;
 use ReflectionException;
 use RuntimeException;
 
-/**
- * Class Credentials
- *
- * @package AlibabaCloud\Credentials
- */
 class Credentials
 {
     use MockTrait;
