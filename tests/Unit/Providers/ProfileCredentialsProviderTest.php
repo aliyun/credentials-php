@@ -179,6 +179,7 @@ class ProfileCredentialsProviderTest extends TestCase
     public function testEcsRamRole()
     {
         $vf = VirtualEcsRamRoleCredential::client();
+        putenv("ALIBABA_CLOUD_ECS_METADATA_DISABLED=false");
         putenv("ALIBABA_CLOUD_CREDENTIALS_FILE=$vf");
         putenv("ALIBABA_CLOUD_PROFILE=phpunit");
         $provider = new ProfileCredentialsProvider();
@@ -200,6 +201,7 @@ class ProfileCredentialsProviderTest extends TestCase
         self::assertEquals('profile/ecs_ram_role', $credentials->getProviderName());
         putenv("ALIBABA_CLOUD_PROFILE=");
         putenv("ALIBABA_CLOUD_CREDENTIALS_FILE=");
+        putenv("ALIBABA_CLOUD_ECS_METADATA_DISABLED=");
     }
 
     public function testOIDCRoleArn()

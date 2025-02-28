@@ -97,7 +97,10 @@ class CLIProfileCredentialsProvider implements CredentialsProvider
                                     'roleArn' => Helper::unsetReturnNull($profile, 'ram_role_arn'),
                                     'roleSessionName' => Helper::unsetReturnNull($profile, 'ram_session_name'),
                                     'durationSeconds' => Helper::unsetReturnNull($profile, 'expired_seconds'),
+                                    'policy' => Helper::unsetReturnNull($profile, 'policy'),
+                                    'externalId' => Helper::unsetReturnNull($profile, 'external_id'),
                                     'stsRegionId' => Helper::unsetReturnNull($profile, 'sts_region'),
+                                    'enableVpc' => Helper::unsetReturnNull($profile, 'enable_vpc'),
                                 ]);
                             case 'EcsRamRole':
                                 return new EcsRamRoleCredentialsProvider([
@@ -110,7 +113,9 @@ class CLIProfileCredentialsProvider implements CredentialsProvider
                                     'oidcTokenFilePath' => Helper::unsetReturnNull($profile, 'oidc_token_file'),
                                     'roleSessionName' => Helper::unsetReturnNull($profile, 'ram_session_name'),
                                     'durationSeconds' => Helper::unsetReturnNull($profile, 'expired_seconds'),
+                                    'policy' => Helper::unsetReturnNull($profile, 'policy'),
                                     'stsRegionId' => Helper::unsetReturnNull($profile, 'sts_region'),
+                                    'enableVpc' => Helper::unsetReturnNull($profile, 'enable_vpc'),
                                 ]);
                             case 'ChainableRamRoleArn':
                                 $previousProvider = $this->reloadCredentialsProvider($profileFile, Helper::unsetReturnNull($profile, 'source_profile'));
@@ -119,7 +124,10 @@ class CLIProfileCredentialsProvider implements CredentialsProvider
                                     'roleArn' => Helper::unsetReturnNull($profile, 'ram_role_arn'),
                                     'roleSessionName' => Helper::unsetReturnNull($profile, 'ram_session_name'),
                                     'durationSeconds' => Helper::unsetReturnNull($profile, 'expired_seconds'),
+                                    'policy' => Helper::unsetReturnNull($profile, 'policy'),
+                                    'externalId' => Helper::unsetReturnNull($profile, 'external_id'),
                                     'stsRegionId' => Helper::unsetReturnNull($profile, 'sts_region'),
+                                    'enableVpc' => Helper::unsetReturnNull($profile, 'enable_vpc'),
                                 ]);
                             default:
                                 throw new RuntimeException('Unsupported credential mode from CLI credentials file: ' . Helper::unsetReturnNull($profile, 'mode'));

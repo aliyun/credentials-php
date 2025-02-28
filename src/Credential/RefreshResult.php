@@ -4,17 +4,24 @@ namespace AlibabaCloud\Credentials\Credential;
 
 use AlibabaCloud\Credentials\Providers\Credentials;
 
+use function PHPUnit\Framework\isNull;
+
 class RefreshResult
 {
-    public function __construct($credentials = [], $staleTime = null, $prefetchTime = null)
+
+    /**
+     * RefreshResult constructor.
+     * @param Credentials $params
+     * @param int $staleTime
+     * @param int $prefetchTime
+     */
+    public function __construct($credentials = null, $staleTime = PHP_INT_MAX, $prefetchTime = PHP_INT_MAX)
     {
         $this->credentials = $credentials;
-        $this->staleTime   = $staleTime ? $staleTime : PHP_INT_MAX;
-        $this->prefetchTime = $prefetchTime ? $prefetchTime : PHP_INT_MAX;
+        $this->staleTime   = $staleTime;
+        $this->prefetchTime = $prefetchTime;
     }
-    public function validate()
-    {
-    }
+    public function validate() {}
     public function toMap()
     {
         $res = [];
@@ -89,5 +96,4 @@ class RefreshResult
     {
         return $this->prefetchTime;
     }
-
 }

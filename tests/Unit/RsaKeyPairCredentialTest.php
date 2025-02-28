@@ -101,7 +101,7 @@ class RsaKeyPairCredentialTest extends TestCase
     "RequestId": "F702286E-F231-4F40-BB86-XXXXXX",
     "SessionAccessKey": {
         "SessionAccessKeyId": "TMPSK.**************",
-        "Expiration": "2023-02-19T07:02:36.225Z",
+        "Expiration": "2049-02-19T07:02:36.225Z",
         "SessionAccessKeySecret": "**************"
     }
 }';
@@ -116,7 +116,7 @@ class RsaKeyPairCredentialTest extends TestCase
         self::assertEquals('TMPSK.**************', $credential->getAccessKeyId());
         self::assertEquals('**************', $credential->getAccessKeySecret());
         self::assertEquals('', $credential->getSecurityToken());
-        self::assertEquals(strtotime('2023-02-19T07:02:36.225Z'), $credential->getExpiration());
+        self::assertEquals(strtotime('2049-02-19T07:02:36.225Z'), $credential->getExpiration());
 
         Credentials::mockResponse(200, [], $result);
         $credentialModel = $this->credential->getCredential();

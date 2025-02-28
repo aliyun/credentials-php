@@ -52,12 +52,12 @@ class EcsRamRoleCredentialsProvider extends SessionCredentialsProvider
     /**
      * @var int
      */
-    private $connectTimeout = 5;
+    private $connectTimeout = 1;
 
     /**
      * @var int
      */
-    private $readTimeout = 5;
+    private $readTimeout = 1;
 
 
     /**
@@ -97,10 +97,6 @@ class EcsRamRoleCredentialsProvider extends SessionCredentialsProvider
         if (isset($params['roleName'])) {
             $this->roleName = $params['roleName'];
         }
-
-        if (is_null($this->roleName) || $this->roleName === '') {
-            $this->roleName = $this->getRoleNameFromMeta();
-        }
     }
 
     private function filterDisableECSIMDSv1($params)
@@ -124,6 +120,14 @@ class EcsRamRoleCredentialsProvider extends SessionCredentialsProvider
      */
     public function refreshCredentials()
     {
+        if (Helper::envNotEmpty('ALIBABA_CLOUD_ECS_METADATA_DISABLED') && Helper::env('ALIBABA_CLOUD_ECS_METADATA_DISABLED') === true) {
+            throw new RuntimeException('IMDS credentials is disabled');
+        }
+
+        if (is_null($this->roleName) || $this->roleName === '') {
+            $this->roleName = $this->getRoleNameFromMeta();
+        }
+
         $url = $this->metadataHost . $this->ecsUri . $this->roleName;
         $options = Request::commonOptions();
         $options['read_timeout'] = $this->readTimeout;
@@ -231,7 +235,8 @@ class EcsRamRoleCredentialsProvider extends SessionCredentialsProvider
     /**
      * @var int
      */
-    public function getPrefetchTime($expiration) {
+    public function getPrefetchTime($expiration)
+    {
         return $expiration <= 0 ?
             time() + (5 * 60) :
             time() + (60 * 60);

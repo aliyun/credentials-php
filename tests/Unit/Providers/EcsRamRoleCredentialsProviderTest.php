@@ -38,7 +38,8 @@ class EcsRamRoleCredentialsProviderTest extends TestCase
     /**
      * @throws Exception
      */
-    private function invokeProtectedFunc($instance, $method) {
+    private function invokeProtectedFunc($instance, $method)
+    {
         $reflection = new ReflectionClass(EcsRamRoleCredentialsProvider::class);
         $method = $reflection->getMethod($method);
         $method->setAccessible(true);
@@ -80,6 +81,27 @@ class EcsRamRoleCredentialsProviderTest extends TestCase
         putenv("ALIBABA_CLOUD_IMDSV1_DISABLED=");
     }
 
+    /**
+     * @expectedException RuntimeException
+     * @expectedExceptionMessage IMDS credentials is disabled
+     */
+    public function testEnvDisabled()
+    {
+
+        putenv("ALIBABA_CLOUD_ECS_METADATA_DISABLED=true");
+        $provider = new EcsRamRoleCredentialsProvider([], []);
+
+        $this->expectException(RuntimeException::class);
+        if (method_exists($this, 'expectExceptionMessageMatches')) {
+            $this->expectExceptionMessageMatches('/IMDS credentials is disabled/');
+        } elseif (method_exists($this, 'expectExceptionMessageRegExp')) {
+            $this->expectExceptionMessageRegExp('/IMDS credentials is disabled/');
+        }
+        $provider->getCredentials();
+
+        putenv("ALIBABA_CLOUD_ECS_METADATA_DISABLED=");
+    }
+
     public function testGetDisableECSIMDSv1()
     {
         // Setup
@@ -103,7 +125,7 @@ class EcsRamRoleCredentialsProviderTest extends TestCase
         self::assertEquals(false, $this->invokeProtectedFunc($provider, 'isDisableIMDSv1'));
 
         putenv('ALIBABA_CLOUD_IMDSV1_DISABLED=true');
-        
+
         $provider = new EcsRamRoleCredentialsProvider($params);
 
         self::assertEquals(true, $this->invokeProtectedFunc($provider, 'isDisableIMDSv1'));
@@ -184,7 +206,6 @@ class EcsRamRoleCredentialsProviderTest extends TestCase
         $this->expectExceptionMessage('Failed to get token from ECS Metadata Service. HttpCode= 404');
 
         $this->invokeProtectedFunc($provider, 'getMetadataToken');
-
     }
 
     public function testEnableV1404()
@@ -206,5 +227,4 @@ class EcsRamRoleCredentialsProviderTest extends TestCase
         $request = end($histroy)['request'];
         self::assertEquals(null, $token);
     }
-
 }

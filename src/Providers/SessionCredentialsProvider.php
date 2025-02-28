@@ -54,10 +54,7 @@ abstract class SessionCredentialsProvider implements CredentialsProvider
      */
     public function getCredentials()
     {
-        if ($this->cacheIsStale()) {
-            $result = $this->refreshCredentials();
-            $this->cache($result);
-        }else if ($this->shouldInitiateCachePrefetch()) {
+        if ($this->cacheIsStale() || $this->shouldInitiateCachePrefetch()) {
             $result = $this->refreshCache();
             $this->cache($result);
         }
@@ -68,38 +65,42 @@ abstract class SessionCredentialsProvider implements CredentialsProvider
     }
 
     /**
-     * @var RefreshResult
+     * @return RefreshResult
      */
-    public function refreshCache()
+    protected function refreshCache()
     {
-        try{
-            return($this->handleFetchedSuccess($this->refreshCredentials()));
-        }catch (\Exception $e){
-            $this->handleFetchedFailure($e);
+        try {
+            return $this->handleFetchedSuccess($this->refreshCredentials());
+        } catch (\Exception $e) {
+            return $this->handleFetchedFailure($e);
         }
     }
 
+    /**
+     * @return RefreshResult
+     * @throws \Exception
+     */
     protected function handleFetchedFailure(\Exception $e)
     {
         $currentCachedValue = $this->getCredentialsInCache();
-        if(is_null($currentCachedValue)){
+        if (is_null($currentCachedValue)) {
             throw $e;
         }
-        
-        if(time() < $currentCachedValue->staleTime()){
+
+        if (time() < $currentCachedValue->staleTime()) {
             return $currentCachedValue;
         }
 
         throw $e;
     }
     /**
-     * @var RefreshResult
+     * @return RefreshResult
      */
     protected function handleFetchedSuccess(RefreshResult $value)
     {
         $now = time();
         // 过期时间大于15分钟，不用管
-        if($now < $value->staleTime()){
+        if ($now < $value->staleTime()) {
             return $value;
         }
         // 不足或等于15分钟，但未过期，下次会再次刷新
@@ -108,8 +109,8 @@ abstract class SessionCredentialsProvider implements CredentialsProvider
             return $value;
         }
         // 已过期，看缓存，缓存若大于15分钟，返回缓存，若小于15分钟，则稍后重试
-        if (is_null( $this->getCredentialsInCache())){
-            throw new \Exception("No cached value was found.");
+        if (is_null($this->getCredentialsInCache())) {
+            throw new \Exception("The fetched credentials have expired and no cache is available.");
         } else if ($now < $this->getCredentialsInCache()->staleTime()) {
             return $this->getCredentialsInCache();
         } else {
@@ -121,29 +122,31 @@ abstract class SessionCredentialsProvider implements CredentialsProvider
     }
 
     /**
-     * @var bool
+     * @return bool
      */
-    public function cacheIsStale()
+    protected function cacheIsStale()
     {
-        return $this->getCredentialsInCache() === null || time() >= $this->getCredentialsInCache()->staleTime();
+        return is_null($this->getCredentialsInCache()) || time() >= $this->getCredentialsInCache()->staleTime();
     }
 
     /**
-     * @var bool
+     * @return bool
      */
-    private function shouldInitiateCachePrefetch() {
-        return $this->getCredentialsInCache() === null || time() >= $this->getCredentialsInCache()->prefetchTime();
+    protected function shouldInitiateCachePrefetch()
+    {
+        return is_null($this->getCredentialsInCache()) || time() >= $this->getCredentialsInCache()->prefetchTime();
     }
 
     /**
-     * @var int
+     * @return int
      */
-    public function getStaleTime($expiration) {
+    public function getStaleTime($expiration)
+    {
         return $expiration <= 0 ?
-            time() + (60 * 60) : 
+            time() + (60 * 60) :
             $expiration - (15 * 60);
     }
-    
+
     /**
      * @return RefreshResult
      */
