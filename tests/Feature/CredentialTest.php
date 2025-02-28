@@ -35,9 +35,9 @@ class CredentialTest extends TestCase
 
         $this->expectException(\GuzzleHttp\Exception\ConnectException::class);
         if (method_exists($this, 'expectExceptionMessageMatches')) {
-            $this->expectExceptionMessageMatches('/Connection timeout/');
+            $this->expectExceptionMessageMatches('/Timeout was reached/');
         } elseif (method_exists($this, 'expectExceptionMessageRegExp')) {
-            $this->expectExceptionMessageRegExp('/Connection timeout/');
+            $this->expectExceptionMessageRegExp('/Timeout was reached/');
         }
 
         // Assert

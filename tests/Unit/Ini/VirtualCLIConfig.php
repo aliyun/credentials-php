@@ -144,7 +144,10 @@ EOT;
             "ram_role_arn": "ram_role_arn",
             "ram_session_name": "ram_session_name",
             "expired_seconds": 3600,
-            "sts_region": "cn-hangzhou"
+            "policy": "policy",
+            "external_id": "external_id",
+            "sts_region": "cn-hangzhou",
+            "enable_vpc": false
         },
         {
             "name": "EcsRamRole",
@@ -159,7 +162,9 @@ EOT;
             "oidc_provider_arn": "oidc_provider_arn",
             "ram_session_name": "ram_session_name",
             "expired_seconds": 3600,
-            "sts_region": "cn-hangzhou"
+            "policy": "policy",
+            "sts_region": "cn-hangzhou",
+            "enable_vpc": false
         },
         {
             "name": "ChainableRamRoleArn",
@@ -168,7 +173,10 @@ EOT;
             "ram_role_arn": "ram_role_arn",
             "ram_session_name": "ram_session_name",
             "expired_seconds": 3600,
-            "sts_region": "cn-hangzhou"
+            "policy": "policy",
+            "external_id": "external_id",
+            "sts_region": "cn-hangzhou",
+            "enable_vpc": false
         }
     ]
 }

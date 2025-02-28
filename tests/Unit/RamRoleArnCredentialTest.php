@@ -71,7 +71,7 @@ class RamRoleArnCredentialTest extends TestCase
     "Credentials": {
         "AccessKeySecret": "********************",
         "AccessKeyId": "STS.**************",
-        "Expiration": "2020-02-25T03:56:19Z",
+        "Expiration": "2049-02-25T03:56:19Z",
         "SecurityToken": "**************"
     }
 }';
@@ -90,7 +90,7 @@ class RamRoleArnCredentialTest extends TestCase
         self::assertEquals('STS.**************', $credential->getAccessKeyId());
         self::assertEquals('********************', $credential->getAccessKeySecret());
         self::assertEquals('**************', $credential->getSecurityToken());
-        self::assertEquals(strtotime('2020-02-25T03:56:19Z'), $credential->getExpiration());
+        self::assertEquals(strtotime('2049-02-25T03:56:19Z'), $credential->getExpiration());
 
         Credentials::mockResponse(200, [], $result);
         $credentialModel = $credential->getCredential();

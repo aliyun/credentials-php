@@ -102,9 +102,15 @@ class EcsRamRoleCredentialTest extends TestCase
         Credentials::mockResponse(200, [], 'Token');
         Credentials::mockResponse(200, [], 'RoleName');
         Credentials::mockResponse(200, [], 'Token');
-        Credentials::mockResponse(200, [], 'RoleName');
+        Credentials::mockResponse(200, [], $result);
         Credentials::mockResponse(200, [], 'Token');
         Credentials::mockResponse(200, [], 'RoleName');
+        Credentials::mockResponse(200, [], 'Token');
+        Credentials::mockResponse(200, [], $result);
+        Credentials::mockResponse(200, [], 'Token');
+        Credentials::mockResponse(200, [], 'RoleName');
+        Credentials::mockResponse(200, [], 'Token');
+        Credentials::mockResponse(200, [], $result);
 
         $this->credential = new EcsRamRoleCredential();
         self::assertEquals('foo', $this->credential->getAccessKeyId());
@@ -114,6 +120,9 @@ class EcsRamRoleCredentialTest extends TestCase
 
         Credentials::mockResponse(200, [], 'Token');
         Credentials::mockResponse(200, [], 'RoleName');
+        Credentials::mockResponse(200, [], 'Token');
+        Credentials::mockResponse(200, [], $result);
+
         $credentialModel = $this->credential->getCredential();
         $this->assertEquals('foo', $credentialModel->getAccessKeyId());
         $this->assertEquals('bar', $credentialModel->getAccessKeySecret());
@@ -336,9 +345,9 @@ class EcsRamRoleCredentialTest extends TestCase
 
         $this->expectException(RuntimeException::class);
         if (method_exists($this, 'expectExceptionMessageMatches')) {
-            $this->expectExceptionMessageMatches('/Connection timeout/');
+            $this->expectExceptionMessageMatches('/Timeout was reached/');
         } elseif (method_exists($this, 'expectExceptionMessageRegExp')) {
-            $this->expectExceptionMessageRegExp('/Connection timeout/');
+            $this->expectExceptionMessageRegExp('/Timeout was reached/');
         }
         // Test
         self::assertEquals('foo', $credential->getAccessKeyId());
@@ -375,7 +384,6 @@ class EcsRamRoleCredentialTest extends TestCase
         $this->expectExceptionMessage('The role name was not found in the instance');
 
         $provider->getRoleNameFromMeta();
-
     }
 
     public function testRoleNameFromMetaError()

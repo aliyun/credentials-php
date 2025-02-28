@@ -60,9 +60,14 @@ class DefaultCredentialsProviderTest extends TestCase
     {
         putenv("ALIBABA_CLOUD_ACCESS_KEY_ID=id");
         putenv("ALIBABA_CLOUD_ACCESS_KEY_SECRET=secret");
-        putenv("ALIBABA_CLOUD_SECURITY_TOKEN=token");
 
         $provider = new DefaultCredentialsProvider();
+        $credentials = $provider->getCredentials();
+        self::assertEquals("id", $credentials->getAccessKeyId());
+        self::assertEquals("secret", $credentials->getAccessKeySecret());
+        self::assertEquals("default/env", $credentials->getProviderName());
+
+        putenv("ALIBABA_CLOUD_SECURITY_TOKEN=token");
         $credentials = $provider->getCredentials();
         self::assertEquals("id", $credentials->getAccessKeyId());
         self::assertEquals("secret", $credentials->getAccessKeySecret());
@@ -147,6 +152,7 @@ class DefaultCredentialsProviderTest extends TestCase
 
     public function testDefaultProviderWithURI()
     {
+        putenv("ALIBABA_CLOUD_ECS_METADATA_DISABLED=true");
         putenv("ALIBABA_CLOUD_CREDENTIALS_URI=http://localhost:8080/token");
 
         $provider = new DefaultCredentialsProvider();
@@ -164,6 +170,7 @@ class DefaultCredentialsProviderTest extends TestCase
         self::assertEquals("default/credential_uri", $credentials->getProviderName());
 
         putenv("ALIBABA_CLOUD_CREDENTIALS_URI=");
+        putenv("ALIBABA_CLOUD_ECS_METADATA_DISABLED=");
     }
 
     public function testDefaultProviderWithReuseLast()
@@ -175,6 +182,7 @@ class DefaultCredentialsProviderTest extends TestCase
         $url = $vf->url("token-file");
         putenv("ALIBABA_CLOUD_OIDC_TOKEN_FILE=$url");
         putenv("ALIBABA_CLOUD_CREDENTIALS_URI=http://localhost:8080/token");
+        putenv("ALIBABA_CLOUD_ECS_METADATA_DISABLED=true");
 
         $provider = new DefaultCredentialsProvider();
         $result = [
@@ -214,6 +222,7 @@ class DefaultCredentialsProviderTest extends TestCase
         putenv("ALIBABA_CLOUD_ROLE_ARN=");
         putenv("ALIBABA_CLOUD_OIDC_PROVIDER_ARN=");
         putenv("ALIBABA_CLOUD_OIDC_TOKEN_FILE=");
+        putenv("ALIBABA_CLOUD_ECS_METADATA_DISABLED=");
     }
 
     public function testDefaultProviderWithUnReuseLast()
@@ -225,6 +234,7 @@ class DefaultCredentialsProviderTest extends TestCase
         $url = $vf->url("token-file");
         putenv("ALIBABA_CLOUD_OIDC_TOKEN_FILE=$url");
         putenv("ALIBABA_CLOUD_CREDENTIALS_URI=http://localhost:8080/token");
+        putenv("ALIBABA_CLOUD_ECS_METADATA_DISABLED=true");
 
         $provider = new DefaultCredentialsProvider([
             'reuseLastProviderEnabled' => false,
@@ -266,5 +276,6 @@ class DefaultCredentialsProviderTest extends TestCase
         putenv("ALIBABA_CLOUD_ROLE_ARN=");
         putenv("ALIBABA_CLOUD_OIDC_PROVIDER_ARN=");
         putenv("ALIBABA_CLOUD_OIDC_TOKEN_FILE=");
+        putenv("ALIBABA_CLOUD_ECS_METADATA_DISABLED=");
     }
 }
