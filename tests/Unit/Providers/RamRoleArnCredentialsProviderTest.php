@@ -47,6 +47,7 @@ class RamRoleArnCredentialsProviderTest extends TestCase
             'policy' => 'policy',
             'externalId' => 'externalId',
             'stsRegionId' => 'cn-beijing',
+            'enableVpc' => true,
             'stsEndpoint' => 'sts.cn-zhangjiakou.aliyuncs.com'
         ];
         $config = [
@@ -56,6 +57,7 @@ class RamRoleArnCredentialsProviderTest extends TestCase
         putenv("ALIBABA_CLOUD_ROLE_ARN=roleArn");
         putenv("ALIBABA_CLOUD_ROLE_SESSION_NAME=sessionName");
         putenv("ALIBABA_CLOUD_STS_REGION=cn-hangzhou");
+        putenv("ALIBABA_CLOUD_VPC_ENDPOINT_ENABLED=true");
 
         $provider = new RamRoleArnCredentialsProvider($params, $config);
 
@@ -86,12 +88,13 @@ class RamRoleArnCredentialsProviderTest extends TestCase
         self::assertEquals('ram_role_arn#credential#foo#roleArn#roleArn#roleSessionName#sessionName', $provider->key());
         $stsEndpoint = $this->getPrivateField($provider, 'stsEndpoint');
         $externalId = $this->getPrivateField($provider, 'externalId');
-        self::assertEquals('sts.cn-hangzhou.aliyuncs.com', $stsEndpoint);
+        self::assertEquals('sts-vpc.cn-hangzhou.aliyuncs.com', $stsEndpoint);
         self::assertNull($externalId);
 
         putenv("ALIBABA_CLOUD_ROLE_ARN=");
         putenv("ALIBABA_CLOUD_ROLE_SESSION_NAME=");
         putenv("ALIBABA_CLOUD_STS_REGION=");
+        putenv("ALIBABA_CLOUD_VPC_ENDPOINT_ENABLED=");
     }
 
     public function testConstructErrorCredentials()

@@ -4,8 +4,6 @@ namespace AlibabaCloud\Credentials\Credential;
 
 use AlibabaCloud\Credentials\Providers\Credentials;
 
-use function PHPUnit\Framework\isNull;
-
 class RefreshResult
 {
 

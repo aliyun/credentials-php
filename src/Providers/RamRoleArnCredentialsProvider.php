@@ -149,12 +149,16 @@ class RamRoleArnCredentialsProvider extends SessionCredentialsProvider
 
     private function filterSTSEndpoint(array $params)
     {
+        $prefix = 'sts';
+        if (Helper::envNotEmpty('ALIBABA_CLOUD_VPC_ENDPOINT_ENABLED') || (isset($params['enableVpc']) && $params['enableVpc'] === true)) {
+            $prefix = 'sts-vpc';
+        }
         if (Helper::envNotEmpty('ALIBABA_CLOUD_STS_REGION')) {
-            $this->stsEndpoint = 'sts.' . Helper::env('ALIBABA_CLOUD_STS_REGION') . '.aliyuncs.com';
+            $this->stsEndpoint = $prefix . '.' . Helper::env('ALIBABA_CLOUD_STS_REGION') . '.aliyuncs.com';
         }
 
         if (isset($params['stsRegionId'])) {
-            $this->stsEndpoint = 'sts.' . $params['stsRegionId'] . '.aliyuncs.com';
+            $this->stsEndpoint = $prefix . '.' . $params['stsRegionId'] . '.aliyuncs.com';
         }
 
         if (isset($params['stsEndpoint'])) {

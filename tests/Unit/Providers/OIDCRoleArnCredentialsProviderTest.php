@@ -46,6 +46,7 @@ class OIDCRoleArnCredentialsProviderTest extends TestCase
             'durationSeconds' => 3600,
             'policy' => 'policy',
             'stsRegionId' => 'cn-beijing',
+            'enableVpc' => true,
             'stsEndpoint' => 'sts.cn-zhangjiakou.aliyuncs.com'
         ];
         $config = [
@@ -57,6 +58,7 @@ class OIDCRoleArnCredentialsProviderTest extends TestCase
         putenv("ALIBABA_CLOUD_OIDC_TOKEN_FILE=/b/c");
         putenv("ALIBABA_CLOUD_ROLE_SESSION_NAME=sessionName");
         putenv("ALIBABA_CLOUD_STS_REGION=cn-hangzhou");
+        putenv("ALIBABA_CLOUD_VPC_ENDPOINT_ENABLED=true");
 
         $provider = new OIDCRoleArnCredentialsProvider($params, $config);
         self::assertEquals('oidc_role_arn', $provider->getProviderName());
@@ -77,7 +79,7 @@ class OIDCRoleArnCredentialsProviderTest extends TestCase
         $policy = $this->getPrivateField($provider, 'policy');
         $oidcTokenFilePath = $this->getPrivateField($provider, 'oidcTokenFilePath');
         $durationSeconds = $this->getPrivateField($provider, 'durationSeconds');
-        self::assertEquals('stscn-hangzhou.aliyuncs.com', $stsEndpoint);
+        self::assertEquals('sts-vpc.cn-hangzhou.aliyuncs.com', $stsEndpoint);
         self::assertNull($policy);
         self::assertEquals('/b/c', $oidcTokenFilePath);
         self::assertEquals(3600, $durationSeconds);
@@ -87,6 +89,7 @@ class OIDCRoleArnCredentialsProviderTest extends TestCase
         putenv("ALIBABA_CLOUD_OIDC_TOKEN_FILE=");
         putenv("ALIBABA_CLOUD_ROLE_SESSION_NAME=");
         putenv("ALIBABA_CLOUD_STS_REGION=");
+        putenv("ALIBABA_CLOUD_VPC_ENDPOINT_ENABLED=");
     }
 
     public function testConstructErrorRoleArn()
