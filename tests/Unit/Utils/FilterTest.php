@@ -7,11 +7,6 @@ use InvalidArgumentException;
 use Exception;
 use PHPUnit\Framework\TestCase;
 
-/**
- * Class FilterTest
- *
- * @package AlibabaCloud\Credentials\Tests\Unit\Filter
- */
 class FilterTest extends TestCase
 {
     /**

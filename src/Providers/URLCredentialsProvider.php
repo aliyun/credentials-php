@@ -9,13 +9,8 @@ use GuzzleHttp\Exception\GuzzleException;
 use InvalidArgumentException;
 use RuntimeException;
 use AlibabaCloud\Credentials\Credential\RefreshResult;
+use AlibabaCloud\Configure\Config;
 
-/**
- * @internal This class is intended for internal use within the package. 
- * Class URLCredentialsProvider
- *
- * @package AlibabaCloud\Credentials\Providers
- */
 class URLCredentialsProvider extends SessionCredentialsProvider
 {
 
@@ -61,12 +56,12 @@ class URLCredentialsProvider extends SessionCredentialsProvider
 
     private function filterCredentialsURI(array $params)
     {
-        if (Helper::envNotEmpty('ALIBABA_CLOUD_CREDENTIALS_URI')) {
-            $this->credentialsURI = Helper::env('ALIBABA_CLOUD_CREDENTIALS_URI');
+        if (Helper::envNotEmpty(Config::ENV_PREFIX . 'CREDENTIALS_URI')) {
+            $this->credentialsURI = Helper::env(Config::ENV_PREFIX . 'CREDENTIALS_URI');
         }
 
-        if (isset($params['credentialsURI'])) {
-            $this->credentialsURI = $params['credentialsURI'];
+        if (isset($params['credentialsUri'])) {
+            $this->credentialsURI = $params['credentialsUri'];
         }
 
         Filter::credentialsURI($this->credentialsURI);

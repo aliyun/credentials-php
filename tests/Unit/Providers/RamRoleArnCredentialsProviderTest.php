@@ -2,6 +2,7 @@
 
 namespace AlibabaCloud\Credentials\Tests\Unit\Providers;
 
+use AlibabaCloud\Configure\Config;
 use AlibabaCloud\Credentials\Credentials;
 use AlibabaCloud\Credentials\Providers\RamRoleArnCredentialsProvider;
 use AlibabaCloud\Credentials\Providers\StaticAKCredentialsProvider;
@@ -10,11 +11,6 @@ use InvalidArgumentException;
 use PHPUnit\Framework\TestCase;
 use ReflectionClass;
 
-/**
- * Class RamRoleArnCredentialsProviderTest
- *
- * @package AlibabaCloud\Credentials\Tests\Unit\Providers
- */
 class RamRoleArnCredentialsProviderTest extends TestCase
 {
 
@@ -48,16 +44,16 @@ class RamRoleArnCredentialsProviderTest extends TestCase
             'externalId' => 'externalId',
             'stsRegionId' => 'cn-beijing',
             'enableVpc' => true,
-            'stsEndpoint' => 'sts.cn-zhangjiakou.aliyuncs.com'
+            'stsEndpoint' => 'sts.cn-zhangjiakou.' . Config:: ENDPOINT_SUFFIX
         ];
         $config = [
             'connectTimeout' => 10,
             'readTimeout' => 10,
         ];
-        putenv("ALIBABA_CLOUD_ROLE_ARN=roleArn");
-        putenv("ALIBABA_CLOUD_ROLE_SESSION_NAME=sessionName");
-        putenv("ALIBABA_CLOUD_STS_REGION=cn-hangzhou");
-        putenv("ALIBABA_CLOUD_VPC_ENDPOINT_ENABLED=true");
+        putenv(Config:: ENV_PREFIX . "ROLE_ARN=roleArn");
+        putenv(Config:: ENV_PREFIX . "ROLE_SESSION_NAME=sessionName");
+        putenv(Config:: ENV_PREFIX . "STS_REGION=cn-hangzhou");
+        putenv(Config:: ENV_PREFIX . "VPC_ENDPOINT_ENABLED=true");
 
         $provider = new RamRoleArnCredentialsProvider($params, $config);
 
@@ -70,7 +66,7 @@ class RamRoleArnCredentialsProviderTest extends TestCase
         self::assertEquals('ram_role_arn#credential#foo#roleArn#test#roleSessionName#default', $provider->key());
         $stsEndpoint = $this->getPrivateField($provider, 'stsEndpoint');
         $externalId = $this->getPrivateField($provider, 'externalId');
-        self::assertEquals('sts.cn-zhangjiakou.aliyuncs.com', $stsEndpoint);
+        self::assertEquals('sts.cn-zhangjiakou.' . Config:: ENDPOINT_SUFFIX, $stsEndpoint);
         self::assertEquals('externalId', $externalId);
 
         $params = [
@@ -88,13 +84,13 @@ class RamRoleArnCredentialsProviderTest extends TestCase
         self::assertEquals('ram_role_arn#credential#foo#roleArn#roleArn#roleSessionName#sessionName', $provider->key());
         $stsEndpoint = $this->getPrivateField($provider, 'stsEndpoint');
         $externalId = $this->getPrivateField($provider, 'externalId');
-        self::assertEquals('sts-vpc.cn-hangzhou.aliyuncs.com', $stsEndpoint);
+        self::assertEquals('sts.cn-hangzhou.' . Config:: ENDPOINT_SUFFIX, $stsEndpoint);
         self::assertNull($externalId);
 
-        putenv("ALIBABA_CLOUD_ROLE_ARN=");
-        putenv("ALIBABA_CLOUD_ROLE_SESSION_NAME=");
-        putenv("ALIBABA_CLOUD_STS_REGION=");
-        putenv("ALIBABA_CLOUD_VPC_ENDPOINT_ENABLED=");
+        putenv(Config:: ENV_PREFIX . "ROLE_ARN=");
+        putenv(Config:: ENV_PREFIX . "ROLE_SESSION_NAME=");
+        putenv(Config:: ENV_PREFIX . "STS_REGION=");
+        putenv(Config:: ENV_PREFIX . "VPC_ENDPOINT_ENABLED");
     }
 
     public function testConstructErrorCredentials()

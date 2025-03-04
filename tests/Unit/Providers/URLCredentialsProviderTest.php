@@ -2,6 +2,7 @@
 
 namespace AlibabaCloud\Credentials\Tests\Unit\Providers;
 
+use AlibabaCloud\Configure\Config;
 use AlibabaCloud\Credentials\Credentials;
 use AlibabaCloud\Credentials\Providers\URLCredentialsProvider;
 use RuntimeException;
@@ -9,11 +10,6 @@ use InvalidArgumentException;
 use PHPUnit\Framework\TestCase;
 use ReflectionClass;
 
-/**
- * Class URLCredentialsProviderTest
- *
- * @package AlibabaCloud\Credentials\Tests\Unit\Providers
- */
 class URLCredentialsProviderTest extends TestCase
 {
 
@@ -44,7 +40,7 @@ class URLCredentialsProviderTest extends TestCase
             'connectTimeout' => 10,
             'readTimeout' => 10,
         ];
-        putenv("ALIBABA_CLOUD_CREDENTIALS_URI=http://test.aliyun.com");
+        putenv(Config:: ENV_PREFIX . "CREDENTIALS_URI=http://test.aliyun.com");
 
         $provider = new URLCredentialsProvider($params, $config);
 
@@ -59,7 +55,7 @@ class URLCredentialsProviderTest extends TestCase
         $credentialsURI = $this->getPrivateField($provider, 'credentialsURI');
         self::assertEquals('http://test.aliyun.com', $credentialsURI);
 
-        putenv("ALIBABA_CLOUD_CREDENTIALS_URI=");
+        putenv(Config:: ENV_PREFIX . "CREDENTIALS_URI=");
     }
 
     public function testConstructError()
@@ -79,7 +75,7 @@ class URLCredentialsProviderTest extends TestCase
     public function testSts()
     {
         $params = [
-            'credentialsURI' => 'http://credentials.aliyun.com',
+            'credentialsURI' => 'http://example.com',
         ];
         $provider = new URLCredentialsProvider($params);
 

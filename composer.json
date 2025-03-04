@@ -1,31 +1,19 @@
 {
-    "name": "alibabacloud/credentials",
-    "homepage": "https://www.alibabacloud.com/",
-    "description": "Alibaba Cloud Credentials for PHP",
+    "name": "{{ipdt}}/credentials",
     "keywords": [
         "sdk",
         "tool",
         "cloud",
         "client",
-        "aliyun",
         "library",
-        "alibaba",
-        "Credentials",
-        "alibabacloud"
+        "credentials"
     ],
     "type": "library",
     "license": "Apache-2.0",
     "support": {
-        "source": "https://github.com/aliyun/credentials-php",
-        "issues": "https://github.com/aliyun/credentials-php/issues"
+        "source": "https://github.com/{{ipdt}}/credentials-php",
+        "issues": "https://github.com/{{ipdt}}/credentials-php/issues"
     },
-    "authors": [
-        {
-            "name": "Alibaba Cloud SDK",
-            "email": "sdk-team@alibabacloud.com",
-            "homepage": "http://www.alibabacloud.com"
-        }
-    ],
     "require": {
         "php": ">=5.6",
         "ext-curl": "*",

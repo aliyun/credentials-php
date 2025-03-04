@@ -4,13 +4,8 @@ namespace AlibabaCloud\Credentials\Providers;
 
 use AlibabaCloud\Credentials\Utils\Helper;
 use AlibabaCloud\Credentials\Utils\Filter;
+use AlibabaCloud\Configure\Config;
 
-/**
- * @internal This class is intended for internal use within the package. 
- * Class StaticAKCredentialsProvider
- *
- * @package AlibabaCloud\Credentials\Providers
- */
 class StaticAKCredentialsProvider implements CredentialsProvider
 {
 
@@ -36,12 +31,12 @@ class StaticAKCredentialsProvider implements CredentialsProvider
 
     private function filterAK(array $params)
     {
-        if (Helper::envNotEmpty('ALIBABA_CLOUD_ACCESS_KEY_ID')) {
-            $this->accessKeyId =  Helper::env('ALIBABA_CLOUD_ACCESS_KEY_ID');
+        if (Helper::envNotEmpty(Config::ENV_PREFIX . 'ACCESS_KEY_ID')) {
+            $this->accessKeyId =  Helper::env(Config::ENV_PREFIX . 'ACCESS_KEY_ID');
         }
 
-        if (Helper::envNotEmpty('ALIBABA_CLOUD_ACCESS_KEY_SECRET')) {
-            $this->accessKeySecret =  Helper::env('ALIBABA_CLOUD_ACCESS_KEY_SECRET');
+        if (Helper::envNotEmpty(Config::ENV_PREFIX . 'ACCESS_KEY_SECRET')) {
+            $this->accessKeySecret =  Helper::env(Config::ENV_PREFIX . 'ACCESS_KEY_SECRET');
         }
 
         if (isset($params['accessKeyId'])) {

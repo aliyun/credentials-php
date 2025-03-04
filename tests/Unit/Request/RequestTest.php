@@ -7,11 +7,6 @@ use AlibabaCloud\Credentials\Tests\Unit\Ini\VirtualRsaKeyPairCredential;
 use PHPUnit\Framework\TestCase;
 use InvalidArgumentException;
 
-/**
- * Class RequestTest
- *
- * @package AlibabaCloud\Credentials\Tests\Unit\Request
- */
 class RequestTest extends TestCase
 {
 

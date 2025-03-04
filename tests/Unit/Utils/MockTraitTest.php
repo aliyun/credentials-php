@@ -7,11 +7,6 @@ use AlibabaCloud\Credentials\RamRoleArnCredential;
 use GuzzleHttp\Psr7\Request;
 use PHPUnit\Framework\TestCase;
 
-/**
- * Class MockTraitTest
- *
- * @package AlibabaCloud\Credentials\Tests\Unit
- */
 class MockTraitTest extends TestCase
 {
      /**
