@@ -147,6 +147,18 @@ class CLIProfileCredentialsProviderTest extends TestCase
         self::assertEquals('static_ak', $credentials->getProviderName());
     }
 
+    public function testSTS()
+    {
+        $vf = VirtualCLIConfig::full();
+        $provider = new CLIProfileCredentialsProvider();
+        $credentialsProvider = $this->invokeProtectedFunc($provider, 'reloadCredentialsProvider', $vf, 'StsToken');
+        $credentials = $credentialsProvider->getCredentials();
+        self::assertEquals('access_key_id', $credentials->getAccessKeyId());
+        self::assertEquals('access_key_secret', $credentials->getAccessKeySecret());
+        self::assertEquals('sts_token', $credentials->getSecurityToken());
+        self::assertEquals('static_sts', $credentials->getProviderName());
+    }
+
     public function testRamRoleArn()
     {
         $vf = VirtualCLIConfig::full();

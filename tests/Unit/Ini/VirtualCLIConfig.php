@@ -137,6 +137,13 @@ EOT;
             "access_key_secret": "access_key_secret"
         },
         {
+            "name": "StsToken",
+            "mode": "StsToken",
+            "access_key_id": "access_key_id",
+            "access_key_secret": "access_key_secret",
+            "sts_token": "sts_token"
+        },
+        {
             "name": "RamRoleArn",
             "mode": "RamRoleArn",
             "access_key_id": "access_key_id",

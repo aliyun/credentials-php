@@ -87,6 +87,12 @@ class CLIProfileCredentialsProvider implements CredentialsProvider
                                     'accessKeyId' => Helper::unsetReturnNull($profile, 'access_key_id'),
                                     'accessKeySecret' => Helper::unsetReturnNull($profile, 'access_key_secret'),
                                 ]);
+                            case 'StsToken':
+                                return new StaticSTSCredentialsProvider([
+                                    'accessKeyId' => Helper::unsetReturnNull($profile, 'access_key_id'),
+                                    'accessKeySecret' => Helper::unsetReturnNull($profile, 'access_key_secret'),
+                                    'securityToken' => Helper::unsetReturnNull($profile, 'sts_token'),
+                                ]);
                             case 'RamRoleArn':
                                 $innerProvider = new StaticAKCredentialsProvider([
                                     'accessKeyId' => Helper::unsetReturnNull($profile, 'access_key_id'),
