@@ -257,6 +257,48 @@ class CLIProfileCredentialsProviderTest extends TestCase
         $credentialsProvider->getCredentials();
     }
 
+    public function testCloudSSO()
+    {
+        $vf = VirtualCLIConfig::full();
+        $provider = new CLIProfileCredentialsProvider();
+
+        $result = '{"CloudCredential":{"AccessKeyId":"foo","AccessKeySecret":"bar","SecurityToken":"token","Expiration":"2049-10-25T03:56:19Z"}}';
+        Credentials::mockResponse(200, [], $result);
+
+        $credentialsProvider = $this->invokeProtectedFunc($provider, 'reloadCredentialsProvider', $vf, 'CloudSSO');
+        $credentials = $credentialsProvider->getCredentials();
+        self::assertEquals('foo', $credentials->getAccessKeyId());
+        self::assertEquals('bar', $credentials->getAccessKeySecret());
+        self::assertEquals('token', $credentials->getSecurityToken());
+        self::assertEquals('cloud_sso', $credentials->getProviderName());
+
+        $credentials = $credentialsProvider->getCredentials();
+        self::assertEquals('foo', $credentials->getAccessKeyId());
+        self::assertEquals('bar', $credentials->getAccessKeySecret());
+        self::assertEquals('cloud_sso', $credentials->getProviderName());
+    }
+
+    public function testOAuth()
+    {
+        $vf = VirtualCLIConfig::full();
+        $provider = new CLIProfileCredentialsProvider();
+
+        $result = '{"accessKeyId":"foo","accessKeySecret":"bar","securityToken":"token","expiration":"2049-10-25T03:56:19Z"}';
+        Credentials::mockResponse(200, [], $result);
+
+        $credentialsProvider = $this->invokeProtectedFunc($provider, 'reloadCredentialsProvider', $vf, 'OAuth');
+        $credentials = $credentialsProvider->getCredentials();
+        self::assertEquals('foo', $credentials->getAccessKeyId());
+        self::assertEquals('bar', $credentials->getAccessKeySecret());
+        self::assertEquals('token', $credentials->getSecurityToken());
+        self::assertEquals('oauth', $credentials->getProviderName());
+
+        $credentials = $credentialsProvider->getCredentials();
+        self::assertEquals('foo', $credentials->getAccessKeyId());
+        self::assertEquals('bar', $credentials->getAccessKeySecret());
+        self::assertEquals('oauth', $credentials->getProviderName());
+    }
+
     public function testDisableCLI()
     {
         putenv("ALIBABA_CLOUD_CLI_PROFILE_DISABLED=true");

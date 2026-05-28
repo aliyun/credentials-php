@@ -184,10 +184,31 @@ EOT;
             "external_id": "external_id",
             "sts_region": "cn-hangzhou",
             "enable_vpc": false
+        },
+        {
+            "name": "CloudSSO",
+            "mode": "CloudSSO",
+            "cloud_sso_sign_in_url": "https://signin.aliyun.com",
+            "cloud_sso_account_id": "123456",
+            "cloud_sso_access_config": "ac-config-id",
+            "access_token": "sso_access_token",
+            "cloud_sso_access_token_expire": CLOUD_SSO_EXPIRE_PLACEHOLDER
+        },
+        {
+            "name": "OAuth",
+            "mode": "OAuth",
+            "oauth_site_type": "CN",
+            "oauth_refresh_token": "oauth_refresh_token",
+            "oauth_access_token": "oauth_access_token",
+            "oauth_access_token_expire": OAUTH_EXPIRE_PLACEHOLDER
         }
     ]
 }
 EOT;
+
+        $futureExpire = time() + 3600;
+        $content = str_replace('CLOUD_SSO_EXPIRE_PLACEHOLDER', (string) $futureExpire, $content);
+        $content = str_replace('OAUTH_EXPIRE_PLACEHOLDER', (string) $futureExpire, $content);
 
         return (new static($content))->url();
     }
