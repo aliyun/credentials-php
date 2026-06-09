@@ -201,6 +201,11 @@ EOT;
             "oauth_refresh_token": "oauth_refresh_token",
             "oauth_access_token": "oauth_access_token",
             "oauth_access_token_expire": OAUTH_EXPIRE_PLACEHOLDER
+        },
+        {
+            "name": "External",
+            "mode": "External",
+            "process_command": "/bin/echo {\"mode\":\"AK\",\"access_key_id\":\"externalAk\",\"access_key_secret\":\"externalSk\"}"
         }
     ]
 }

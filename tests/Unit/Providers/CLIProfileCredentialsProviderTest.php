@@ -299,6 +299,18 @@ class CLIProfileCredentialsProviderTest extends TestCase
         self::assertEquals('oauth', $credentials->getProviderName());
     }
 
+    public function testExternal()
+    {
+        $vf = VirtualCLIConfig::full();
+        $provider = new CLIProfileCredentialsProvider();
+
+        $credentialsProvider = $this->invokeProtectedFunc($provider, 'reloadCredentialsProvider', $vf, 'External');
+        $credentials = $credentialsProvider->getCredentials();
+        self::assertEquals('externalAk', $credentials->getAccessKeyId());
+        self::assertEquals('externalSk', $credentials->getAccessKeySecret());
+        self::assertEquals('external', $credentials->getProviderName());
+    }
+
     public function testDisableCLI()
     {
         putenv("ALIBABA_CLOUD_CLI_PROFILE_DISABLED=true");

@@ -167,8 +167,13 @@ class CLIProfileCredentialsProvider implements CredentialsProvider
                                     'accessTokenExpire' => Helper::unsetReturnNull($profile, 'oauth_access_token_expire'),
                                     'tokenUpdateCallback' => $this->createOAuthTokenUpdateCallback($profileFile, $profileName),
                                 ]);
+                            case 'External':
+                                return new ExternalCredentialsProvider([
+                                    'processCommand' => (string) Helper::unsetReturnNull($profile, 'process_command'),
+                                    'credentialUpdateCallback' => $this->createExternalCredentialUpdateCallback($profileFile, $profileName),
+                                ]);
                             default:
-                                throw new RuntimeException('Unsupported credential mode from CLI credentials file: ' . Helper::unsetReturnNull($profile, 'mode'));
+                                throw new RuntimeException('Unsupported credential mode from CLI credentials file: ' . (string) Helper::unsetReturnNull($profile, 'mode'));
                         }
                     }
                 }
@@ -211,6 +216,22 @@ class CLIProfileCredentialsProvider implements CredentialsProvider
         return function ($refreshToken, $accessToken, $accessKeyId, $accessKeySecret, $securityToken, $accessTokenExpire, $stsExpire) use ($profileFile, $profileName) {
             try {
                 $this->updateOAuthTokens($profileFile, $profileName, $refreshToken, $accessToken, $accessKeyId, $accessKeySecret, $securityToken, $accessTokenExpire, $stsExpire);
+            } catch (\Exception $e) {
+                // Warning only
+            }
+        };
+    }
+
+    /**
+     * @param string $profileFile
+     * @param string $profileName
+     * @return callable
+     */
+    private function createExternalCredentialUpdateCallback($profileFile, $profileName)
+    {
+        return function ($accessKeyId, $accessKeySecret, $securityToken, $expiration) use ($profileFile, $profileName) {
+            try {
+                $this->updateExternalCredentials($profileFile, $profileName, $accessKeyId, $accessKeySecret, $securityToken, $expiration);
             } catch (\Exception $e) {
                 // Warning only
             }
@@ -265,6 +286,47 @@ class CLIProfileCredentialsProvider implements CredentialsProvider
     }
 
     /**
+     * @param string $profileFile
+     * @param string $profileName
+     * @param string $accessKeyId
+     * @param string $accessKeySecret
+     * @param string $securityToken
+     * @param int $expiration
+     */
+    private function updateExternalCredentials($profileFile, $profileName, $accessKeyId, $accessKeySecret, $securityToken, $expiration)
+    {
+        if (!file_exists($profileFile)) {
+            return;
+        }
+
+        $jsonContent = file_get_contents($profileFile);
+        $config = json_decode($jsonContent, true);
+        if (empty($config) || !isset($config['profiles'])) {
+            return;
+        }
+
+        $externalProfile = $this->findExternalProfile($config, $profileName);
+        if ($externalProfile === null) {
+            return;
+        }
+
+        $externalProfile['access_key_id'] = $accessKeyId;
+        $externalProfile['access_key_secret'] = $accessKeySecret;
+        $externalProfile['sts_token'] = $securityToken;
+        $externalProfile['sts_expiration'] = $expiration;
+
+        foreach ($config['profiles'] as &$p) {
+            if (isset($p['name']) && $p['name'] === $externalProfile['name']) {
+                $p = $externalProfile;
+                break;
+            }
+        }
+        unset($p);
+
+        file_put_contents($profileFile, json_encode($config, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES));
+    }
+
+    /**
      * @param array $config
      * @param string $profileName
      * @return array|null
@@ -281,6 +343,30 @@ class CLIProfileCredentialsProvider implements CredentialsProvider
                 }
                 if (!empty($p['source_profile'])) {
                     return $this->findOAuthProfile($config, $p['source_profile']);
+                }
+                return null;
+            }
+        }
+        return null;
+    }
+
+    /**
+     * @param array $config
+     * @param string $profileName
+     * @return array|null
+     */
+    private function findExternalProfile($config, $profileName)
+    {
+        if (!isset($config['profiles'])) {
+            return null;
+        }
+        foreach ($config['profiles'] as $p) {
+            if (isset($p['name']) && $p['name'] === $profileName) {
+                if (isset($p['mode']) && $p['mode'] === 'External') {
+                    return $p;
+                }
+                if (!empty($p['source_profile'])) {
+                    return $this->findExternalProfile($config, $p['source_profile']);
                 }
                 return null;
             }
