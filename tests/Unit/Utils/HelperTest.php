@@ -189,4 +189,61 @@ class HelperTest extends TestCase
         self::assertEquals('', Helper::unsetReturnNull($params, 'test'));
         self::assertNull(Helper::unsetReturnNull($params, 'access_key_id'));
     }
+
+    public function testSplitProcessCommand()
+    {
+        self::assertEquals(['cmd', 'arg1', 'arg2'], Helper::splitProcessCommand('cmd arg1 arg2'));
+        self::assertEquals(['cmd', 'arg1', 'arg2'], Helper::splitProcessCommand("  cmd   arg1\targ2  "));
+        self::assertEquals(
+            ['C:\\Program Files\\tool\\cred.exe', 'get', '--profile', 'default'],
+            Helper::splitProcessCommand('"C:\\Program Files\\tool\\cred.exe" get --profile default')
+        );
+        self::assertEquals(
+            ['/usr/local/my tools/cred', 'arg'],
+            Helper::splitProcessCommand("'/usr/local/my tools/cred' arg")
+        );
+        self::assertEquals(
+            ['tool', '--name', 'First Last'],
+            Helper::splitProcessCommand('tool --name "First Last"')
+        );
+        self::assertEquals(
+            ['tool', 'arg with space'],
+            Helper::splitProcessCommand('tool arg\\ with\\ space')
+        );
+        self::assertEquals(
+            ['tool', 'say "hi"'],
+            Helper::splitProcessCommand('tool "say \\"hi\\""')
+        );
+    }
+
+    public function testSplitProcessCommandErrors()
+    {
+        try {
+            Helper::splitProcessCommand('   ');
+            self::fail('expected exception');
+        } catch (\RuntimeException $e) {
+            self::assertTrue(strpos($e->getMessage(), 'process_command is empty') !== false);
+        }
+
+        try {
+            Helper::splitProcessCommand('""');
+            self::fail('expected exception');
+        } catch (\RuntimeException $e) {
+            self::assertTrue(strpos($e->getMessage(), 'process_command is empty') !== false);
+        }
+
+        try {
+            Helper::splitProcessCommand('"C:\\Program Files\\tool.exe');
+            self::fail('expected exception');
+        } catch (\RuntimeException $e) {
+            self::assertTrue(strpos($e->getMessage(), 'unclosed quote') !== false);
+        }
+
+        try {
+            Helper::splitProcessCommand('tool\\');
+            self::fail('expected exception');
+        } catch (\RuntimeException $e) {
+            self::assertTrue(strpos($e->getMessage(), 'trailing backslash') !== false);
+        }
+    }
 }

@@ -196,6 +196,91 @@ class Helper
     }
 
     /**
+     * Split process_command into argv with quote support (POSIX shlex-like).
+     * Allows quoted Windows paths such as "C:\Program Files\tool.exe".
+     *
+     * @param string $command
+     *
+     * @return array
+     */
+    public static function splitProcessCommand($command)
+    {
+        $input = trim((string) $command);
+        if ($input === '') {
+            throw new \RuntimeException('process_command is empty');
+        }
+
+        $args = [];
+        $current = '';
+        $inSingle = false;
+        $inDouble = false;
+        $len = strlen($input);
+
+        for ($i = 0; $i < $len; $i++) {
+            $c = $input[$i];
+            if ($inSingle) {
+                if ($c === "'") {
+                    $inSingle = false;
+                } else {
+                    $current .= $c;
+                }
+                continue;
+            }
+            if ($inDouble) {
+                if ($c === '"') {
+                    $inDouble = false;
+                    continue;
+                }
+                if ($c === '\\' && $i + 1 < $len) {
+                    $next = $input[$i + 1];
+                    if ($next === '"' || $next === '\\' || $next === '$' || $next === '`' || $next === "\n") {
+                        $current .= $next;
+                        $i++;
+                        continue;
+                    }
+                }
+                $current .= $c;
+                continue;
+            }
+            if ($c === '\\') {
+                if ($i + 1 >= $len) {
+                    throw new \RuntimeException('invalid process_command: trailing backslash');
+                }
+                $current .= $input[++$i];
+                continue;
+            }
+            if ($c === "'") {
+                $inSingle = true;
+                continue;
+            }
+            if ($c === '"') {
+                $inDouble = true;
+                continue;
+            }
+            if (ctype_space($c)) {
+                if ($current !== '') {
+                    $args[] = $current;
+                    $current = '';
+                }
+                continue;
+            }
+            $current .= $c;
+        }
+
+        if ($inSingle || $inDouble) {
+            throw new \RuntimeException('invalid process_command: unclosed quote');
+        }
+        if ($current !== '') {
+            $args[] = $current;
+        }
+        if (empty($args) || $args[0] === '') {
+            throw new \RuntimeException('process_command is empty');
+        }
+
+        return $args;
+    }
+
+    /**
      * @param mixed ...$parameters
      *
      * @codeCoverageIgnore
