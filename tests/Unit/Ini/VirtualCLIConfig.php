@@ -205,7 +205,7 @@ EOT;
         {
             "name": "External",
             "mode": "External",
-            "process_command": "/bin/echo {\"mode\":\"AK\",\"access_key_id\":\"externalAk\",\"access_key_secret\":\"externalSk\"}"
+            "process_command": "/bin/echo '{\"mode\":\"AK\",\"access_key_id\":\"externalAk\",\"access_key_secret\":\"externalSk\"}'"
         }
     ]
 }

@@ -29,7 +29,7 @@ class ExternalCredentialsProviderTest extends TestCase
     public function testGetCredentialsAK()
     {
         $provider = new ExternalCredentialsProvider([
-            'processCommand' => '/bin/echo {"mode":"AK","access_key_id":"ak","access_key_secret":"sk"}',
+            'processCommand' => '/bin/echo \'{"mode":"AK","access_key_id":"ak","access_key_secret":"sk"}\'',
         ]);
 
         $credential = $provider->getCredentials();
@@ -44,7 +44,7 @@ class ExternalCredentialsProviderTest extends TestCase
         $callbackInvoked = false;
         $capturedArgs = [];
         $provider = new ExternalCredentialsProvider([
-            'processCommand' => '/bin/echo {"mode":"StsToken","access_key_id":"ak","access_key_secret":"sk","sts_token":"token","expiration":"2049-10-20T04:27:09Z"}',
+            'processCommand' => '/bin/echo \'{"mode":"StsToken","access_key_id":"ak","access_key_secret":"sk","sts_token":"token","expiration":"2049-10-20T04:27:09Z"}\'',
             'credentialUpdateCallback' => function () use (&$callbackInvoked, &$capturedArgs) {
                 $callbackInvoked = true;
                 $capturedArgs = func_get_args();
@@ -64,7 +64,7 @@ class ExternalCredentialsProviderTest extends TestCase
     {
         $callbackCount = 0;
         $provider = new ExternalCredentialsProvider([
-            'processCommand' => '/bin/echo {"mode":"AK","access_key_id":"ak","access_key_secret":"sk"}',
+            'processCommand' => '/bin/echo \'{"mode":"AK","access_key_id":"ak","access_key_secret":"sk"}\'',
             'credentialUpdateCallback' => function () use (&$callbackCount) {
                 $callbackCount++;
             },
@@ -78,7 +78,7 @@ class ExternalCredentialsProviderTest extends TestCase
     public function testCallbackExceptionIgnored()
     {
         $provider = new ExternalCredentialsProvider([
-            'processCommand' => '/bin/echo {"mode":"AK","access_key_id":"ak","access_key_secret":"sk"}',
+            'processCommand' => '/bin/echo \'{"mode":"AK","access_key_id":"ak","access_key_secret":"sk"}\'',
             'credentialUpdateCallback' => function () {
                 throw new RuntimeException('callback error');
             },
@@ -91,7 +91,7 @@ class ExternalCredentialsProviderTest extends TestCase
     public function testMissingStsToken()
     {
         $provider = new ExternalCredentialsProvider([
-            'processCommand' => '/bin/echo {"mode":"StsToken","access_key_id":"ak","access_key_secret":"sk"}',
+            'processCommand' => '/bin/echo \'{"mode":"StsToken","access_key_id":"ak","access_key_secret":"sk"}\'',
         ]);
 
         $this->expectException(RuntimeException::class);
