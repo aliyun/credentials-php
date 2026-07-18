@@ -246,6 +246,14 @@ class HelperTest extends TestCase
             ['tool', 'a bc d'],
             Helper::splitProcessCommand('tool "a b"\'c d\'')
         );
+        self::assertEquals(
+            ['tool', 'arg1', 'arg2'],
+            Helper::splitProcessCommand("tool arg1 \\\n arg2", false)
+        );
+        self::assertEquals(
+            ['tool', 'ab'],
+            Helper::splitProcessCommand("tool \"a\\\nb\"", false)
+        );
     }
 
     public function testSplitProcessCommandErrors()
