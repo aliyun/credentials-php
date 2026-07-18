@@ -214,6 +214,9 @@ class Helper
         $current = '';
         $inSingle = false;
         $inDouble = false;
+        // Tracks that a token has started even if it is empty, so quoted empty
+        // arguments like `tool "" arg` keep their empty argv element.
+        $hasToken = false;
         $len = strlen($input);
 
         for ($i = 0; $i < $len; $i++) {
@@ -246,31 +249,36 @@ class Helper
                 if ($i + 1 >= $len) {
                     throw new \RuntimeException('invalid process_command: trailing backslash');
                 }
+                $hasToken = true;
                 $current .= $input[++$i];
                 continue;
             }
             if ($c === "'") {
                 $inSingle = true;
+                $hasToken = true;
                 continue;
             }
             if ($c === '"') {
                 $inDouble = true;
+                $hasToken = true;
                 continue;
             }
             if (ctype_space($c)) {
-                if ($current !== '') {
+                if ($hasToken) {
                     $args[] = $current;
                     $current = '';
+                    $hasToken = false;
                 }
                 continue;
             }
+            $hasToken = true;
             $current .= $c;
         }
 
         if ($inSingle || $inDouble) {
             throw new \RuntimeException('invalid process_command: unclosed quote');
         }
-        if ($current !== '') {
+        if ($hasToken) {
             $args[] = $current;
         }
         if (empty($args) || $args[0] === '') {

@@ -218,6 +218,18 @@ class HelperTest extends TestCase
             ['/bin/echo', '{"mode":"AK","access_key_id":"ak"}'],
             Helper::splitProcessCommand('/bin/echo \'{"mode":"AK","access_key_id":"ak"}\'')
         );
+        self::assertEquals(
+            ['tool', '', 'arg'],
+            Helper::splitProcessCommand('tool "" arg')
+        );
+        self::assertEquals(
+            ['tool', '', 'arg'],
+            Helper::splitProcessCommand("tool '' arg")
+        );
+        self::assertEquals(
+            ['tool', 'a bc d'],
+            Helper::splitProcessCommand('tool "a b"\'c d\'')
+        );
     }
 
     public function testSplitProcessCommandErrors()
