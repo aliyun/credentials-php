@@ -200,8 +200,9 @@ class Helper
      * Allows quoted Windows paths such as "C:\Program Files\tool.exe".
      *
      * On Unix, escape rules follow POSIX shlex: outside quotes, '\' escapes the
-     * next char; inside double quotes, '\' only escapes '"', '\', '$', '`' and
-     * newline; inside single quotes, all characters are literal.
+     * next char; inside double quotes, '\' only escapes '"', '\', '$' and '`';
+     * backslash-newline is a line continuation (both removed) outside single
+     * quotes; inside single quotes, all characters are literal.
      *
      * On Windows, '\' is a path separator and is treated as a literal (except
      * '\"' inside double quotes), so unquoted paths like C:\tools\cred.exe keep
@@ -255,7 +256,11 @@ class Helper
                             $i++;
                             continue;
                         }
-                    } elseif ($next === '"' || $next === '\\' || $next === '$' || $next === '`' || $next === "\n") {
+                    } elseif ($next === "\n") {
+                        // Backslash-newline is a line continuation: both removed.
+                        $i++;
+                        continue;
+                    } elseif ($next === '"' || $next === '\\' || $next === '$' || $next === '`') {
                         $current .= $next;
                         $i++;
                         continue;
@@ -273,6 +278,11 @@ class Helper
                 }
                 if ($i + 1 >= $len) {
                     throw new \RuntimeException('invalid process_command: trailing backslash');
+                }
+                if ($input[$i + 1] === "\n") {
+                    // Backslash-newline is a line continuation: both removed.
+                    $i++;
+                    continue;
                 }
                 $hasToken = true;
                 $current .= $input[++$i];
