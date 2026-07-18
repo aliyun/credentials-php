@@ -196,15 +196,27 @@ class Helper
     }
 
     /**
-     * Split process_command into argv with quote support (POSIX shlex-like).
+     * Split process_command into argv with quote support.
      * Allows quoted Windows paths such as "C:\Program Files\tool.exe".
      *
-     * @param string $command
+     * On Unix, escape rules follow POSIX shlex: outside quotes, '\' escapes the
+     * next char; inside double quotes, '\' only escapes '"', '\', '$', '`' and
+     * newline; inside single quotes, all characters are literal.
+     *
+     * On Windows, '\' is a path separator and is treated as a literal (except
+     * '\"' inside double quotes), so unquoted paths like C:\tools\cred.exe keep
+     * their backslashes.
+     *
+     * @param string    $command
+     * @param bool|null $windows defaults to the current platform
      *
      * @return array
      */
-    public static function splitProcessCommand($command)
+    public static function splitProcessCommand($command, $windows = null)
     {
+        if ($windows === null) {
+            $windows = DIRECTORY_SEPARATOR === '\\';
+        }
         $input = trim((string) $command);
         if ($input === '') {
             throw new \RuntimeException('process_command is empty');
@@ -236,7 +248,14 @@ class Helper
                 }
                 if ($c === '\\' && $i + 1 < $len) {
                     $next = $input[$i + 1];
-                    if ($next === '"' || $next === '\\' || $next === '$' || $next === '`' || $next === "\n") {
+                    if ($windows) {
+                        // On Windows only \" is an escape inside double quotes.
+                        if ($next === '"') {
+                            $current .= $next;
+                            $i++;
+                            continue;
+                        }
+                    } elseif ($next === '"' || $next === '\\' || $next === '$' || $next === '`' || $next === "\n") {
                         $current .= $next;
                         $i++;
                         continue;
@@ -246,6 +265,12 @@ class Helper
                 continue;
             }
             if ($c === '\\') {
+                if ($windows) {
+                    // Path separator — keep literal.
+                    $hasToken = true;
+                    $current .= $c;
+                    continue;
+                }
                 if ($i + 1 >= $len) {
                     throw new \RuntimeException('invalid process_command: trailing backslash');
                 }

@@ -208,15 +208,31 @@ class HelperTest extends TestCase
         );
         self::assertEquals(
             ['tool', 'arg with space'],
-            Helper::splitProcessCommand('tool arg\\ with\\ space')
+            Helper::splitProcessCommand('tool arg\\ with\\ space', false)
         );
         self::assertEquals(
             ['tool', 'say "hi"'],
-            Helper::splitProcessCommand('tool "say \\"hi\\""')
+            Helper::splitProcessCommand('tool "say \\"hi\\""', false)
         );
         self::assertEquals(
             ['/bin/echo', '{"mode":"AK","access_key_id":"ak"}'],
             Helper::splitProcessCommand('/bin/echo \'{"mode":"AK","access_key_id":"ak"}\'')
+        );
+        self::assertEquals(
+            ['/usr/bin/printf', '\\173\\042mode\\042\\175'],
+            Helper::splitProcessCommand('/usr/bin/printf \'\\173\\042mode\\042\\175\'', false)
+        );
+        self::assertEquals(
+            ['C:\\tools\\cred.exe', 'get'],
+            Helper::splitProcessCommand('C:\\tools\\cred.exe get', true)
+        );
+        self::assertEquals(
+            ['C:\\Program Files\\tool.exe'],
+            Helper::splitProcessCommand('"C:\\Program Files\\tool.exe"', true)
+        );
+        self::assertEquals(
+            ['tool', 'say "hi"'],
+            Helper::splitProcessCommand('tool "say \\"hi\\""', true)
         );
         self::assertEquals(
             ['tool', '', 'arg'],
@@ -256,7 +272,7 @@ class HelperTest extends TestCase
         }
 
         try {
-            Helper::splitProcessCommand('tool\\');
+            Helper::splitProcessCommand('tool\\', false);
             self::fail('expected exception');
         } catch (\RuntimeException $e) {
             self::assertTrue(strpos($e->getMessage(), 'trailing backslash') !== false);
