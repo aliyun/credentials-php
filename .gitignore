@@ -8,3 +8,4 @@
 composer.lock
 /credentials-php.iml
 *.log
+.phpunit.result.cache

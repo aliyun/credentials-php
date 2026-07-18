@@ -106,10 +106,17 @@ class CredentialTest extends TestCase
      */
     public function testOIDCRoleArnCredential()
     {
+        $this->requireOIDCIntegration();
+
         Credentials::cancelMock();
         $credential = new Credential();
 
-        $result = $credential->getCredential();
+        try {
+            $result = $credential->getCredential();
+        } catch (\Exception $e) {
+            $this->skipIfOIDCProviderFingerprintMismatch($e);
+            throw $e;
+        }
         $this->assertNotNull($result->getAccessKeyId());
         $this->assertNotNull($result->getAccessKeySecret());
         $this->assertNotNull($result->getSecurityToken());
@@ -122,11 +129,45 @@ class CredentialTest extends TestCase
 
         $credential = new Credential($config);
 
-        $result = $credential->getCredential();
+        try {
+            $result = $credential->getCredential();
+        } catch (\Exception $e) {
+            $this->skipIfOIDCProviderFingerprintMismatch($e);
+            throw $e;
+        }
         $this->assertNotNull($result->getAccessKeyId());
         $this->assertNotNull($result->getAccessKeySecret());
         $this->assertNotNull($result->getSecurityToken());
         $this->assertEquals('oidc_role_arn', $result->getType());
+    }
+
+    private function requireOIDCIntegration()
+    {
+        $required = array(
+            'ALIBABA_CLOUD_ROLE_ARN',
+            'ALIBABA_CLOUD_OIDC_PROVIDER_ARN',
+            'ALIBABA_CLOUD_OIDC_TOKEN_FILE',
+        );
+        foreach ($required as $env) {
+            if (getenv($env) === false || getenv($env) === '') {
+                $this->markTestSkipped('skip OIDC integration test: ' . $env . ' is not set');
+            }
+        }
+
+        $tokenFile = getenv('ALIBABA_CLOUD_OIDC_TOKEN_FILE');
+        if (!is_readable($tokenFile)) {
+            $this->markTestSkipped('skip OIDC integration test: OIDC token file is not available: ' . $tokenFile);
+        }
+    }
+
+    private function skipIfOIDCProviderFingerprintMismatch(\Exception $e)
+    {
+        if (strpos($e->getMessage(), 'AuthenticationFail.OIDCToken.PublicKeyFingerprintMismatch') !== false) {
+            $this->markTestSkipped(
+                'skip OIDC integration test: configured OIDC provider discovery fingerprint is invalid: '
+                . $e->getMessage()
+            );
+        }
     }
 
 }

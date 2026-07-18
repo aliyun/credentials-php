@@ -2,6 +2,7 @@
 
 namespace AlibabaCloud\Credentials\Providers;
 
+use AlibabaCloud\Credentials\Utils\Helper;
 use InvalidArgumentException;
 use RuntimeException;
 
@@ -118,10 +119,7 @@ class ExternalCredentialsProvider implements CredentialsProvider
      */
     private function executeCommand()
     {
-        $args = preg_split('/\s+/', trim($this->processCommand));
-        if (empty($args) || $args[0] === '') {
-            throw new RuntimeException('process_command is empty');
-        }
+        $args = Helper::splitProcessCommand($this->processCommand);
         $command = implode(' ', array_map('escapeshellarg', $args));
         $descriptorSpec = [
             1 => ['pipe', 'w'],
