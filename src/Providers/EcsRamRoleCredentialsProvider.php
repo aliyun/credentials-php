@@ -5,6 +5,7 @@ namespace AlibabaCloud\Credentials\Providers;
 use AlibabaCloud\Credentials\Utils\Helper;
 use AlibabaCloud\Credentials\Utils\Filter;
 use AlibabaCloud\Credentials\Request\Request;
+use Exception;
 use GuzzleHttp\Exception\GuzzleException;
 use InvalidArgumentException;
 use RuntimeException;
@@ -45,6 +46,11 @@ class EcsRamRoleCredentialsProvider extends SessionCredentialsProvider
     private $disableIMDSv1 = false;
 
     /**
+     * @var boolean
+     */
+    private $enableIMDSv2 = true;
+
+    /**
      * @var int
      */
     private $metadataTokenDuration = 21600;
@@ -71,8 +77,10 @@ class EcsRamRoleCredentialsProvider extends SessionCredentialsProvider
         $this->filterOptions($options);
         $this->filterRoleName($params);
         $this->filterDisableECSIMDSv1($params);
+        $this->filterEnableIMDSv2($params);
         Filter::roleName($this->roleName);
         Filter::disableIMDSv1($this->disableIMDSv1);
+        Filter::enableIMDSv2($this->enableIMDSv2);
     }
 
     private function filterOptions(array $options)
@@ -110,6 +118,33 @@ class EcsRamRoleCredentialsProvider extends SessionCredentialsProvider
         }
     }
 
+    private function filterEnableIMDSv2($params)
+    {
+        // Only skip IMDSv2 when env is explicitly string/bool false.
+        // Helper::envNotEmpty cannot detect false, so use getenv.
+        $raw = getenv('ALIBABA_CLOUD_ECS_IMDSV2_ENABLE');
+        if ($raw !== false) {
+            $value = Helper::env('ALIBABA_CLOUD_ECS_IMDSV2_ENABLE');
+            if ($value === false) {
+                $this->enableIMDSv2 = false;
+            }
+        }
+
+        if (isset($params['enableIMDSv2'])) {
+            $this->enableIMDSv2 = $params['enableIMDSv2'];
+        }
+    }
+
+    /**
+     * @param string|null $metadataToken
+     *
+     * @return bool
+     */
+    private function shouldFallbackToIMDSv1($metadataToken)
+    {
+        return !is_null($metadataToken) && !$this->disableIMDSv1;
+    }
+
     /**
      * Get credentials by request.
      *
@@ -128,12 +163,33 @@ class EcsRamRoleCredentialsProvider extends SessionCredentialsProvider
             $this->roleName = $this->getRoleNameFromMeta();
         }
 
-        $url = $this->metadataHost . $this->ecsUri . $this->roleName;
+        $metadataToken = $this->getMetadataToken();
+        try {
+            return $this->doRefreshCredentials($this->roleName, $metadataToken);
+        } catch (Exception $e) {
+            if ($this->shouldFallbackToIMDSv1($metadataToken)) {
+                return $this->doRefreshCredentials($this->roleName, null);
+            }
+            throw $e;
+        }
+    }
+
+    /**
+     * @param string      $roleName
+     * @param string|null $metadataToken
+     *
+     * @return RefreshResult
+     * @throws InvalidArgumentException
+     * @throws RuntimeException
+     * @throws GuzzleException
+     */
+    private function doRefreshCredentials($roleName, $metadataToken)
+    {
+        $url = $this->metadataHost . $this->ecsUri . $roleName;
         $options = Request::commonOptions();
         $options['read_timeout'] = $this->readTimeout;
         $options['connect_timeout'] = $this->connectTimeout;
 
-        $metadataToken = $this->getMetadataToken();
         if (!is_null($metadataToken)) {
             $options['headers']['X-aliyun-ecs-metadata-token'] = $metadataToken;
         }
@@ -175,11 +231,31 @@ class EcsRamRoleCredentialsProvider extends SessionCredentialsProvider
      */
     private function getRoleNameFromMeta()
     {
+        $metadataToken = $this->getMetadataToken();
+        try {
+            return $this->doGetRoleNameFromMeta($metadataToken);
+        } catch (Exception $e) {
+            if ($this->shouldFallbackToIMDSv1($metadataToken)) {
+                return $this->doGetRoleNameFromMeta(null);
+            }
+            throw $e;
+        }
+    }
+
+    /**
+     * @param string|null $metadataToken
+     *
+     * @return string
+     * @throws InvalidArgumentException
+     * @throws RuntimeException
+     * @throws GuzzleException
+     */
+    private function doGetRoleNameFromMeta($metadataToken)
+    {
         $options = Request::commonOptions();
         $options['read_timeout'] = $this->readTimeout;
         $options['connect_timeout'] = $this->connectTimeout;
 
-        $metadataToken = $this->getMetadataToken();
         if (!is_null($metadataToken)) {
             $options['headers']['X-aliyun-ecs-metadata-token'] = $metadataToken;
         }
@@ -209,12 +285,16 @@ class EcsRamRoleCredentialsProvider extends SessionCredentialsProvider
     /**
      * Get metadata token by request.
      *
-     * @return string
+     * @return string|null
      * @throws RuntimeException
      * @throws GuzzleException
      */
     private function getMetadataToken()
     {
+        if (!$this->enableIMDSv2) {
+            return null;
+        }
+
         $url = $this->metadataHost . $this->metadataTokenUri;
         $options = Request::commonOptions();
         $options['read_timeout'] = $this->readTimeout;
@@ -272,5 +352,13 @@ class EcsRamRoleCredentialsProvider extends SessionCredentialsProvider
     public function isDisableIMDSv1()
     {
         return $this->disableIMDSv1;
+    }
+
+    /**
+     * @return bool
+     */
+    public function isEnableIMDSv2()
+    {
+        return $this->enableIMDSv2;
     }
 }

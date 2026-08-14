@@ -145,6 +145,7 @@ class Credential
                 $provider = new EcsRamRoleCredentialsProvider([
                     'roleName' => $config->roleName,
                     'disableIMDSv1' => $config->disableIMDSv1,
+                    'enableIMDSv2' => $config->enableIMDSv2,
                 ], [
                     'connectTimeout' => $config->connectTimeout,
                     'readTimeout' => $config->readTimeout,
