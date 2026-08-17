@@ -210,27 +210,6 @@ class FilterTest extends TestCase
         Filter::disableIMDSv1(true);
     }
 
-    public function testEnableIMDSv2()
-    {
-        try {
-            Filter::enableIMDSv2(null);
-        } catch (InvalidArgumentException $exception) {
-            self::assertEquals('enableIMDSv2 must be a boolean', $exception->getMessage());
-        }
-        try {
-            Filter::enableIMDSv2(1);
-        } catch (InvalidArgumentException $exception) {
-            self::assertEquals('enableIMDSv2 must be a boolean', $exception->getMessage());
-        }
-        try {
-            Filter::enableIMDSv2('');
-        } catch (InvalidArgumentException $exception) {
-            self::assertEquals('enableIMDSv2 must be a boolean', $exception->getMessage());
-        }
-        Filter::enableIMDSv2(true);
-        Filter::enableIMDSv2(false);
-    }
-
     public function testRoleArn()
     {
         try {

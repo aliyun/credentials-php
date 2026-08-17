@@ -114,16 +114,6 @@ class Filter
         }
     }
 
-    /**
-     * @param boolean|null $enableIMDSv2
-     */
-    public static function enableIMDSv2($enableIMDSv2)
-    {
-        if (!is_bool($enableIMDSv2)) {
-            throw new InvalidArgumentException('enableIMDSv2 must be a boolean');
-        }
-    }
-
 
     /**
      * @param string|null $roleArn

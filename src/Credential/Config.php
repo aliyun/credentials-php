@@ -228,12 +228,6 @@ class Config extends Model
     public $disableIMDSv1;
 
     /**
-     * @description enable IMDS v2 (default true; set false or ALIBABA_CLOUD_ECS_IMDSV2_ENABLE=false to use IMDSv1 only)
-     * @var bool
-     */
-    public $enableIMDSv2;
-
-    /**
      * @description credentials URI
      * @var string
      */

@@ -46,11 +46,6 @@ class EcsRamRoleCredentialsProvider extends SessionCredentialsProvider
     private $disableIMDSv1 = false;
 
     /**
-     * @var boolean
-     */
-    private $enableIMDSv2 = true;
-
-    /**
      * @var int
      */
     private $metadataTokenDuration = 21600;
@@ -77,10 +72,8 @@ class EcsRamRoleCredentialsProvider extends SessionCredentialsProvider
         $this->filterOptions($options);
         $this->filterRoleName($params);
         $this->filterDisableECSIMDSv1($params);
-        $this->filterEnableIMDSv2($params);
         Filter::roleName($this->roleName);
         Filter::disableIMDSv1($this->disableIMDSv1);
-        Filter::enableIMDSv2($this->enableIMDSv2);
     }
 
     private function filterOptions(array $options)
@@ -115,23 +108,6 @@ class EcsRamRoleCredentialsProvider extends SessionCredentialsProvider
 
         if (isset($params['disableIMDSv1'])) {
             $this->disableIMDSv1 = $params['disableIMDSv1'];
-        }
-    }
-
-    private function filterEnableIMDSv2($params)
-    {
-        // Only skip IMDSv2 when env is explicitly string/bool false.
-        // Helper::envNotEmpty cannot detect false, so use getenv.
-        $raw = getenv('ALIBABA_CLOUD_ECS_IMDSV2_ENABLE');
-        if ($raw !== false) {
-            $value = Helper::env('ALIBABA_CLOUD_ECS_IMDSV2_ENABLE');
-            if ($value === false) {
-                $this->enableIMDSv2 = false;
-            }
-        }
-
-        if (isset($params['enableIMDSv2'])) {
-            $this->enableIMDSv2 = $params['enableIMDSv2'];
         }
     }
 
@@ -291,10 +267,6 @@ class EcsRamRoleCredentialsProvider extends SessionCredentialsProvider
      */
     private function getMetadataToken()
     {
-        if (!$this->enableIMDSv2) {
-            return null;
-        }
-
         $url = $this->metadataHost . $this->metadataTokenUri;
         $options = Request::commonOptions();
         $options['read_timeout'] = $this->readTimeout;
@@ -352,13 +324,5 @@ class EcsRamRoleCredentialsProvider extends SessionCredentialsProvider
     public function isDisableIMDSv1()
     {
         return $this->disableIMDSv1;
-    }
-
-    /**
-     * @return bool
-     */
-    public function isEnableIMDSv2()
-    {
-        return $this->enableIMDSv2;
     }
 }

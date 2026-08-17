@@ -27,7 +27,6 @@ class EcsRamRoleCredentialsProviderTest extends TestCase
         parent::setUp();
         Credentials::cancelMock();
         putenv('ALIBABA_CLOUD_ECS_METADATA_DISABLED');
-        putenv('ALIBABA_CLOUD_ECS_IMDSV2_ENABLE');
         putenv('ALIBABA_CLOUD_IMDSV1_DISABLED');
         putenv('ALIBABA_CLOUD_ECS_METADATA');
         $this->clearCredentialsCache();
@@ -242,97 +241,6 @@ class EcsRamRoleCredentialsProviderTest extends TestCase
 
         $request = end($histroy)['request'];
         self::assertEquals(null, $token);
-    }
-
-    public function testEnableIMDSv2DefaultTrue()
-    {
-        $provider = new EcsRamRoleCredentialsProvider(['roleName' => 'test']);
-        self::assertEquals(true, $provider->isEnableIMDSv2());
-        self::assertEquals(true, $this->getPrivateField($provider, 'enableIMDSv2'));
-    }
-
-    public function testEnableIMDSv2FalseFromParams()
-    {
-        $provider = new EcsRamRoleCredentialsProvider([
-            'roleName' => 'test',
-            'enableIMDSv2' => false,
-        ]);
-        self::assertEquals(false, $provider->isEnableIMDSv2());
-    }
-
-    public function testEnableIMDSv2FalseFromEnv()
-    {
-        putenv('ALIBABA_CLOUD_ECS_IMDSV2_ENABLE=false');
-        $provider = new EcsRamRoleCredentialsProvider(['roleName' => 'test']);
-        self::assertEquals(false, $provider->isEnableIMDSv2());
-
-        putenv('ALIBABA_CLOUD_ECS_IMDSV2_ENABLE=FALSE');
-        $provider = new EcsRamRoleCredentialsProvider(['roleName' => 'test']);
-        self::assertEquals(false, $provider->isEnableIMDSv2());
-
-        putenv('ALIBABA_CLOUD_ECS_IMDSV2_ENABLE=true');
-        $provider = new EcsRamRoleCredentialsProvider(['roleName' => 'test']);
-        self::assertEquals(true, $provider->isEnableIMDSv2());
-
-        putenv('ALIBABA_CLOUD_ECS_IMDSV2_ENABLE=ok');
-        $provider = new EcsRamRoleCredentialsProvider(['roleName' => 'test']);
-        self::assertEquals(true, $provider->isEnableIMDSv2());
-
-        putenv('ALIBABA_CLOUD_ECS_IMDSV2_ENABLE=');
-        $provider = new EcsRamRoleCredentialsProvider(['roleName' => 'test']);
-        self::assertEquals(true, $provider->isEnableIMDSv2());
-        putenv('ALIBABA_CLOUD_ECS_IMDSV2_ENABLE');
-    }
-
-    public function testEnableIMDSv2ParamsOverrideEnv()
-    {
-        putenv('ALIBABA_CLOUD_ECS_IMDSV2_ENABLE=false');
-        $provider = new EcsRamRoleCredentialsProvider([
-            'roleName' => 'test',
-            'enableIMDSv2' => true,
-        ]);
-        self::assertEquals(true, $provider->isEnableIMDSv2());
-        putenv('ALIBABA_CLOUD_ECS_IMDSV2_ENABLE');
-    }
-
-    public function testEnableIMDSv2FalseSkipsTokenPut()
-    {
-        $result = [
-            'Expiration' => '2049-10-01 00:00:00',
-            'AccessKeyId' => 'foo',
-            'AccessKeySecret' => 'bar',
-            'SecurityToken' => 'token',
-            'Code' => 'Success',
-        ];
-        $provider = new EcsRamRoleCredentialsProvider([
-            'roleName' => 'test',
-            'enableIMDSv2' => false,
-        ]);
-
-        Credentials::mockResponse(200, [], $result);
-        $credential = $provider->getCredentials();
-
-        self::assertEquals('foo', $credential->getAccessKeyId());
-        self::assertEquals(false, $provider->isEnableIMDSv2());
-
-        $history = Credentials::getHistroy();
-        self::assertEquals(1, count($history));
-        $request = $history[0]['request'];
-        self::assertEquals('GET', $request->getMethod());
-        self::assertFalse($request->hasHeader('X-aliyun-ecs-metadata-token'));
-    }
-
-    public function testGetMetadataTokenSkippedWhenEnableIMDSv2False()
-    {
-        $provider = new EcsRamRoleCredentialsProvider([
-            'roleName' => 'test',
-            'enableIMDSv2' => false,
-        ]);
-
-        Credentials::mockResponse(200, [], 'Token');
-        $token = $this->invokeProtectedFunc($provider, 'getMetadataToken');
-        self::assertEquals(null, $token);
-        self::assertEquals(0, count(Credentials::getHistroy()));
     }
 
     public function testFallbackToIMDSv1WhenCredentialGetFailsAfterToken()
