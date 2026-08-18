@@ -139,6 +139,8 @@ class EcsRamRoleCredentialTest extends TestCase
     {
         Credentials::mockResponse(200, [], 'Token');
         Credentials::mockResponse(404, [], 'RoleName');
+        // IMDSv1 fallback retry
+        Credentials::mockResponse(404, [], 'RoleName');
 
         $this->credential = new EcsRamRoleCredential();
 
@@ -160,6 +162,8 @@ class EcsRamRoleCredentialTest extends TestCase
     public function testDefault500()
     {
         Credentials::mockResponse(200, [], 'Token');
+        Credentials::mockResponse(500, [], 'RoleName');
+        // IMDSv1 fallback retry
         Credentials::mockResponse(500, [], 'RoleName');
         $this->credential = new EcsRamRoleCredential();
 
@@ -184,6 +188,8 @@ class EcsRamRoleCredentialTest extends TestCase
         Credentials::mockResponse(200, [], 'Token');
         Credentials::mockResponse(200, [], 'RoleNameTest');
         Credentials::mockResponse(200, [], 'Token');
+        Credentials::mockResponse(200, [], []);
+        // IMDSv1 fallback retry after incomplete credentials body
         Credentials::mockResponse(200, [], []);
 
         $this->credential = new EcsRamRoleCredential();
@@ -237,6 +243,8 @@ class EcsRamRoleCredentialTest extends TestCase
         $credential = new EcsRamRoleCredential('EcsRamRoleTest2');
         Credentials::mockResponse(200, [], 'Token');
         Credentials::mockResponse(200, [], $result);
+        // IMDSv1 fallback retry after incomplete credentials body
+        Credentials::mockResponse(200, [], $result);
         $this->expectException(RuntimeException::class);
         $this->expectExceptionMessage('Error retrieving credentials from IMDS result:{"Expiration":"2049-10-01 00:00:00","AccessKeyId":"foo"}');
         // Test
@@ -260,6 +268,8 @@ class EcsRamRoleCredentialTest extends TestCase
         $credential = new EcsRamRoleCredential('EcsRamRoleTest2');
         Credentials::mockResponse(200, [], 'Token');
         Credentials::mockResponse(200, [], $result);
+        // IMDSv1 fallback retry after Code missing
+        Credentials::mockResponse(200, [], $result);
         $this->expectException(RuntimeException::class);
         $this->expectExceptionMessage('Error retrieving credentials from IMDS result, Code is not Success:{"Expiration":"2049-10-01 00:00:00","AccessKeyId":"foo","AccessKeySecret":"bar","SecurityToken":"token"}');
         // Test
@@ -280,6 +290,8 @@ class EcsRamRoleCredentialTest extends TestCase
         ];
         $credential = new EcsRamRoleCredential('EcsRamRoleTest3');
         Credentials::mockResponse(200, [], 'Token');
+        Credentials::mockResponse(404, [], $result);
+        // IMDSv1 fallback retry
         Credentials::mockResponse(404, [], $result);
 
         $this->expectException(InvalidArgumentException::class);
@@ -303,6 +315,8 @@ class EcsRamRoleCredentialTest extends TestCase
 
         $credential = new EcsRamRoleCredential('EcsRamRoleTest3');
         Credentials::mockResponse(200, [], 'Token');
+        Credentials::mockResponse(500, [], $result);
+        // IMDSv1 fallback retry
         Credentials::mockResponse(500, [], $result);
 
         $this->expectException(RuntimeException::class);
@@ -345,9 +359,9 @@ class EcsRamRoleCredentialTest extends TestCase
 
         $this->expectException(RuntimeException::class);
         if (method_exists($this, 'expectExceptionMessageMatches')) {
-            $this->expectExceptionMessageMatches('/Timeout was reached/');
+            $this->expectExceptionMessageMatches('/Timeout was reached|Connection timed out|cURL error 28/');
         } elseif (method_exists($this, 'expectExceptionMessageRegExp')) {
-            $this->expectExceptionMessageRegExp('/Timeout was reached/');
+            $this->expectExceptionMessageRegExp('/Timeout was reached|Connection timed out|cURL error 28/');
         }
         // Test
         self::assertEquals('foo', $credential->getAccessKeyId());

@@ -4,6 +4,7 @@ namespace AlibabaCloud\Credentials\Tests\Unit\Providers;
 
 use AlibabaCloud\Credentials\Credentials;
 use AlibabaCloud\Credentials\Providers\EcsRamRoleCredentialsProvider;
+use AlibabaCloud\Credentials\Providers\SessionCredentialsProvider;
 use Exception;
 use GuzzleHttp\Exception\GuzzleException;
 use PHPUnit\Framework\TestCase;
@@ -25,6 +26,18 @@ class EcsRamRoleCredentialsProviderTest extends TestCase
     {
         parent::setUp();
         Credentials::cancelMock();
+        putenv('ALIBABA_CLOUD_ECS_METADATA_DISABLED');
+        putenv('ALIBABA_CLOUD_IMDSV1_DISABLED');
+        putenv('ALIBABA_CLOUD_ECS_METADATA');
+        $this->clearCredentialsCache();
+    }
+
+    private function clearCredentialsCache()
+    {
+        $reflection = new ReflectionClass(SessionCredentialsProvider::class);
+        $property = $reflection->getProperty('credentialsCache');
+        $property->setAccessible(true);
+        $property->setValue(null, []);
     }
 
     private function getPrivateField($instance, $field)
@@ -91,15 +104,17 @@ class EcsRamRoleCredentialsProviderTest extends TestCase
         putenv("ALIBABA_CLOUD_ECS_METADATA_DISABLED=true");
         $provider = new EcsRamRoleCredentialsProvider([], []);
 
-        $this->expectException(RuntimeException::class);
-        if (method_exists($this, 'expectExceptionMessageMatches')) {
-            $this->expectExceptionMessageMatches('/IMDS credentials is disabled/');
-        } elseif (method_exists($this, 'expectExceptionMessageRegExp')) {
-            $this->expectExceptionMessageRegExp('/IMDS credentials is disabled/');
+        try {
+            $this->expectException(RuntimeException::class);
+            if (method_exists($this, 'expectExceptionMessageMatches')) {
+                $this->expectExceptionMessageMatches('/IMDS credentials is disabled/');
+            } elseif (method_exists($this, 'expectExceptionMessageRegExp')) {
+                $this->expectExceptionMessageRegExp('/IMDS credentials is disabled/');
+            }
+            $provider->getCredentials();
+        } finally {
+            putenv('ALIBABA_CLOUD_ECS_METADATA_DISABLED');
         }
-        $provider->getCredentials();
-
-        putenv("ALIBABA_CLOUD_ECS_METADATA_DISABLED=");
     }
 
     public function testGetDisableECSIMDSv1()
@@ -226,5 +241,85 @@ class EcsRamRoleCredentialsProviderTest extends TestCase
 
         $request = end($histroy)['request'];
         self::assertEquals(null, $token);
+    }
+
+    public function testFallbackToIMDSv1WhenCredentialGetFailsAfterToken()
+    {
+        $result = [
+            'Expiration' => '2049-10-01 00:00:00',
+            'AccessKeyId' => 'foo',
+            'AccessKeySecret' => 'bar',
+            'SecurityToken' => 'token',
+            'Code' => 'Success',
+        ];
+        $provider = new EcsRamRoleCredentialsProvider([
+            'roleName' => 'test',
+            'disableIMDSv1' => false,
+        ]);
+
+        Credentials::mockResponse(200, [], 'Token');
+        Credentials::mockResponse(500, [], 'v2 failed');
+        Credentials::mockResponse(200, [], $result);
+
+        $credential = $provider->getCredentials();
+        self::assertEquals('foo', $credential->getAccessKeyId());
+        self::assertEquals('bar', $credential->getAccessKeySecret());
+        self::assertEquals('token', $credential->getSecurityToken());
+
+        $history = Credentials::getHistroy();
+        self::assertEquals(3, count($history));
+        self::assertEquals('PUT', $history[0]['request']->getMethod());
+        self::assertTrue($history[1]['request']->hasHeader('X-aliyun-ecs-metadata-token'));
+        self::assertFalse($history[2]['request']->hasHeader('X-aliyun-ecs-metadata-token'));
+    }
+
+    public function testNoFallbackWhenDisableIMDSv1True()
+    {
+        $provider = new EcsRamRoleCredentialsProvider([
+            'roleName' => 'test',
+            'disableIMDSv1' => true,
+        ]);
+
+        Credentials::mockResponse(200, [], 'Token');
+        Credentials::mockResponse(500, [], 'v2 failed');
+
+        $this->expectException(RuntimeException::class);
+        if (method_exists($this, 'expectExceptionMessageMatches')) {
+            $this->expectExceptionMessageMatches('/Error refreshing credentials from IMDS, statusCode: 500/');
+        } elseif (method_exists($this, 'expectExceptionMessageRegExp')) {
+            $this->expectExceptionMessageRegExp('/Error refreshing credentials from IMDS, statusCode: 500/');
+        }
+
+        $provider->getCredentials();
+    }
+
+    public function testFallbackToIMDSv1WhenRoleNameGetFailsAfterToken()
+    {
+        $result = [
+            'Expiration' => '2049-10-01 00:00:00',
+            'AccessKeyId' => 'foo',
+            'AccessKeySecret' => 'bar',
+            'SecurityToken' => 'token',
+            'Code' => 'Success',
+        ];
+        $provider = new EcsRamRoleCredentialsProvider([
+            'disableIMDSv1' => false,
+        ]);
+
+        // getRoleNameFromMeta: token ok, GET with token fails, retry without token ok
+        Credentials::mockResponse(200, [], 'Token');
+        Credentials::mockResponse(404, [], 'not found');
+        Credentials::mockResponse(200, [], 'fallback-role');
+        // refreshCredentials: token + credentials
+        Credentials::mockResponse(200, [], 'Token');
+        Credentials::mockResponse(200, [], $result);
+
+        $credential = $provider->getCredentials();
+        self::assertEquals('foo', $credential->getAccessKeyId());
+        self::assertEquals('fallback-role', $provider->getRoleName());
+
+        $history = Credentials::getHistroy();
+        self::assertEquals(5, count($history));
+        self::assertFalse($history[2]['request']->hasHeader('X-aliyun-ecs-metadata-token'));
     }
 }
