@@ -48,7 +48,7 @@ class Request
         $options['headers']['User-Agent'] = Helper::getUserAgent();
 
         // Turn on debug mode based on environment variable.
-        if (strtolower(Helper::env('DEBUG')) === 'sdk') {
+        if (strtolower((string)Helper::env('DEBUG')) === 'sdk') {
             $options['debug'] = true;
         }
         return $options;
