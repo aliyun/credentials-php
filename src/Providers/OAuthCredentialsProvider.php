@@ -174,13 +174,18 @@ class OAuthCredentialsProvider extends SessionCredentialsProvider
         }
 
         $json = json_decode((string) $result->getBody(), true);
-        if (empty($json) || empty($json['accessKeyId']) || empty($json['accessKeySecret'])
-            || empty($json['securityToken'])) {
+        $accessKeyId = self::getExchangeField($json, 'AccessKeyId', 'accessKeyId');
+        $accessKeySecret = self::getExchangeField($json, 'AccessKeySecret', 'accessKeySecret');
+        $securityToken = self::getExchangeField($json, 'SecurityToken', 'securityToken');
+        $expirationRaw = self::getExchangeField($json, 'Expiration', 'expiration');
+
+        if (empty($json) || empty($accessKeyId) || empty($accessKeySecret)
+            || empty($securityToken)) {
             throw new RuntimeException('Refresh session token from OAuth failed, fail to get credentials: '
                 . (string) $result->getBody());
         }
 
-        $expiration = isset($json['expiration']) ? \strtotime($json['expiration']) : 0;
+        $expiration = !empty($expirationRaw) ? \strtotime($expirationRaw) : 0;
 
         if ($this->tokenUpdateCallback && is_callable($this->tokenUpdateCallback)) {
             try {
@@ -188,9 +193,9 @@ class OAuthCredentialsProvider extends SessionCredentialsProvider
                     $this->tokenUpdateCallback,
                     $this->refreshToken,
                     $this->accessToken,
-                    $json['accessKeyId'],
-                    $json['accessKeySecret'],
-                    $json['securityToken'],
+                    $accessKeyId,
+                    $accessKeySecret,
+                    $securityToken,
                     $this->accessTokenExpire,
                     $expiration
                 );
@@ -200,12 +205,42 @@ class OAuthCredentialsProvider extends SessionCredentialsProvider
         }
 
         return new RefreshResult(new Credentials([
-            'accessKeyId' => $json['accessKeyId'],
-            'accessKeySecret' => $json['accessKeySecret'],
-            'securityToken' => $json['securityToken'],
+            'accessKeyId' => $accessKeyId,
+            'accessKeySecret' => $accessKeySecret,
+            'securityToken' => $securityToken,
             'expiration' => $expiration,
             'providerName' => $this->getProviderName(),
         ]), $this->getStaleTime($expiration));
+    }
+
+    /**
+     * Prefer real-service PascalCase key, then fall back to camelCase.
+     *
+     * @param array|null $json
+     * @param string $primaryKey
+     * @param string $fallbackKey
+     *
+     * @return string|null
+     */
+    public static function getExchangeField($json, $primaryKey, $fallbackKey)
+    {
+        if (!is_array($json)) {
+            return null;
+        }
+        if (isset($json[$primaryKey]) && $json[$primaryKey] !== '') {
+            return (string) $json[$primaryKey];
+        }
+        if (isset($json[$fallbackKey]) && $json[$fallbackKey] !== '') {
+            return (string) $json[$fallbackKey];
+        }
+        if (array_key_exists($primaryKey, $json) && $json[$primaryKey] !== null) {
+            return (string) $json[$primaryKey];
+        }
+        if (array_key_exists($fallbackKey, $json) && $json[$fallbackKey] !== null) {
+            return (string) $json[$fallbackKey];
+        }
+
+        return null;
     }
 
     public function key()
