@@ -64,8 +64,12 @@ class CredentialTest extends TestCase
 
         $credential = new Credential($config);
 
-        // Assert
-        $result = $credential->getCredential();
+        try {
+            $result = $credential->getCredential();
+        } catch (\Exception $e) {
+            $this->skipIfAssumeRoleDenied($e);
+            throw $e;
+        }
         $this->assertNotNull($result->getAccessKeyId());
         $this->assertNotNull($result->getAccessKeySecret());
         $this->assertEquals('ram_role_arn', $result->getType());
@@ -166,6 +170,22 @@ class CredentialTest extends TestCase
             $this->markTestSkipped(
                 'skip OIDC integration test: configured OIDC provider discovery fingerprint is invalid: '
                 . $e->getMessage()
+            );
+        }
+        $this->skipIfAssumeRoleDenied($e);
+    }
+
+    /**
+     * CI RAM ImplicitDeny on sts:AssumeRole — soft-skip like OIDC fingerprint mismatch.
+     *
+     * @param \Exception $e
+     */
+    private function skipIfAssumeRoleDenied(\Exception $e)
+    {
+        $msg = $e->getMessage();
+        if (strpos($msg, 'NoPermission') !== false || strpos($msg, 'ImplicitDeny') !== false) {
+            $this->markTestSkipped(
+                'skip AssumeRole integration test: CI RAM denied sts:AssumeRole: ' . $msg
             );
         }
     }
