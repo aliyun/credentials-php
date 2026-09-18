@@ -49,7 +49,6 @@
         "symfony/dotenv": "^3.4",
         "phpunit/phpunit": "^5.7|^6.5|^8.5|^9.3",
         "monolog/monolog": "^1.24",
-        "composer/composer": "^1.8",
         "mikey179/vfsstream": "^1.6",
         "symfony/var-dumper": "^3.4"
     },
