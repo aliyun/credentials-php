@@ -53,13 +53,9 @@ class CLIProfileCredentialsProviderTest extends TestCase
         return $result;
     }
 
-    /**
-     * @runInSeparateProcess
-     * @preserveGlobalState disabled
-     */
     public function testSharedCloudSSOSessionRefresh()
     {
-        $root = realpath(sys_get_temp_dir()) . DIRECTORY_SEPARATOR . uniqid('cloud-sso-', true);
+        $root = __DIR__ . DIRECTORY_SEPARATOR . uniqid('cloud-sso-', true);
         mkdir($root);
         $config = $root . '/custom.json';
         file_put_contents($config, '{"current":"dev","profiles":[{"name":"dev","mode":"CloudSSO",'
