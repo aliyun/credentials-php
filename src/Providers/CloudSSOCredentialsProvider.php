@@ -21,6 +21,9 @@ class CloudSSOCredentialsProvider extends SessionCredentialsProvider
      */
     private $signInUrl;
 
+    private $loadSession;
+    private $sessionCacheKey;
+
     /**
      * @var string
      */
@@ -76,18 +79,19 @@ class CloudSSOCredentialsProvider extends SessionCredentialsProvider
 
     private function filterParams(array $params)
     {
+        $this->sessionCacheKey = isset($params['sessionCacheKey']) ? $params['sessionCacheKey'] : null;
+        $this->loadSession = isset($params['loadSession']) ? $params['loadSession'] : null;
         $this->signInUrl = isset($params['signInUrl']) ? $params['signInUrl'] : null;
         $this->accountId = isset($params['accountId']) ? $params['accountId'] : null;
         $this->accessConfig = isset($params['accessConfig']) ? $params['accessConfig'] : null;
         $this->accessToken = isset($params['accessToken']) ? $params['accessToken'] : null;
         $this->accessTokenExpire = isset($params['accessTokenExpire']) ? (int) $params['accessTokenExpire'] : 0;
 
-        if (empty($this->accessToken) || $this->accessTokenExpire === 0
-            || $this->accessTokenExpire - time() <= 0) {
+        if ($this->loadSession === null && (empty($this->accessToken) || $this->accessTokenExpire <= time())) {
             throw new InvalidArgumentException('CloudSSO access token is empty or expired, please re-login with cli.');
         }
 
-        if (empty($this->signInUrl) || empty($this->accountId) || empty($this->accessConfig)) {
+        if (($this->loadSession === null && empty($this->signInUrl)) || empty($this->accountId) || empty($this->accessConfig)) {
             throw new InvalidArgumentException('CloudSSO sign in url, account id, and access config cannot be empty.');
         }
     }
@@ -98,7 +102,9 @@ class CloudSSOCredentialsProvider extends SessionCredentialsProvider
      */
     public function refreshCredentials()
     {
-        $parsedUrl = parse_url($this->signInUrl);
+        $session = $this->loadSession === null ? null : call_user_func($this->loadSession);
+        $parsedUrl = parse_url($session === null ? $this->signInUrl : $session['sign_in_url']);
+        $accessToken = $session === null ? $this->accessToken : $session['access_token'];
         $scheme = isset($parsedUrl['scheme']) ? $parsedUrl['scheme'] : 'https';
         $host = isset($parsedUrl['host']) ? $parsedUrl['host'] : '';
 
@@ -116,7 +122,7 @@ class CloudSSOCredentialsProvider extends SessionCredentialsProvider
             'headers' => [
                 'Accept' => 'application/json',
                 'Content-Type' => 'application/json',
-                'Authorization' => 'Bearer ' . $this->accessToken,
+                'Authorization' => 'Bearer ' . $accessToken,
             ],
             'body' => $body,
         ];
@@ -152,7 +158,7 @@ class CloudSSOCredentialsProvider extends SessionCredentialsProvider
 
     public function key()
     {
-        return 'cloud_sso#' . $this->signInUrl . '#' . $this->accountId . '#' . $this->accessConfig;
+        return 'cloud_sso#' . ($this->sessionCacheKey === null ? $this->signInUrl : 'session#' . $this->sessionCacheKey) . '#' . $this->accountId . '#' . $this->accessConfig;
     }
 
     public function getProviderName()

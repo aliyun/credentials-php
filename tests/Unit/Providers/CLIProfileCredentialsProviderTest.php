@@ -53,6 +53,54 @@ class CLIProfileCredentialsProviderTest extends TestCase
         return $result;
     }
 
+    /**
+     * @runInSeparateProcess
+     * @preserveGlobalState disabled
+     */
+    public function testSharedCloudSSOSessionRefresh()
+    {
+        $root = realpath(sys_get_temp_dir()) . DIRECTORY_SEPARATOR . uniqid('cloud-sso-', true);
+        mkdir($root);
+        $config = $root . '/custom.json';
+        file_put_contents($config, '{"current":"dev","profiles":[{"name":"dev","mode":"CloudSSO",'
+            . '"sso_session":"company","cloud_sso_account_id":"account","cloud_sso_access_config":"role"}]}');
+        $namespace = hash('sha256', realpath($config));
+        $dir = $root . '/sso/' . $namespace;
+        mkdir($dir, 0700, true);
+        $session = $dir . '/company.json';
+
+        try {
+            $provider = $this->invokeProtectedFunc($this->provider, 'reloadCredentialsProvider', $config, 'dev');
+            foreach (['first', 'second'] as $token) {
+                file_put_contents($session, json_encode([
+                    'name' => 'company', 'sign_in_url' => 'https://example.test/sign-in',
+                    'access_token' => $token, 'expires_at' => time() + 300,
+                ]));
+                Credentials::mockResponse(200, [], '{"CloudCredential":{"AccessKeyId":"ak","AccessKeySecret":"sk",'
+                    . '"SecurityToken":"sts","Expiration":"2099-01-01T00:00:00Z"}}');
+                $result = $provider->refreshCredentials();
+                self::assertSame('ak', $result->credentials()->getAccessKeyId());
+                $history = Credentials::getHistroy();
+                $request = end($history)['request'];
+                self::assertSame('Bearer ' . $token, $request->getHeaderLine('Authorization'));
+                self::assertSame(['AccountId' => 'account', 'AccessConfigurationId' => 'role'],
+                    json_decode((string) $request->getBody(), true));
+            }
+            unlink($session);
+            $this->expectException(RuntimeException::class);
+            $this->expectExceptionMessage('Unable to read CloudSSO session');
+            $provider->refreshCredentials();
+        } finally {
+            if (is_file($session)) {
+                unlink($session);
+            }
+            rmdir($dir);
+            rmdir($root . '/sso');
+            unlink($config);
+            rmdir($root);
+        }
+    }
+
     public function testConstruct()
     {
         // Setup
