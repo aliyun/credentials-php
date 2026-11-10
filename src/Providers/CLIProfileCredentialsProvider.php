@@ -145,7 +145,19 @@ class CLIProfileCredentialsProvider implements CredentialsProvider
                                     'enableVpc' => Helper::unsetReturnNull($profile, 'enable_vpc'),
                                 ]);
                             case 'CloudSSO':
+                                $sessionName = isset($profile['sso_session']) ? $profile['sso_session'] : '';
+                                $loadSession = null;
+                                if ($sessionName !== '') {
+                                    if (!is_string($sessionName) || !preg_match('/\A[a-z0-9_-]{1,64}\z/', $sessionName)) {
+                                        throw new RuntimeException('Invalid CloudSSO session name.');
+                                    }
+                                    $loadSession = function () use ($profileFile, $sessionName) {
+                                        return $this->loadCloudSSOSession($profileFile, $sessionName);
+                                    };
+                                }
                                 return new CloudSSOCredentialsProvider([
+                                    'loadSession' => $loadSession,
+                                    'sessionCacheKey' => $loadSession === null ? null : hash('sha256', serialize([realpath($profileFile), $sessionName])),
                                     'signInUrl' => Helper::unsetReturnNull($profile, 'cloud_sso_sign_in_url'),
                                     'accountId' => Helper::unsetReturnNull($profile, 'cloud_sso_account_id'),
                                     'accessConfig' => Helper::unsetReturnNull($profile, 'cloud_sso_access_config'),
@@ -256,31 +268,23 @@ class CLIProfileCredentialsProvider implements CredentialsProvider
         }
 
         $jsonContent = file_get_contents($profileFile);
-        $config = json_decode($jsonContent, true);
-        if (empty($config) || !isset($config['profiles'])) {
+        $config = json_decode($jsonContent);
+        if (empty($config) || !isset($config->profiles)) {
             return;
         }
 
-        $oauthProfile = $this->findOAuthProfile($config, $profileName);
+        $oauthProfile = $this->findWritableProfile($config, $profileName, 'OAuth');
         if ($oauthProfile === null) {
             return;
         }
 
-        $oauthProfile['oauth_refresh_token'] = $refreshToken;
-        $oauthProfile['oauth_access_token'] = $accessToken;
-        $oauthProfile['oauth_access_token_expire'] = $accessTokenExpire;
-        $oauthProfile['access_key_id'] = $accessKeyId;
-        $oauthProfile['access_key_secret'] = $accessKeySecret;
-        $oauthProfile['sts_token'] = $securityToken;
-        $oauthProfile['sts_expiration'] = $stsExpire;
-
-        foreach ($config['profiles'] as &$p) {
-            if (isset($p['name']) && $p['name'] === $oauthProfile['name']) {
-                $p = $oauthProfile;
-                break;
-            }
-        }
-        unset($p);
+        $oauthProfile->oauth_refresh_token = $refreshToken;
+        $oauthProfile->oauth_access_token = $accessToken;
+        $oauthProfile->oauth_access_token_expire = $accessTokenExpire;
+        $oauthProfile->access_key_id = $accessKeyId;
+        $oauthProfile->access_key_secret = $accessKeySecret;
+        $oauthProfile->sts_token = $securityToken;
+        $oauthProfile->sts_expiration = $stsExpire;
 
         file_put_contents($profileFile, json_encode($config, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES));
     }
@@ -300,73 +304,33 @@ class CLIProfileCredentialsProvider implements CredentialsProvider
         }
 
         $jsonContent = file_get_contents($profileFile);
-        $config = json_decode($jsonContent, true);
-        if (empty($config) || !isset($config['profiles'])) {
+        $config = json_decode($jsonContent);
+        if (empty($config) || !isset($config->profiles)) {
             return;
         }
 
-        $externalProfile = $this->findExternalProfile($config, $profileName);
+        $externalProfile = $this->findWritableProfile($config, $profileName, 'External');
         if ($externalProfile === null) {
             return;
         }
 
-        $externalProfile['access_key_id'] = $accessKeyId;
-        $externalProfile['access_key_secret'] = $accessKeySecret;
-        $externalProfile['sts_token'] = $securityToken;
-        $externalProfile['sts_expiration'] = $expiration;
-
-        foreach ($config['profiles'] as &$p) {
-            if (isset($p['name']) && $p['name'] === $externalProfile['name']) {
-                $p = $externalProfile;
-                break;
-            }
-        }
-        unset($p);
+        $externalProfile->access_key_id = $accessKeyId;
+        $externalProfile->access_key_secret = $accessKeySecret;
+        $externalProfile->sts_token = $securityToken;
+        $externalProfile->sts_expiration = $expiration;
 
         file_put_contents($profileFile, json_encode($config, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES));
     }
 
-    /**
-     * @param array $config
-     * @param string $profileName
-     * @return array|null
-     */
-    private function findOAuthProfile($config, $profileName)
+    private function findWritableProfile($config, $profileName, $mode)
     {
-        if (!isset($config['profiles'])) {
-            return null;
-        }
-        foreach ($config['profiles'] as $p) {
-            if (isset($p['name']) && $p['name'] === $profileName) {
-                if (isset($p['mode']) && $p['mode'] === 'OAuth') {
-                    return $p;
+        foreach ($config->profiles as $profile) {
+            if (isset($profile->name) && $profile->name === $profileName) {
+                if (isset($profile->mode) && $profile->mode === $mode) {
+                    return $profile;
                 }
-                if (!empty($p['source_profile'])) {
-                    return $this->findOAuthProfile($config, $p['source_profile']);
-                }
-                return null;
-            }
-        }
-        return null;
-    }
-
-    /**
-     * @param array $config
-     * @param string $profileName
-     * @return array|null
-     */
-    private function findExternalProfile($config, $profileName)
-    {
-        if (!isset($config['profiles'])) {
-            return null;
-        }
-        foreach ($config['profiles'] as $p) {
-            if (isset($p['name']) && $p['name'] === $profileName) {
-                if (isset($p['mode']) && $p['mode'] === 'External') {
-                    return $p;
-                }
-                if (!empty($p['source_profile'])) {
-                    return $this->findExternalProfile($config, $p['source_profile']);
+                if (!empty($profile->source_profile)) {
+                    return $this->findWritableProfile($config, $profile->source_profile, $mode);
                 }
                 return null;
             }
@@ -379,6 +343,35 @@ class CLIProfileCredentialsProvider implements CredentialsProvider
      *
      * @return string
      */
+    private function loadCloudSSOSession($profileFile, $name)
+    {
+        clearstatcache(true);
+        $configPath = realpath($profileFile);
+        $defaultPath = Helper::inOpenBasedir($this->getDefaultFile()) ? realpath($this->getDefaultFile()) : false;
+        if ($configPath === false) {
+            throw new RuntimeException('Unable to resolve CloudSSO profile file.');
+        }
+        $dir = dirname($configPath) . DIRECTORY_SEPARATOR . 'sso';
+        if ($configPath !== $defaultPath) {
+            $dir .= DIRECTORY_SEPARATOR . hash('sha256', $configPath);
+        }
+        $file = $dir . DIRECTORY_SEPARATOR . $name . '.json';
+        $json = Helper::inOpenBasedir($file) && is_file($file) ? @file_get_contents($file) : false;
+        if ($json === false) {
+            throw new RuntimeException('Unable to read CloudSSO session ' . $name);
+        }
+        $session = json_decode($json, true);
+        if (!is_array($session) || !isset($session['name'], $session['sign_in_url'])
+            || $session['name'] !== $name || !is_string($session['sign_in_url']) || $session['sign_in_url'] === '') {
+            throw new RuntimeException('Invalid CloudSSO session ' . $name);
+        }
+        if (!isset($session['access_token'], $session['expires_at']) || !is_string($session['access_token'])
+            || $session['access_token'] === '' || !is_int($session['expires_at']) || $session['expires_at'] <= time()) {
+            throw new RuntimeException('CloudSSO access token is empty or expired, please re-login with CLI.');
+        }
+        return $session;
+    }
+
     private function getDefaultFile()
     {
         return Helper::getHomeDirectory() .
