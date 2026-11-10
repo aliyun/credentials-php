@@ -109,6 +109,34 @@ class CLIProfileCredentialsProviderTest extends TestCase
         }
     }
 
+    public function testWritebackPreservesSharedSessionAndUnknownFields()
+    {
+        $file = tempnam(__DIR__, 'cli-writeback-');
+        try {
+            foreach (['OAuth', 'External'] as $mode) {
+                $fixture = '{"current":"writer","future_config":{"empty":{},"nullable":null},"profiles":'
+                    . '[{"name":"writer","mode":"' . $mode . '","future_writer":{}},'
+                    . '{"name":"shared","mode":"CloudSSO","sso_session":"company","future_profile":{"empty":{}}}]}';
+                file_put_contents($file, $fixture);
+                if ($mode === 'OAuth') {
+                    $this->invokeProtectedFunc($this->provider, 'updateOAuthTokens', $file, 'writer',
+                        'refresh', 'access', 'new-ak', 'secret', 'token', 100, 200);
+                } else {
+                    $this->invokeProtectedFunc($this->provider, 'updateExternalCredentials', $file, 'writer',
+                        'new-ak', 'secret', 'token', 200);
+                }
+                $before = json_decode($fixture);
+                $after = json_decode(file_get_contents($file));
+                self::assertSame('new-ak', $after->profiles[0]->access_key_id);
+                self::assertSame('{}', json_encode($after->profiles[0]->future_writer));
+                self::assertSame(json_encode($before->profiles[1]), json_encode($after->profiles[1]));
+                self::assertSame(json_encode($before->future_config), json_encode($after->future_config));
+            }
+        } finally {
+            unlink($file);
+        }
+    }
+
     public function testConstruct()
     {
         // Setup
