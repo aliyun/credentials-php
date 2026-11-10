@@ -71,6 +71,18 @@ class CLIProfileCredentialsProviderTest extends TestCase
 
         try {
             $provider = $this->invokeProtectedFunc($this->provider, 'reloadCredentialsProvider', $config, 'dev');
+            foreach ([
+                '{"name":"wrong","sign_in_url":"https://example.test"}' => 'Invalid CloudSSO session',
+                '{"name":"company","sign_in_url":"https://example.test","access_token":"expired","expires_at":1}' => 'expired',
+            ] as $contents => $message) {
+                file_put_contents($session, $contents);
+                try {
+                    $provider->refreshCredentials();
+                    self::fail('Expected an invalid shared session to be rejected');
+                } catch (RuntimeException $exception) {
+                    self::assertNotFalse(strpos($exception->getMessage(), $message));
+                }
+            }
             foreach (['first', 'second'] as $token) {
                 file_put_contents($session, json_encode([
                     'name' => 'company', 'sign_in_url' => 'https://example.test/sign-in',
