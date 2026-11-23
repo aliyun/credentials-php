@@ -53,6 +53,90 @@ class CLIProfileCredentialsProviderTest extends TestCase
         return $result;
     }
 
+    public function testSharedCloudSSOSessionRefresh()
+    {
+        $root = __DIR__ . DIRECTORY_SEPARATOR . uniqid('cloud-sso-', true);
+        mkdir($root);
+        $config = $root . '/custom.json';
+        file_put_contents($config, '{"current":"dev","profiles":[{"name":"dev","mode":"CloudSSO",'
+            . '"sso_session":"company","cloud_sso_account_id":"account","cloud_sso_access_config":"role"}]}');
+        $namespace = hash('sha256', realpath($config));
+        $dir = $root . '/sso/' . $namespace;
+        mkdir($dir, 0700, true);
+        $session = $dir . '/company.json';
+
+        try {
+            $provider = $this->invokeProtectedFunc($this->provider, 'reloadCredentialsProvider', $config, 'dev');
+            foreach ([
+                '{"name":"wrong","sign_in_url":"https://example.test"}' => 'Invalid CloudSSO session',
+                '{"name":"company","sign_in_url":"https://example.test","access_token":"expired","expires_at":1}' => 'expired',
+            ] as $contents => $message) {
+                file_put_contents($session, $contents);
+                try {
+                    $provider->refreshCredentials();
+                    self::fail('Expected an invalid shared session to be rejected');
+                } catch (RuntimeException $exception) {
+                    self::assertNotFalse(strpos($exception->getMessage(), $message));
+                }
+            }
+            foreach (['first', 'second'] as $token) {
+                file_put_contents($session, json_encode([
+                    'name' => 'company', 'sign_in_url' => 'https://example.test/sign-in',
+                    'access_token' => $token, 'expires_at' => time() + 300,
+                ]));
+                Credentials::mockResponse(200, [], '{"CloudCredential":{"AccessKeyId":"ak","AccessKeySecret":"sk",'
+                    . '"SecurityToken":"sts","Expiration":"2099-01-01T00:00:00Z"}}');
+                $result = $provider->refreshCredentials();
+                self::assertSame('ak', $result->credentials()->getAccessKeyId());
+                $history = Credentials::getHistroy();
+                $request = end($history)['request'];
+                self::assertSame('Bearer ' . $token, $request->getHeaderLine('Authorization'));
+                self::assertSame(['AccountId' => 'account', 'AccessConfigurationId' => 'role'],
+                    json_decode((string) $request->getBody(), true));
+            }
+            unlink($session);
+            $this->expectException(RuntimeException::class);
+            $this->expectExceptionMessage('Unable to read CloudSSO session');
+            $provider->refreshCredentials();
+        } finally {
+            if (is_file($session)) {
+                unlink($session);
+            }
+            rmdir($dir);
+            rmdir($root . '/sso');
+            unlink($config);
+            rmdir($root);
+        }
+    }
+
+    public function testWritebackPreservesSharedSessionAndUnknownFields()
+    {
+        $file = tempnam(__DIR__, 'cli-writeback-');
+        try {
+            foreach (['OAuth', 'External'] as $mode) {
+                $fixture = '{"current":"writer","future_config":{"empty":{},"nullable":null},"profiles":'
+                    . '[{"name":"writer","mode":"' . $mode . '","future_writer":{}},'
+                    . '{"name":"shared","mode":"CloudSSO","sso_session":"company","future_profile":{"empty":{}}}]}';
+                file_put_contents($file, $fixture);
+                if ($mode === 'OAuth') {
+                    $this->invokeProtectedFunc($this->provider, 'updateOAuthTokens', $file, 'writer',
+                        'refresh', 'access', 'new-ak', 'secret', 'token', 100, 200);
+                } else {
+                    $this->invokeProtectedFunc($this->provider, 'updateExternalCredentials', $file, 'writer',
+                        'new-ak', 'secret', 'token', 200);
+                }
+                $before = json_decode($fixture);
+                $after = json_decode(file_get_contents($file));
+                self::assertSame('new-ak', $after->profiles[0]->access_key_id);
+                self::assertSame('{}', json_encode($after->profiles[0]->future_writer));
+                self::assertSame(json_encode($before->profiles[1]), json_encode($after->profiles[1]));
+                self::assertSame(json_encode($before->future_config), json_encode($after->future_config));
+            }
+        } finally {
+            unlink($file);
+        }
+    }
+
     public function testConstruct()
     {
         // Setup
