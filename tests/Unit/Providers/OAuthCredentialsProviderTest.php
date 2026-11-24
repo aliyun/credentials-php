@@ -102,7 +102,7 @@ class OAuthCredentialsProviderTest extends TestCase
 
     public function testGetCredentialsSuccess()
     {
-        $result = '{"accessKeyId":"ak","accessKeySecret":"sk","securityToken":"token","expiration":"2049-10-20T04:27:09Z"}';
+        $result = '{"AccessKeyId":"ak","AccessKeySecret":"sk","SecurityToken":"token","Expiration":"2049-10-20T04:27:09Z"}';
         Credentials::mockResponse(200, [], $result);
 
         $provider = new OAuthCredentialsProvider([
@@ -123,6 +123,46 @@ class OAuthCredentialsProviderTest extends TestCase
         self::assertEquals('ak', $cred->getAccessKeyId());
         self::assertEquals('sk', $cred->getAccessKeySecret());
         self::assertEquals('oauth', $cred->getProviderName());
+    }
+
+    public function testGetCredentialsCamelCaseFallback()
+    {
+        $result = '{"accessKeyId":"ak","accessKeySecret":"sk","securityToken":"token","expiration":"2049-10-20T04:27:09Z"}';
+        Credentials::mockResponse(200, [], $result);
+
+        $provider = new OAuthCredentialsProvider([
+            'clientId' => 'clientId-camel',
+            'signInUrl' => 'https://oauth.aliyun.com',
+            'refreshToken' => 'refreshToken',
+            'accessToken' => 'accessToken',
+            'accessTokenExpire' => time() + 5000,
+        ]);
+
+        $cred = $provider->getCredentials();
+        self::assertEquals('ak', $cred->getAccessKeyId());
+        self::assertEquals('sk', $cred->getAccessKeySecret());
+        self::assertEquals('token', $cred->getSecurityToken());
+    }
+
+    public function testGetExchangeFieldPrefersPascalCase()
+    {
+        self::assertEquals('p', OAuthCredentialsProvider::getExchangeField(
+            ['AccessKeyId' => 'p', 'accessKeyId' => 'c'],
+            'AccessKeyId',
+            'accessKeyId'
+        ));
+        self::assertEquals('c', OAuthCredentialsProvider::getExchangeField(
+            ['accessKeyId' => 'c'],
+            'AccessKeyId',
+            'accessKeyId'
+        ));
+        self::assertNull(OAuthCredentialsProvider::getExchangeField([], 'AccessKeyId', 'accessKeyId'));
+        self::assertNull(OAuthCredentialsProvider::getExchangeField(null, 'AccessKeyId', 'accessKeyId'));
+        self::assertEquals('', OAuthCredentialsProvider::getExchangeField(
+            ['AccessKeyId' => ''],
+            'AccessKeyId',
+            'accessKeyId'
+        ));
     }
 
     public function testGetCredentials500Error()
@@ -173,7 +213,7 @@ class OAuthCredentialsProviderTest extends TestCase
     public function testTokenRefresh()
     {
         $refreshResponse = '{"access_token":"new_access","refresh_token":"new_refresh","expires_in":3600}';
-        $exchangeResponse = '{"accessKeyId":"ak","accessKeySecret":"sk","securityToken":"token","expiration":"2049-10-20T04:27:09Z"}';
+        $exchangeResponse = '{"AccessKeyId":"ak","AccessKeySecret":"sk","SecurityToken":"token","Expiration":"2049-10-20T04:27:09Z"}';
         Credentials::mockResponse(200, [], $refreshResponse);
         Credentials::mockResponse(200, [], $exchangeResponse);
 
@@ -252,7 +292,7 @@ class OAuthCredentialsProviderTest extends TestCase
             $capturedArgs = func_get_args();
         };
 
-        $exchangeResponse = '{"accessKeyId":"ak","accessKeySecret":"sk","securityToken":"token","expiration":"2049-10-20T04:27:09Z"}';
+        $exchangeResponse = '{"AccessKeyId":"ak","AccessKeySecret":"sk","SecurityToken":"token","Expiration":"2049-10-20T04:27:09Z"}';
         Credentials::mockResponse(200, [], $exchangeResponse);
 
         $provider = new OAuthCredentialsProvider([
